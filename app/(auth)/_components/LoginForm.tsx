@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginData } from "../schema";
 
 export default function LoginForm() {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -17,13 +20,24 @@ export default function LoginForm() {
 
   const onSubmit = (data: LoginData) => {
     console.log("Login data:", data);
-    // later: call login API here
+
+    // ✅ after login → dashboard
+    router.push("/home");
   };
 
   return (
-    <div className="w-full max-w-md rounded-[28px] bg-white px-8 py-10 shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
+    <div className="relative w-full max-w-md rounded-[28px] bg-white px-8 py-10 shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
+      
+      {/* 🔙 Back Button */}
+      <button
+        onClick={() => router.push("/")}
+        className="absolute left-6 top-6 rounded-full bg-[#1a4d3f] px-4 py-2 text-xs font-medium text-white hover:bg-[#134237] transition"
+      >
+        ← Back
+      </button>
+
       {/* Logo */}
-      <div className="mb-8 text-center">
+      <div className="mb-8 text-center mt-6">
         <div className="mb-5 flex justify-center">
           <Image
             src="/novacane.png"
@@ -82,6 +96,7 @@ export default function LoginForm() {
           )}
         </div>
 
+        {/* Login Button */}
         <button
           type="submit"
           className="mt-6 w-full rounded-full bg-[#1a4d3f] py-3.5 text-sm font-semibold text-white transition hover:bg-[#134237]"
