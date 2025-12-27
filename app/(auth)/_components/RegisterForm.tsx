@@ -21,17 +21,23 @@ export default function RegisterForm() {
   const onSubmit = async (data: RegisterData) => {
     console.log("Register Data:", data);
 
-    // Simulate backend success
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("userEmail", data.email);
-
-    router.push("/home");
+    
+    router.push("/login");
   };
 
   return (
-    <div className="w-full max-w-md rounded-[28px] bg-white px-8 py-10 shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
+    <div className="relative w-full max-w-md rounded-[28px] bg-white px-8 py-10 shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
+
+      {/* Back Button */}
+      <button
+        onClick={() => router.push("/")}
+        className="absolute left-6 top-6 rounded-full bg-[#1a4d3f] px-4 py-2 text-xs font-medium text-white hover:bg-[#134237] transition"
+      >
+        ← Back
+      </button>
+
       {/* Logo */}
-      <div className="mb-8 text-center">
+      <div className="mb-8 text-center mt-6">
         <div className="mb-5 flex justify-center">
           <Image
             src="/novacane.png"
@@ -108,6 +114,7 @@ export default function RegisterForm() {
           )}
         </div>
 
+        {/* Get Started Button */}
         <button
           type="submit"
           disabled={isSubmitting}
