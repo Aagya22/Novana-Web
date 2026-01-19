@@ -6,23 +6,34 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginData } from "../schema";
+import { useState } from "react";
+import { handleLogin } from "@/lib/actions/auth-action";
 
 export default function LoginForm() {
   const router = useRouter();
+  const [error, setError] = useState("");
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<LoginData>({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data: LoginData) => {
-    console.log("Login data:", data);
-
-    // ✅ after login → dashboard
-    router.push("/home");
+  const onSubmit = async (data: LoginData) => {
+    setError("");
+    try {
+      const result = await handleLogin(data);
+      if (result.success) {
+        router.push("/home");
+      } else {
+        setError(result.message || "Login failed");
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Login failed";
+      setError(errorMessage);
+    }
   };
 
   return (
@@ -57,6 +68,10 @@ export default function LoginForm() {
           Continue your wellness journey with Novana
         </p>
       </div>
+
+      {error && (
+        <p className="text-sm text-red-500 text-center mb-4">{error}</p>
+      )}
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -99,9 +114,10 @@ export default function LoginForm() {
         {/* Login Button */}
         <button
           type="submit"
-          className="mt-6 w-full rounded-full bg-[#1a4d3f] py-3.5 text-sm font-semibold text-white transition hover:bg-[#134237]"
+          disabled={isSubmitting}
+          className="mt-6 w-full rounded-full bg-[#1a4d3f] py-3.5 text-sm font-semibold text-white transition hover:bg-[#134237] disabled:opacity-60"
         >
-          Log in
+          {isSubmitting ? "Logging in..." : "Log in"}
         </button>
       </form>
 
