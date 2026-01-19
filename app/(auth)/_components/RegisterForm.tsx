@@ -6,9 +6,12 @@ import { registerSchema, RegisterData } from "../schema";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { handleRegister } from "@/lib/actions/auth-action";
 
 export default function RegisterForm() {
   const router = useRouter();
+  const [error, setError] = useState("");
 
   const {
     register,
@@ -19,10 +22,17 @@ export default function RegisterForm() {
   });
 
   const onSubmit = async (data: RegisterData) => {
-    console.log("Register Data:", data);
-
-    
-    router.push("/login");
+    setError("");
+    try {
+      const result = await handleRegister(data);
+      if (result.success) {
+        router.push("/login");
+      } else {
+        setError(result.message || "Registration failed");
+      }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Registration failed");
+    }
   };
 
   return (
@@ -37,19 +47,18 @@ export default function RegisterForm() {
       </button>
 
       {/* Logo */}
-      <div className="mb-8 text-center mt-6">
+      <div className="mb-8 mt-6 text-center">
         <div className="mb-5 flex justify-center">
           <Image
             src="/novacane.png"
             alt="Novana logo"
             width={120}
             height={80}
-            className="object-contain"
             priority
           />
         </div>
 
-        <h1 className="text-[26px] font-semibold text-gray-900 mb-2">
+        <h1 className="mb-2 text-[26px] font-semibold text-gray-900">
           Welcome to Novana
         </h1>
 
@@ -58,67 +67,126 @@ export default function RegisterForm() {
         </p>
       </div>
 
+      {error && (
+        <p className="mb-4 text-center text-sm text-red-500">{error}</p>
+      )}
+
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+
         {/* Full Name */}
         <div>
-          <label className="block text-[13px] font-medium text-gray-800 mb-1">
+          <label className="mb-1 block text-[13px] font-medium text-gray-800">
             Full Name
           </label>
           <input
             {...register("fullName")}
             type="text"
-            placeholder="Enter your name"
-            className="w-full rounded-full border border-emerald-100 bg-emerald-50/60 px-5 py-3 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+            placeholder="Enter your full name"
+            className="w-full rounded-full border border-emerald-100 bg-emerald-50/60 px-5 py-3 text-sm focus:ring-2 focus:ring-emerald-600"
           />
           {errors.fullName && (
-            <p className="text-[11px] text-red-500 mt-1">
+            <p className="mt-1 text-[11px] text-red-500">
               {errors.fullName.message}
+            </p>
+          )}
+        </div>
+
+        {/* Username */}
+        <div>
+          <label className="mb-1 block text-[13px] font-medium text-gray-800">
+            Username
+          </label>
+          <input
+            {...register("username")}
+            type="text"
+            placeholder="Choose a username"
+            className="w-full rounded-full border border-emerald-100 bg-emerald-50/60 px-5 py-3 text-sm focus:ring-2 focus:ring-emerald-600"
+          />
+          {errors.username && (
+            <p className="mt-1 text-[11px] text-red-500">
+              {errors.username.message}
             </p>
           )}
         </div>
 
         {/* Email */}
         <div>
-          <label className="block text-[13px] font-medium text-gray-800 mb-1">
+          <label className="mb-1 block text-[13px] font-medium text-gray-800">
             Email
           </label>
           <input
             {...register("email")}
             type="email"
             placeholder="Enter your email"
-            className="w-full rounded-full border border-emerald-100 bg-emerald-50/60 px-5 py-3 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+            className="w-full rounded-full border border-emerald-100 bg-emerald-50/60 px-5 py-3 text-sm focus:ring-2 focus:ring-emerald-600"
           />
           {errors.email && (
-            <p className="text-[11px] text-red-500 mt-1">
+            <p className="mt-1 text-[11px] text-red-500">
               {errors.email.message}
+            </p>
+          )}
+        </div>
+
+        {/* Phone Number */}
+        <div>
+          <label className="mb-1 block text-[13px] font-medium text-gray-800">
+            Phone Number
+          </label>
+          <input
+            {...register("phoneNumber")}
+            type="tel"
+            placeholder="Enter your phone number"
+            className="w-full rounded-full border border-emerald-100 bg-emerald-50/60 px-5 py-3 text-sm focus:ring-2 focus:ring-emerald-600"
+          />
+          {errors.phoneNumber && (
+            <p className="mt-1 text-[11px] text-red-500">
+              {errors.phoneNumber.message}
             </p>
           )}
         </div>
 
         {/* Password */}
         <div>
-          <label className="block text-[13px] font-medium text-gray-800 mb-1">
+          <label className="mb-1 block text-[13px] font-medium text-gray-800">
             Password
           </label>
           <input
             {...register("password")}
             type="password"
             placeholder="Enter your password"
-            className="w-full rounded-full border border-emerald-100 bg-emerald-50/60 px-5 py-3 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+            className="w-full rounded-full border border-emerald-100 bg-emerald-50/60 px-5 py-3 text-sm focus:ring-2 focus:ring-emerald-600"
           />
           {errors.password && (
-            <p className="text-[11px] text-red-500 mt-1">
+            <p className="mt-1 text-[11px] text-red-500">
               {errors.password.message}
             </p>
           )}
         </div>
 
-        {/* Get Started Button */}
+        {/* Confirm Password */}
+        <div>
+          <label className="mb-1 block text-[13px] font-medium text-gray-800">
+            Confirm Password
+          </label>
+          <input
+            {...register("confirmPassword")}
+            type="password"
+            placeholder="Confirm your password"
+            className="w-full rounded-full border border-emerald-100 bg-emerald-50/60 px-5 py-3 text-sm focus:ring-2 focus:ring-emerald-600"
+          />
+          {errors.confirmPassword && (
+            <p className="mt-1 text-[11px] text-red-500">
+              {errors.confirmPassword.message}
+            </p>
+          )}
+        </div>
+
+        {/* Submit */}
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-6 w-full rounded-full bg-[#1a4d3f] py-3.5 text-sm font-semibold text-white transition hover:bg-[#134237] disabled:opacity-60"
+          className="mt-6 w-full rounded-full bg-[#1a4d3f] py-3.5 text-sm font-semibold text-white hover:bg-[#134237] disabled:opacity-60"
         >
           {isSubmitting ? "Creating account..." : "Get Started"}
         </button>
@@ -127,10 +195,7 @@ export default function RegisterForm() {
       {/* Footer */}
       <p className="mt-8 text-center text-sm text-gray-700">
         Already have an account?{" "}
-        <Link
-          href="/login"
-          className="font-medium text-[#1a4d3f] hover:underline"
-        >
+        <Link href="/login" className="font-medium text-[#1a4d3f] hover:underline">
           Log in
         </Link>
       </p>
