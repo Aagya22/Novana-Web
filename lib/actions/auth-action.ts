@@ -1,6 +1,7 @@
 //server side processing of auth actions
 "use server";
 import {register, login} from "../api/auth";
+import { setAuthToken, setUserData } from "../cookie";
 import { RegisterData, LoginData } from "../../app/(auth)/schema";
 
 export const handleRegister=async (formData: RegisterData) => {
@@ -27,6 +28,16 @@ export const handleLogin=async (formData: LoginData) => {
     try{
         const result =await login(formData);
         if(result.success){
+            // persist token and user data as cookies (server-side)
+            try{
+                await setAuthToken(result.data?.token);
+                // result.data.user may be partial depending on backend; cast to any
+                await setUserData(result.data?.user as any);
+            }catch(cookieErr){
+                // swallow cookie errors but log for debugging
+                console.error('Failed to set auth cookies', cookieErr);
+            }
+
             return{
                 success: true,
                 message: "Login Successful",
