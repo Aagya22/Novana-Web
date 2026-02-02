@@ -24,32 +24,30 @@ export const handleRegister=async (formData: RegisterData) => {
     }
     }
 
-export const handleLogin=async (formData: LoginData) => {
-    try{
-        const result =await login(formData);
-        if(result.success){
-            // persist token and user data as cookies (server-side)
-            try{
-                await setAuthToken(result.data?.token);
-                // result.data.user may be partial depending on backend; cast to any
-                await setUserData(result.data?.user as any);
-            }catch(cookieErr){
-                // swallow cookie errors but log for debugging
-                console.error('Failed to set auth cookies', cookieErr);
-            }
+export const handleLogin = async (formData: LoginData, options?: { persist?: boolean }) => {
+  const persist = options?.persist !== false;
 
-            return{
-                success: true,
-                message: "Login Successful",
-                data:result.data
-            };
-        }
-        return{
-            success:false,message:result.message||"Login failed"
+  try {
+    const result = await login(formData);
 
-        }
-    }catch(err: unknown){
-        const errorMessage = err instanceof Error ? err.message : "Login failed";
-        return{success:false,message:errorMessage};
+    if (!result.success) {
+      return { success: false, message: result.message || "Login failed" };
     }
+
+    if (persist) {
+      await setAuthToken(result.token);
+      await setUserData(result.data as any);
     }
+
+    return {
+      success: true,
+      message: "Login Successful",
+      data: result.data,
+      token: result.token 
+    };
+
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Login failed";
+    return { success: false, message: errorMessage };
+  }
+};
