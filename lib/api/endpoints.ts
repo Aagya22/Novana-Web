@@ -1,8 +1,8 @@
-// List of api routes
-// Single source of truth for api endpoints
-
 export const API = {
- AUTH:{
-    REGISTER: '/api/auth/register',
-    LOGIN: '/api/auth/login',}
+  AUTH: {
+    REGISTER: "/api/auth/register",
+    LOGIN: "/api/auth/login",
+    WHOAMI: "/api/auth/whoami",
+    UPDATE_PROFILE: "/api/auth/update-profile",
+  },
 };

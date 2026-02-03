@@ -8,10 +8,13 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { handleRegister } from "@/lib/actions/auth-action";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function RegisterForm() {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -23,182 +26,143 @@ export default function RegisterForm() {
 
   const onSubmit = async (data: RegisterData) => {
     setError("");
-    try {
-      const result = await handleRegister(data);
-      if (result.success) {
-        router.push("/login");
-      } else {
-        setError(result.message || "Registration failed");
-      }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Registration failed");
-    }
+    const result = await handleRegister(data);
+    if (result?.success) router.push("/login");
+    else setError(result?.message || "Registration failed");
   };
 
   return (
-    <div className="relative w-full max-w-md rounded-[28px] bg-white px-8 py-10 shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
+    <div className="min-h-screen w-full  flex items-center justify-center px-4 font-sans">
 
-      {/* Back Button */}
-      <button
-        onClick={() => router.push("/")}
-        className="absolute left-6 top-6 rounded-full bg-[#1a4d3f] px-4 py-2 text-xs font-medium text-white hover:bg-[#134237] transition"
-      >
-        ← Back
-      </button>
+      {/* 🔹 SMALLER, CLEANER CARD */}
+      <div className="w-full max-w-lg md:max-w-5xl bg-white rounded-[28px] shadow-[0_10px_40px_rgba(0,0,0,0.18)] overflow-hidden md:flex">
 
-      {/* Logo */}
-      <div className="mb-8 mt-6 text-center">
-        <div className="mb-5 flex justify-center">
+        {/* IMAGE */}
+        <div className="relative hidden md:block md:w-1/2">
           <Image
-            src="/novacane.png"
-            alt="Novana logo"
-            width={120}
-            height={80}
+            src="/medd.jpeg"
+            alt="Meditation"
+            fill
+            className="object-cover"
             priority
           />
         </div>
 
-        <h1 className="mb-2 text-[26px] font-semibold text-gray-900">
-          Welcome to Novana
-        </h1>
+        {/* FORM */}
+        <div className="w-full md:w-1/2 px-6 py-8 sm:px-8">
 
-        <p className="text-[14px] leading-6 text-gray-500">
-          Your personal space for mindfulness, growth, and wellbeing
-        </p>
+          <button
+            onClick={() => router.push("/")}
+            className="mb-5 inline-flex items-center rounded-full bg-[#1a4d3f] px-4 py-1.5 text-xs font-medium text-white hover:bg-[#134237]"
+          >
+            ← Back
+          </button>
+
+          {/* 🔹 Pinterest-style heading */}
+          <h1 className="text-2xl font-semibold tracking-tight text-[#1a4d3f]">
+            Welcome!
+          </h1>
+          <p className="mb-5 text-sm text-gray-500">
+            Sign up to continue
+          </p>
+
+          {error && (
+            <p className="mb-3 text-xs text-red-500">{error}</p>
+          )}
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+
+            <Input label="Full Name" placeholder="Type your name" register={register("fullName")} error={errors.fullName?.message} />
+            <Input label="Username" placeholder="Choose a username" register={register("username")} error={errors.username?.message} />
+            <Input label="E-mail" type="email" placeholder="Type your e-mail" register={register("email")} error={errors.email?.message} />
+            <Input label="Phone Number" placeholder="Enter phone number" register={register("phoneNumber")} error={errors.phoneNumber?.message} />
+
+            <PasswordInput
+              label="Password"
+              placeholder="Create a password"
+              register={register("password")}
+              show={showPassword}
+              toggle={() => setShowPassword(!showPassword)}
+              error={errors.password?.message}
+            />
+
+            <PasswordInput
+              label="Repeat Password"
+              placeholder="Repeat your password"
+              register={register("confirmPassword")}
+              show={showConfirmPassword}
+              toggle={() => setShowConfirmPassword(!showConfirmPassword)}
+              error={errors.confirmPassword?.message}
+            />
+
+            {/* 🔹 Softer Pinterest-style button */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="mt-4 w-full rounded-full bg-[#1a4d3f] py-2.5 text-sm font-semibold text-white
+                         transition hover:bg-[#134237] active:scale-[0.98]"
+            >
+              {isSubmitting ? "Creating account..." : "Sign Up"}
+            </button>
+          </form>
+
+          <p className="mt-5 text-center text-xs text-gray-600">
+            Already have an account?{" "}
+            <Link href="/login" className="font-medium text-[#1a4d3f] hover:underline">
+              Login
+            </Link>
+          </p>
+        </div>
       </div>
+    </div>
+  );
+}
 
-      {error && (
-        <p className="mb-4 text-center text-sm text-red-500">{error}</p>
-      )}
+/* ---------------- UI-ONLY INPUT STYLES ---------------- */
 
-      {/* Form */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+function Input({ label, placeholder, type = "text", register, error }: any) {
+  return (
+    <div>
+      <label className="block text-xs font-medium text-gray-600 mb-1">
+        {label}
+      </label>
+      <input
+        type={type}
+        placeholder={placeholder}
+        {...register}
+        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm
+                   placeholder-gray-400 transition
+                   focus:bg-white focus:border-[#1a4d3f] focus:ring-2 focus:ring-[#1a4d3f]/20
+                   hover:border-gray-300"
+      />
+      {error && <p className="mt-0.5 text-[11px] text-red-500">{error}</p>}
+    </div>
+  );
+}
 
-        {/* Full Name */}
-        <div>
-          <label className="mb-1 block text-[13px] font-medium text-gray-800">
-            Full Name
-          </label>
-          <input
-            {...register("fullName")}
-            type="text"
-            placeholder="Enter your full name"
-            className="w-full rounded-full border border-emerald-100 bg-emerald-50/60 px-5 py-3 text-sm focus:ring-2 focus:ring-emerald-600"
-          />
-          {errors.fullName && (
-            <p className="mt-1 text-[11px] text-red-500">
-              {errors.fullName.message}
-            </p>
-          )}
-        </div>
-
-        {/* Username */}
-        <div>
-          <label className="mb-1 block text-[13px] font-medium text-gray-800">
-            Username
-          </label>
-          <input
-            {...register("username")}
-            type="text"
-            placeholder="Choose a username"
-            className="w-full rounded-full border border-emerald-100 bg-emerald-50/60 px-5 py-3 text-sm focus:ring-2 focus:ring-emerald-600"
-          />
-          {errors.username && (
-            <p className="mt-1 text-[11px] text-red-500">
-              {errors.username.message}
-            </p>
-          )}
-        </div>
-
-        {/* Email */}
-        <div>
-          <label className="mb-1 block text-[13px] font-medium text-gray-800">
-            Email
-          </label>
-          <input
-            {...register("email")}
-            type="email"
-            placeholder="Enter your email"
-            className="w-full rounded-full border border-emerald-100 bg-emerald-50/60 px-5 py-3 text-sm focus:ring-2 focus:ring-emerald-600"
-          />
-          {errors.email && (
-            <p className="mt-1 text-[11px] text-red-500">
-              {errors.email.message}
-            </p>
-          )}
-        </div>
-
-        {/* Phone Number */}
-        <div>
-          <label className="mb-1 block text-[13px] font-medium text-gray-800">
-            Phone Number
-          </label>
-          <input
-            {...register("phoneNumber")}
-            type="tel"
-            placeholder="Enter your phone number"
-            className="w-full rounded-full border border-emerald-100 bg-emerald-50/60 px-5 py-3 text-sm focus:ring-2 focus:ring-emerald-600"
-          />
-          {errors.phoneNumber && (
-            <p className="mt-1 text-[11px] text-red-500">
-              {errors.phoneNumber.message}
-            </p>
-          )}
-        </div>
-
-        {/* Password */}
-        <div>
-          <label className="mb-1 block text-[13px] font-medium text-gray-800">
-            Password
-          </label>
-          <input
-            {...register("password")}
-            type="password"
-            placeholder="Enter your password"
-            className="w-full rounded-full border border-emerald-100 bg-emerald-50/60 px-5 py-3 text-sm focus:ring-2 focus:ring-emerald-600"
-          />
-          {errors.password && (
-            <p className="mt-1 text-[11px] text-red-500">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
-
-        {/* Confirm Password */}
-        <div>
-          <label className="mb-1 block text-[13px] font-medium text-gray-800">
-            Confirm Password
-          </label>
-          <input
-            {...register("confirmPassword")}
-            type="password"
-            placeholder="Confirm your password"
-            className="w-full rounded-full border border-emerald-100 bg-emerald-50/60 px-5 py-3 text-sm focus:ring-2 focus:ring-emerald-600"
-          />
-          {errors.confirmPassword && (
-            <p className="mt-1 text-[11px] text-red-500">
-              {errors.confirmPassword.message}
-            </p>
-          )}
-        </div>
-
-        {/* Submit */}
+function PasswordInput({ label, placeholder, register, show, toggle, error }: any) {
+  return (
+    <div>
+      <label className="block text-xs font-medium text-gray-600 mb-1">
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          type={show ? "text" : "password"}
+          placeholder={placeholder}
+          {...register}
+          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm
+                     focus:bg-white focus:border-[#1a4d3f] focus:ring-2 focus:ring-[#1a4d3f]/20"
+        />
         <button
-          type="submit"
-          disabled={isSubmitting}
-          className="mt-6 w-full rounded-full bg-[#1a4d3f] py-3.5 text-sm font-semibold text-white hover:bg-[#134237] disabled:opacity-60"
+          type="button"
+          onClick={toggle}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#1a4d3f]"
         >
-          {isSubmitting ? "Creating account..." : "Get Started"}
+          {show ? <EyeOff size={16} /> : <Eye size={16} />}
         </button>
-      </form>
-
-      {/* Footer */}
-      <p className="mt-8 text-center text-sm text-gray-700">
-        Already have an account?{" "}
-        <Link href="/login" className="font-medium text-[#1a4d3f] hover:underline">
-          Log in
-        </Link>
-      </p>
+      </div>
+      {error && <p className="mt-0.5 text-[11px] text-red-500">{error}</p>}
     </div>
   );
 }

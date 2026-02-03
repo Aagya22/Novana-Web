@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Login successful',
-      data: { token: 'mock-token', user: { id: '123', email: body.email } }
+      data: { token: 'mock-token', user: { id: '123', email: body.email, role: "user" } }
     });
   } catch (error) {
     console.error('Login error:', error);

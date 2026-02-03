@@ -11,6 +11,7 @@ interface UserData {
   role: string;
   createdAt: string;
   updatedAt: string;
+  imageUrl?: string;
 }
 
 export const setAuthToken = async (token: string) => {
