@@ -1,59 +1,19 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Bell, MessageSquare, Search, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { handleLogout } from "@/lib/actions/auth-action";
+import { handleLogout, handleUpdateProfile } from "@/lib/actions/auth-action";
 
-function readUserDataFromCookie() {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(new RegExp("(^| )" + "user_data" + "=([^;]+)"));
-  if (!match) return null;
-  try {
-    return JSON.parse(decodeURIComponent(match[2]));
-  } catch (e) {
-    return null;
-  }
-}
+type Props = {
+  user: any | null;
+};
 
-export default function Header() {
+export default function HeaderClient({ user }: Props) {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [user, setUser] = useState<any | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-
-  useEffect(() => {
-    const u = readUserDataFromCookie();
-    if (u) setUser(u);
-    const handler = (e: any) => {
-      const detail = e?.detail;
-      if (detail) {
-        setUser(detail);
-        return;
-      }
-      const updated = readUserDataFromCookie();
-      if (updated) setUser(updated);
-    };
-
-    window.addEventListener("user_data_updated", handler as EventListener);
-    // also listen to storage events in case another tab updated cookie via localStorage
-    const storageHandler = (ev: StorageEvent) => {
-      if (ev.key === "user_data") {
-        try {
-          const parsed = ev.newValue ? JSON.parse(ev.newValue) : null;
-          if (parsed) setUser(parsed);
-        } catch (e) {
-          // ignore
-        }
-      }
-    };
-    window.addEventListener("storage", storageHandler);
-
-    return () => {
-      window.removeEventListener("user_data_updated", handler as EventListener);
-      window.removeEventListener("storage", storageHandler);
-    };
-  }, []);
+  const fileRef = useRef<HTMLInputElement | null>(null);
 
   const onLogout = async () => {
     try {
@@ -65,7 +25,32 @@ export default function Header() {
     }
   };
 
-  const uploadAvatar = () => router.push("/settings");
+  const uploadAvatar = () => {
+    fileRef.current?.click();
+  };
+
+  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      setIsUploading(true);
+      const result = await handleUpdateProfile(formData);
+      setIsUploading(false);
+      if (result.success) {
+        // refresh server component wrapper to get updated user
+        router.refresh();
+      } else {
+        alert(result.message || "Failed to upload image");
+      }
+    } catch (err) {
+      setIsUploading(false);
+      console.error(err);
+      alert("Upload failed");
+    }
+  };
 
   const backendBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050";
 
@@ -95,6 +80,7 @@ export default function Header() {
         boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
       }}
     >
+      {/* Left: Brand */}
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
         <span
           style={{
@@ -109,6 +95,7 @@ export default function Header() {
         </span>
       </div>
 
+      {/* Center: Search Bar */}
       <div
         style={{
           display: "flex",
@@ -139,6 +126,7 @@ export default function Header() {
         />
       </div>
 
+      {/* Right: Icons + Avatar + Logout */}
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
         <button
           style={{
@@ -178,7 +166,16 @@ export default function Header() {
           <Bell size={20} />
         </button>
 
+        {/* Avatar area */}
         <div style={{ position: "relative" }}>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={onFileChange}
+          />
+
           <button
             onClick={uploadAvatar}
             disabled={isUploading}

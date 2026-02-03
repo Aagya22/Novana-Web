@@ -1,39 +1,123 @@
-// API layer
-// Call api from backend
-
 import axios from "./axios";
 import { API } from "./endpoints";
+import { getAuthToken } from "../cookie";
 
-export const register = async ( registerData : any ) => {
-    try{
-        const response = await axios.post(
-            API.AUTH.REGISTER, //path
-            registerData //body data
-        );
-        return response.data;
-    } catch (err: Error | any) {
-        throw new Error(
-            // 400-500 err code counts as exception
-            err.response?.data?.message // log error message from backend
-            ||err.message // default error message
-            ||"Registration failed" //fallback message if default fails
-        );
-    }
+// Client-side helper to read auth token from document.cookie
+function getAuthTokenClient(): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp("(^|; )" + "auth_token" + "=([^;]*)"));
+  return match ? decodeURIComponent(match[2]) : null;
 }
 
-export const login = async ( loginData : any ) => {
-    try{
-        const response = await axios.post(
-            API.AUTH.LOGIN, // change
-            loginData // change
-        );
-        return response.data;
+/* -------------------- REGISTER -------------------- */
+export const register = async (registerData: any) => {
+  try {
+    const response = await axios.post(
+      API.AUTH.REGISTER,
+      registerData
+    );
+    return response.data;
+  } catch (err: Error | any) {
+    throw new Error(
+      err.response?.data?.message ||
+      err.message ||
+      "Registration failed"
+    );
+  }
+};
 
-    }catch (err: Error | any) {
-        throw new Error(
-            err.response?.data?.message 
-            || err.message 
-            ||"Login failed"
-        )
+/* -------------------- LOGIN -------------------- */
+export const login = async (loginData: any) => {
+  try {
+    const response = await axios.post(
+      API.AUTH.LOGIN,
+      loginData
+    );
+    return response.data;
+  } catch (err: Error | any) {
+    throw new Error(
+      err.response?.data?.message ||
+      err.message ||
+      "Login failed"
+    );
+  }
+};
+
+/* -------------------- WHO AM I -------------------- */
+export const whoAmI = async () => {
+  try {
+    const token = await getAuthToken();
+
+    if (!token) {
+      throw new Error("No authentication token found");
     }
-}
+
+    const response = await axios.get(
+      API.AUTH.WHOAMI,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (err: Error | any) {
+    throw new Error(
+      err.response?.data?.message ||
+      err.message ||
+      "Failed to fetch user data"
+    );
+  }
+};
+
+export const updateProfile = async (formData: FormData) => {
+  try {
+    // server-side call path (used by server actions)
+    const token = await getAuthToken();
+
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    const response = await axios.put(API.AUTH.UPDATE_PROFILE, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (err: Error | any) {
+    console.error("updateProfile (server) error:", err?.response || err);
+    throw new Error(
+      err.response?.data?.message ||
+      err.message ||
+      "Failed to update profile"
+    );
+  }
+};
+
+// Client-side update - uses document.cookie to get token and calls backend directly
+export const updateProfileClient = async (formData: FormData) => {
+  try {
+    const token = getAuthTokenClient();
+    if (!token) throw new Error("No authentication token found (client)");
+
+    const response = await axios.put(API.AUTH.UPDATE_PROFILE, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (err: any) {
+    console.error("updateProfileClient error:", err?.response || err);
+    // Attach status/code if available for better messages
+    const serverMessage = err?.response?.data?.message;
+    const status = err?.response?.status;
+    const msg = serverMessage || err?.message || "Failed to update profile (client)";
+    const e = new Error(msg) as any;
+    if (status) e.status = status;
+    throw e;
+  }
+};

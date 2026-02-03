@@ -7,40 +7,64 @@ const userPaths = ["/user"];
 
 export async function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
-
     const token = await getAuthToken();
     const user = token ? await getUserData() : null;
-
-    const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
     
+    const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
     const isAdminPath = adminPaths.some((path) => pathname.startsWith(path));
     const isUserPath = userPaths.some((path) => pathname.startsWith(path));
-    if(!user && !isPublicPath){
+    const isRootPath = pathname === "/";
+    
+    // If user is not logged in and trying to access protected routes
+    if (!user && !isPublicPath && !isRootPath) {
         return NextResponse.redirect(new URL("/login", req.url));
     }
-
-    if(user && token){
-        if(isAdminPath && user.role !== 'admin'){
-            return NextResponse.redirect(new URL("/", req.url));
+    
+    // If user is logged in
+    if (user && token) {
+        // Redirect from root to appropriate landing if authenticated
+        if (isRootPath) {
+            if (user.role === 'admin') {
+                return NextResponse.redirect(new URL('/admin/dashboard', req.url));
+            }
+            return NextResponse.redirect(new URL('/home', req.url));
         }
-        if(isUserPath && user.role !== 'user' && user.role !== 'admin'){
-            return NextResponse.redirect(new URL("/", req.url));
+
+        // Admin path protection: only admins can access /admin
+        if (isAdminPath && user.role !== 'admin') {
+            return NextResponse.redirect(new URL('/home', req.url));
+        }
+
+        // User path protection: only regular users can access /user
+        // (block admins from hitting user-only pages directly)
+        if (isUserPath && user.role !== 'user') {
+            // If admin tried to access user routes, send to admin dashboard
+            if (user.role === 'admin') {
+                return NextResponse.redirect(new URL('/admin/dashboard', req.url));
+            }
+            return NextResponse.redirect(new URL('/home', req.url));
+        }
+
+        // Redirect authenticated users away from public paths to their landing
+        if (isPublicPath) {
+            if (user.role === 'admin') {
+                return NextResponse.redirect(new URL('/admin/dashboard', req.url));
+            }
+            return NextResponse.redirect(new URL('/home', req.url));
         }
     }
-
-    if (isPublicPath && user) {
-        return NextResponse.redirect(new URL("/", req.url));
-    }
-
-    return NextResponse.next(); // continue/granted
+    
+    // Allow access to root page if not logged in
+    return NextResponse.next();
 }
 
 export const config = {
     matcher: [
+        "/",              // Add root path
         "/admin/:path*",
         "/user/:path*",
         "/login",
-        "/register"
+        "/register",
+        "/home",          // Add home path to ensure it's protected
     ]
 }
-// matcher - which path to apply proxy logic

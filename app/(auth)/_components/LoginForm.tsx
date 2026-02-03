@@ -36,17 +36,31 @@ export default function LoginForm() {
 
     await setAuthToken(token);
 
-    // ✅ Map backend response to UserData format
-    await setUserData({
-      _id: user.id,  // Map 'id' to '_id'
+    // ✅ Map backend response to UserData format (include imageUrl if present)
+    const mappedUser = {
+      _id: user.id, // Map 'id' to '_id'
       email: user.email,
       fullName: user.fullName,
       username: user.username,
       phoneNumber: user.phoneNumber,
       role: user.role,
-      createdAt: new Date().toISOString(), // Add current timestamp
-      updatedAt: new Date().toISOString(), // Add current timestamp
-    });
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      imageUrl: user.imageUrl || undefined,
+    };
+
+    await setUserData(mappedUser);
+
+    // Broadcast to client UI: write to localStorage and dispatch event so header updates immediately
+    try {
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("user_data", JSON.stringify(mappedUser));
+        window.dispatchEvent(new CustomEvent("user_data_updated", { detail: mappedUser }));
+      }
+    } catch (e) {
+      // non-fatal
+      console.warn("Could not broadcast user_data after login", e);
+    }
 
     if (user.role === "admin") {
       router.push("/admin/dashboard");
