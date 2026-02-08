@@ -90,6 +90,12 @@ export interface User {
   role: "user" | "admin";
   imageUrl?: string | null;
 }
+export const requestPasswordResetSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" })
+});
+export type LoginFormData = z.infer<typeof loginSchema>;
+export type RegisterFormData = z.infer<typeof registerSchema>;
+export type RequestPasswordResetFormData = z.infer<typeof requestPasswordResetSchema>;
 
 
 

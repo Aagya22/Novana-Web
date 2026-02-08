@@ -146,6 +146,11 @@ export default function LoginForm() {
           {isSubmitting ? "Logging in..." : "Log in"}
         </button>
       </form>
+       <p className="text-right text-sm text-gray-600 mt-2">
+        <Link href="/request-password-reset" className="text-900 font-semibold hover:underline">
+          Forgot password?
+        </Link>
+      </p>
 
       <p className="mt-8 text-center text-sm text-gray-700">
         Don’t have an account?{" "}
