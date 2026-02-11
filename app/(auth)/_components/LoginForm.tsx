@@ -53,8 +53,7 @@ export default function LoginForm() {
 
     // Broadcast to client UI: write to localStorage and dispatch event so header updates immediately
     try {
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem("user_data", JSON.stringify(mappedUser));
+      if (typeof window !== "undefined") {        window.localStorage.setItem("token", token);        window.localStorage.setItem("user_data", JSON.stringify(mappedUser));
         window.dispatchEvent(new CustomEvent("user_data_updated", { detail: mappedUser }));
       }
     } catch (e) {

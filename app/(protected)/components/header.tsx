@@ -96,17 +96,14 @@ export default function Header() {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        <span
+        <img
+          src="/novacane.png"
+          alt="Novana Logo"
           style={{
-            fontFamily: "'Playfair Display', serif",
-            fontSize: "20px",
-            fontWeight: 700,
-            color: "#2E8B57",
-            letterSpacing: "0.5px",
+            height: "32px",
+            width: "auto",
           }}
-        >
-          Novana
-        </span>
+        />
       </div>
 
       <div

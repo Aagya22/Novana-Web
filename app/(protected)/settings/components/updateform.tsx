@@ -147,7 +147,7 @@ export default function UpdateUserForm({ user }: { user: User }) {
   const onInvalid = (errors: any) => {
     console.log("Validation errors:", errors);
     const messages = Object.values(errors)
-      .map((e: any) => e?.message || Object.values(e)[0]?.message)
+      .map((e: any) => e?.message || (typeof e === 'object' && e && Object.values(e)[0] as any)?.message)
       .filter(Boolean)
       .join(" • ");
     toast.error(messages || "Validation failed");
