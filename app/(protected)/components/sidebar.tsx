@@ -11,7 +11,7 @@ import {
   Sun,
 } from "lucide-react";
 
-// ─── Nav Items Data ──────────────────────────────────────────────────────────
+
 const navItems = [
   { id: "home", label: "Home", icon: Home, href: "/" },
   { id: "calendar", label: "Calendar", icon: Calendar, href: "/calendar" },

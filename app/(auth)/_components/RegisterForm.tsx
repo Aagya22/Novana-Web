@@ -32,7 +32,7 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="min-h-screen w-full  flex items-center justify-center px-4 font-sans">
+    <div className="min-h-screen w-full bg-[] flex items-center justify-center px-4 font-sans">
 
       {/* 🔹 SMALLER, CLEANER CARD */}
       <div className="w-full max-w-lg md:max-w-5xl bg-white rounded-[28px] shadow-[0_10px_40px_rgba(0,0,0,0.18)] overflow-hidden md:flex">
