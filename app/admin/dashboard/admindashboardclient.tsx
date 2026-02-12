@@ -30,6 +30,8 @@ export default function AdminDashboardClient({
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   // Filter users based on search query
   const filteredUsers = useMemo(() => {
@@ -45,6 +47,21 @@ export default function AdminDashboardClient({
         user.role.toLowerCase().includes(query)
     );
   }, [users, searchQuery]);
+
+  // Calculate overview stats
+  const totalUsers = users.length;
+  const totalAdmins = users.filter(user => user.role === 'admin').length;
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
+  // Reset to first page when search changes
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const handleCreateUser = async (formData: FormData) => {
     try {
@@ -317,6 +334,32 @@ export default function AdminDashboardClient({
           </div>
         </header>
 
+        {/* Overview Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 animate-slide-in" style={{ animationDelay: '0.1s' }}>
+          <div className="glass-effect rounded-2xl p-6 shadow-lg">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                <UserPlus className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Users</p>
+                <p className="text-2xl font-bold text-gray-800">{totalUsers}</p>
+              </div>
+            </div>
+          </div>
+          <div className="glass-effect rounded-2xl p-6 shadow-lg">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                <Edit2 className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Admins</p>
+                <p className="text-2xl font-bold text-gray-800">{totalAdmins}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Search and Actions Bar */}
         <div className="mb-6 glass-effect rounded-2xl p-4 shadow-lg animate-slide-in" style={{ animationDelay: '0.1s' }}>
           <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
@@ -345,7 +388,7 @@ export default function AdminDashboardClient({
           {/* Search Results Count */}
           {searchQuery && (
             <div className="mt-3 text-sm text-gray-600 mono animate-fade-in">
-              Found {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''}
+              Found {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''} • Page {currentPage} of {totalPages}
             </div>
           )}
         </div>
@@ -371,7 +414,7 @@ export default function AdminDashboardClient({
                 </tr>
               </thead>
               <tbody className="bg-white">
-                {filteredUsers.map((user, index) => (
+                {paginatedUsers.map((user, index) => (
                   <tr
                     key={user._id}
                     className="border-t border-gray-100 table-row-hover"
@@ -411,7 +454,7 @@ export default function AdminDashboardClient({
                     </td>
                   </tr>
                 ))}
-                {filteredUsers.length === 0 && (
+                {paginatedUsers.length === 0 && (
                   <tr>
                     <td colSpan={6} className="py-12 text-center">
                       <div className="flex flex-col items-center gap-3">
@@ -429,6 +472,46 @@ export default function AdminDashboardClient({
             </table>
           </div>
         </section>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-6 flex items-center justify-between glass-effect rounded-2xl p-4 shadow-lg animate-slide-in" style={{ animationDelay: '0.3s' }}>
+            <div className="text-sm text-gray-600">
+              Showing {startIndex + 1} to {Math.min(endIndex, filteredUsers.length)} of {filteredUsers.length} users
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                    currentPage === page
+                      ? 'text-white bg-indigo-600 border border-indigo-600'
+                      : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+              
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Create User Modal */}
