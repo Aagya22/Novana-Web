@@ -9,6 +9,13 @@ import {
   SmilePlus,
   FileText,
   Bell,
+  User,
+  Calendar,
+  Target,
+  TrendingUp,
+  CheckCircle,
+  Clock,
+  ArrowRight,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { API } from "../../../lib/api/endpoints";
@@ -49,28 +56,29 @@ export default function Page() {
         setUserName(whoData.data?.fullName || whoData.data?.username);
       }
 
-      const jRes = await fetch(API.JOURNALS.LIST, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const [jRes, eRes, hRes, mRes] = await Promise.all([
+        fetch(API.JOURNALS.LIST, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(API.EXERCISES.LIST, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(API.HABITS.LIST, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(API.MOODS.LIST, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
       const jData = await jRes.json();
-      if (jData?.success) setJournalCount(jData.data.length);
-
-      const eRes = await fetch(API.EXERCISES.LIST, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
       const eData = await eRes.json();
-      if (eData?.success) setExercisesCount(eData.data.length);
-
-      const hRes = await fetch(API.HABITS.LIST, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
       const hData = await hRes.json();
-      if (hData?.success) setHabitsCount(hData.data.length);
-
-      const mRes = await fetch(API.MOODS.LIST, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
       const mData = await mRes.json();
+
+      if (jData?.success) setJournalCount(jData.data.length);
+      if (eData?.success) setExercisesCount(eData.data.length);
+      if (hData?.success) setHabitsCount(hData.data.length);
       if (mData?.success && mData.data.length > 0) {
         setCurrentMood(mData.data[mData.data.length - 1].mood);
       }
@@ -94,231 +102,125 @@ export default function Page() {
     }
   };
 
-  const toggleReminder = async (id: string) => {
-    const token = localStorage.getItem("token");
-
-    await fetch(API.REMINDERS.TOGGLE(id), {
-      method: "PATCH",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    setReminders((prev) =>
-      prev.map((r) =>
-        r._id === id ? { ...r, done: !r.done } : r
-      )
-    );
-  };
-
   const handleCardClick = (id: string) => {
     router.push(`/${id}`);
   };
 
   const cards = [
-    {
-      id: "journal",
-      label: "Journal",
-      desc: "Write your daily thoughts",
-      Icon: BookOpen,
-      color: "#f6c445",
-    },
-    {
-      id: "exercises",
-      label: "Exercises",
-      desc: "Track your workouts",
-      Icon: Dumbbell,
-      color: "#5b8def",
-    },
-    {
-      id: "mood",
-      label: "Mood Tracker",
-      desc: "Monitor your emotions",
-      Icon: SmilePlus,
-      color: "#ff7a9a",
-    },
-    {
-      id: "habits",
-      label: "Habits",
-      desc: "Build consistency",
-      Icon: FileText,
-      color: "#9b7bff",
-    },
+    { id: "journal", label: "Journal", desc: "Write your daily thoughts", Icon: BookOpen, color: "#D8959B" },
+    { id: "exercises", label: "Exercises", desc: "Track your workouts", Icon: Dumbbell, color: "#829672" },
+    { id: "mood", label: "Mood Tracker", desc: "Monitor your emotions", Icon: SmilePlus, color: "#344C3D" },
+    { id: "habits", label: "Habits", desc: "Build consistency", Icon: FileText, color: "#D8959B" },
   ];
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f4f8fb" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #f4f3f1 0%, #e8f0e6 50%, #f2d1d4 100%)",
+        transition: "background 0.3s ease",
+      }}
+    >
       <Header />
-      <Sidebar />
 
-      <main
-        style={{
-          padding: "32px",
-          marginLeft: "240px",
-          display: "flex",
-          gap: "30px",
-        }}
-      >
-        {/* LEFT SECTION */}
-        <div style={{ flex: 1 }}>
-          {/* WELCOME CARD */}
-          <div
+      {/* FLEX LAYOUT FIX */}
+      <div style={{ display: "flex" }}>
+        <Sidebar />
+
+        <main
+          style={{
+            flex: 1,
+            padding: "32px",
+            maxWidth: "1400px",
+            margin: "0 auto",
+          }}
+        >
+          {/* Welcome */}
+          <h1
             style={{
-              background: "#d4edda",
-              padding: 24,
-              borderRadius: 20,
-              marginBottom: 24,
-              boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
+              fontSize: "32px",
+              fontWeight: 700,
+              marginBottom: "8px",
+              color: "#1f2937",
             }}
           >
-            <h2 style={{ margin: 0, color: "#155724" }}>
-              Welcome back, {userName || "User"}! 👋
-            </h2>
-          </div>
+            Welcome back, {userName || "User"}
+          </h1>
 
-          {/* OVERVIEW CARDS */}
+          {/* Stats */}
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: "20px",
-              marginBottom: "30px",
+              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+              gap: "24px",
+              marginBottom: "40px",
             }}
           >
-            <GradientCard
-              title="Journal Entries"
-              value={journalCount}
-              gradient="linear-gradient(135deg, #f6d365, #fda085)"
-            />
-            <GradientCard
-              title="Today's Mood"
-              value={currentMood || "—"}
-              gradient="linear-gradient(135deg, #89f7fe, #66a6ff)"
-            />
-            <GradientCard
-              title="Exercises Done"
-              value={exercisesCount}
-              gradient="linear-gradient(135deg, #f093fb, #f5576c)"
-            />
-            <GradientCard
-              title="Habits Tracked"
-              value={habitsCount}
-              gradient="linear-gradient(135deg, #c471f5, #fa71cd)"
-            />
+            <StatCard title="Journal Entries" value={journalCount.toString()} icon={BookOpen} />
+            <StatCard title="Current Mood" value={currentMood || "Not set"} icon={SmilePlus} />
+            <StatCard title="Exercises" value={exercisesCount.toString()} icon={Dumbbell} />
+            <StatCard title="Active Habits" value={habitsCount.toString()} icon={Target} />
           </div>
 
-          {/* FEATURE CARDS */}
-          <div style={{ display: "grid", gap: 20 }}>
+          {/* Feature Cards */}
+          <div style={{ display: "grid", gap: "16px" }}>
             {cards.map((card) => {
               const Icon = card.Icon;
-
               return (
                 <div
                   key={card.id}
                   onClick={() => handleCardClick(card.id)}
                   style={{
-                    background: "#fff",
-                    padding: 24,
-                    borderRadius: 20,
+                    padding: "20px",
+                    background: "#ffffff",
+                    borderRadius: "12px",
+                    cursor: "pointer",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
-                    cursor: "pointer",
-                    transition: "0.3s",
                   }}
                 >
-                  <div style={{ display: "flex", gap: 16 }}>
-                    <div
-                      style={{
-                        width: 60,
-                        height: 60,
-                        borderRadius: 16,
-                        background: `${card.color}20`,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: card.color,
-                      }}
-                    >
-                      <Icon size={28} />
-                    </div>
-
+                  <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+                    <Icon size={22} color={card.color} />
                     <div>
-                      <h4 style={{ margin: 0 }}>{card.label}</h4>
-                      <p style={{ margin: "6px 0", color: "#777" }}>
+                      <div style={{ fontWeight: 600 }}>{card.label}</div>
+                      <div style={{ fontSize: "14px", opacity: 0.6 }}>
                         {card.desc}
-                      </p>
+                      </div>
                     </div>
                   </div>
-
-                  <span style={{ color: "#999" }}>→</span>
+                  <ArrowRight size={18} />
                 </div>
               );
             })}
           </div>
-        </div>
-
-        {/* RIGHT REMINDER PANEL */}
-        <div style={{ width: 300 }}>
-          <div
-            style={{
-              background: "#fff",
-              borderRadius: 20,
-              padding: 20,
-              boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
-            }}
-          >
-            <h3 style={{ marginBottom: 16 }}>
-              <Bell size={16} /> Reminders
-            </h3>
-
-            {loading ? (
-              <p>Loading...</p>
-            ) : (
-              reminders.map((r) => (
-                <div
-                  key={r._id}
-                  onClick={() => router.push('/reminders')}
-                  style={{
-                    padding: 12,
-                    borderRadius: 10,
-                    background: r.done ? "#e6f7ee" : "#f2f4f7",
-                    marginBottom: 10,
-                    cursor: "pointer",
-                  }}
-                >
-                  {r.title} — {r.time}
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
 
-/* GRADIENT OVERVIEW CARD */
-function GradientCard({
+function StatCard({
   title,
   value,
-  gradient,
+  icon: Icon,
 }: {
   title: string;
-  value: any;
-  gradient: string;
+  value: string;
+  icon: any;
 }) {
   return (
     <div
       style={{
-        background: gradient,
-        borderRadius: 20,
-        padding: 24,
-        color: "#fff",
-        boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+        padding: "24px",
+        background: "#ffffff",
+        borderRadius: "16px",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
       }}
     >
-      <p style={{ margin: 0, opacity: 0.9 }}>{title}</p>
-      <h2 style={{ marginTop: 10 }}>{value}</h2>
+      <Icon size={24} style={{ marginBottom: "12px" }} />
+      <div style={{ fontSize: "28px", fontWeight: 700 }}>{value}</div>
+      <div style={{ opacity: 0.6 }}>{title}</div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Bell, MessageSquare, Search, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleLogout } from "@/lib/actions/auth-action";
+import { showToast } from "@/lib/toast";
 
 function readUserDataFromCookie() {
   if (typeof document === "undefined") return null;
@@ -56,11 +57,26 @@ export default function Header() {
   }, []);
 
   const onLogout = async () => {
+    // Show confirmation dialog
+    const confirmed = window.confirm("Are you sure you want to logout?");
+    if (!confirmed) return;
+
     try {
       setIsLoggingOut(true);
       await handleLogout();
+      // If we reach here, logout succeeded (though redirect should happen first)
+      showToast('Logging out...', 'success');
     } catch (error) {
+      // Check if it's a Next.js redirect error (expected)
+      if (error && typeof error === 'object' && 'digest' in error && 
+          typeof error.digest === 'string' && error.digest.includes('NEXT_REDIRECT')) {
+        // This is the expected redirect, not a real error
+        showToast('Logging out...', 'success');
+        return;
+      }
+      // Real error occurred
       console.error("Logout failed:", error);
+      showToast('Logout failed. Please try again.', 'error');
       setIsLoggingOut(false);
     }
   };
@@ -85,113 +101,207 @@ export default function Header() {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        height: "64px",
-        padding: "0 28px",
-        background: "#ffffff",
-        borderBottom: "1px solid #e2ebe6",
+        height: "80px",
+        padding: "0 40px",
+        background: "rgba(255,255,255,0.95)",
+        backdropFilter: "blur(20px)",
+        borderBottom: "1px solid rgba(216,149,155,0.2)",
         position: "sticky",
         top: 0,
         zIndex: 100,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+        boxShadow: "0 4px 20px rgba(216,149,155,0.1)",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        <img
-          src="/novacane.png"
-          alt="Novana Logo"
-          style={{
-            height: "32px",
-            width: "auto",
-          }}
-        />
+      {/* Logo Section */}
+      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        <div style={{
+          width: "48px",
+          height: "48px",
+          borderRadius: "14px",
+          background: "linear-gradient(135deg, #344C3D, #829672)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "white",
+          fontSize: "20px",
+          fontWeight: "700",
+          boxShadow: "0 4px 16px rgba(52,76,61,0.3)",
+          overflow: "hidden"
+        }}>
+          <img 
+            src="/novacane.png" 
+            alt="Novana logo"
+            style={{
+              width: "40px",
+              height: "40px",
+              objectFit: "contain"
+            }}
+          />
+        </div>
+        <div>
+          <div style={{
+            fontSize: "18px",
+            fontWeight: "700",
+            background: "linear-gradient(135deg, #344C3D, #829672)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            lineHeight: "1"
+          }}>
+            Novana
+          </div>
+          <div style={{
+            fontSize: "12px",
+            color: "#6b7280",
+            fontWeight: "500",
+            marginTop: "2px"
+          }}>
+            Wellness Platform
+          </div>
+        </div>
       </div>
 
+      {/* Search Bar */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "8px",
-          background: "#f4faf6",
-          border: "1px solid #e2ebe6",
-          borderRadius: "10px",
-          padding: "8px 16px",
-          width: "320px",
+          gap: "12px",
+          background: "rgba(242,209,212,0.3)",
+          border: "1px solid rgba(216,149,155,0.3)",
+          borderRadius: "16px",
+          padding: "12px 20px",
+          width: "400px",
           transition: "all 0.3s ease",
-          color: "#7aaa8e",
+          color: "#6b7280",
         }}
       >
-        <Search size={16} />
+        <Search size={18} strokeWidth={2} />
         <input
           type="text"
-          placeholder="Search..."
+          placeholder="Search wellness content..."
           style={{
             background: "transparent",
             border: "none",
             outline: "none",
-            color: "#1e3a2b",
-            fontSize: "13px",
+            color: "#1f2937",
+            fontSize: "14px",
             width: "100%",
             fontFamily: "'Inter', sans-serif",
+            fontWeight: "500",
           }}
         />
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      {/* Action Buttons */}
+      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        {/* Messages */}
         <button
           style={{
-            background: "#f4faf6",
-            border: "1px solid #e2ebe6",
-            borderRadius: "10px",
-            width: "40px",
-            height: "40px",
+            background: "rgba(255,255,255,0.8)",
+            border: "1px solid rgba(216,149,155,0.2)",
+            borderRadius: "14px",
+            width: "46px",
+            height: "46px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             cursor: "pointer",
-            color: "#7aaa8e",
-            transition: "all 0.2s ease",
+            color: "#6b7280",
+            transition: "all 0.3s ease",
             position: "relative" as const,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(242,209,212,0.4)";
+            e.currentTarget.style.color = "#D8959B";
+            e.currentTarget.style.transform = "translateY(-2px)";
+            e.currentTarget.style.boxShadow = "0 6px 20px rgba(216,149,155,0.2)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(255,255,255,0.8)";
+            e.currentTarget.style.color = "#6b7280";
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)";
           }}
         >
-          <MessageSquare size={20} />
+          <MessageSquare size={22} strokeWidth={2} />
+          {/* Notification badge */}
+          <div style={{
+            position: "absolute",
+            top: "8px",
+            right: "8px",
+            width: "8px",
+            height: "8px",
+            borderRadius: "50%",
+            background: "#D8959B",
+            border: "2px solid white"
+          }} />
         </button>
 
+        {/* Notifications */}
         <button
           style={{
-            background: "#f4faf6",
-            border: "1px solid #e2ebe6",
-            borderRadius: "10px",
-            width: "40px",
-            height: "40px",
+            background: "rgba(255,255,255,0.8)",
+            border: "1px solid rgba(216,149,155,0.2)",
+            borderRadius: "14px",
+            width: "46px",
+            height: "46px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             cursor: "pointer",
-            color: "#7aaa8e",
-            transition: "all 0.2s ease",
+            color: "#6b7280",
+            transition: "all 0.3s ease",
             position: "relative" as const,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(242,209,212,0.4)";
+            e.currentTarget.style.color = "#D8959B";
+            e.currentTarget.style.transform = "translateY(-2px)";
+            e.currentTarget.style.boxShadow = "0 6px 20px rgba(216,149,155,0.2)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(255,255,255,0.8)";
+            e.currentTarget.style.color = "#6b7280";
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)";
           }}
         >
-          <Bell size={20} />
+          <Bell size={22} strokeWidth={2} />
         </button>
 
+        {/* User Avatar */}
         <div style={{ position: "relative" }}>
           <button
             onClick={uploadAvatar}
             disabled={isUploading}
             title={user?.fullName || "Change avatar"}
             style={{
-              width: "38px",
-              height: "38px",
-              borderRadius: "50%",
+              width: "46px",
+              height: "46px",
+              borderRadius: "14px",
               overflow: "hidden",
-              border: "2px solid rgba(46,139,87,0.25)",
+              border: "2px solid rgba(216,149,155,0.3)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               cursor: isUploading ? "not-allowed" : "pointer",
-              background: "#f4faf6",
+              background: "rgba(255,255,255,0.9)",
               padding: 0,
+              transition: "all 0.3s ease",
+              boxShadow: "0 4px 12px rgba(216,149,155,0.2)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 6px 20px rgba(216,149,155,0.3)";
+              e.currentTarget.style.borderColor = "rgba(216,149,155,0.5)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(216,149,155,0.2)";
+              e.currentTarget.style.borderColor = "rgba(216,149,155,0.3)";
             }}
           >
             {user?.imageUrl ? (
@@ -208,40 +318,75 @@ export default function Header() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: "14px",
+                  fontSize: "16px",
                   fontWeight: 700,
                   color: "#fff",
-                  background: "linear-gradient(135deg, #2E8B57, #3aaa6e)",
-                  fontFamily: "'Playfair Display', serif",
+                  background: "linear-gradient(135deg, #D8959B, #829672)",
+                  fontFamily: "'Inter', serif",
                 }}
               >
                 {initials}
               </span>
             )}
           </button>
+          
+          {/* Online status indicator */}
+          <div style={{
+            position: "absolute",
+            bottom: "2px",
+            right: "2px",
+            width: "12px",
+            height: "12px",
+            borderRadius: "50%",
+            background: "#10b981",
+            border: "2px solid white",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+          }} />
         </div>
 
+        {/* Logout Button */}
         <button
           onClick={onLogout}
           disabled={isLoggingOut}
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "8px",
-            padding: "10px 16px",
-            borderRadius: "10px",
-            background: isLoggingOut ? "#f0f0f0" : "#f4faf6",
-            border: "1px solid #e2ebe6",
-            color: "#7aaa8e",
-            fontSize: "13px",
-            fontWeight: 500,
+            gap: "12px",
+            padding: "12px 20px",
+            borderRadius: "14px",
+            background: isLoggingOut 
+              ? "rgba(156,163,175,0.2)" 
+              : "rgba(255,255,255,0.8)",
+            border: "1px solid rgba(216,149,155,0.2)",
+            color: isLoggingOut ? "#9ca3af" : "#6b7280",
+            fontSize: "14px",
+            fontWeight: 600,
             cursor: isLoggingOut ? "not-allowed" : "pointer",
-            transition: "all 0.2s ease",
+            transition: "all 0.3s ease",
             opacity: isLoggingOut ? 0.6 : 1,
             fontFamily: "'Inter', sans-serif",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+          }}
+          onMouseEnter={(e) => {
+            if (!isLoggingOut) {
+              e.currentTarget.style.background = "rgba(239,68,68,0.1)";
+              e.currentTarget.style.color = "#dc2626";
+              e.currentTarget.style.borderColor = "rgba(239,68,68,0.3)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 6px 20px rgba(239,68,68,0.15)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isLoggingOut) {
+              e.currentTarget.style.background = "rgba(255,255,255,0.8)";
+              e.currentTarget.style.color = "#6b7280";
+              e.currentTarget.style.borderColor = "rgba(216,149,155,0.2)";
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)";
+            }
           }}
         >
-          <LogOut size={16} />
+          <LogOut size={18} strokeWidth={2} />
           {isLoggingOut ? "Logging out..." : "Logout"}
         </button>
       </div>

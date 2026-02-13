@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { handleRegister } from "@/lib/actions/auth-action";
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "react-toastify";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -27,8 +28,12 @@ export default function RegisterForm() {
   const onSubmit = async (data: RegisterData) => {
     setError("");
     const result = await handleRegister(data);
-    if (result?.success) router.push("/login");
-    else setError(result?.message || "Registration failed");
+    if (result?.success) {
+      toast.success("Registration successful!");
+      router.push("/login");
+    } else {
+      toast.error(result?.message || "Registration failed");
+    }
   };
 
   return (

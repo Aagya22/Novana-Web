@@ -9,6 +9,7 @@ import { loginSchema, LoginData } from "../schema";
 import { useState } from "react";
 import { handleLogin } from "@/lib/actions/auth-action";
 import { setAuthToken, setUserData } from "@/lib/cookie";
+import { toast } from "react-toastify";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -27,9 +28,11 @@ export default function LoginForm() {
   try {
     const result = await handleLogin(data, { persist: false });
     if (!result.success) {
-      setError(result.message || "Login failed");
+      toast.error(result.message || "Login failed");
       return;
     }
+
+    toast.success("Login successful!");
 
     const user = result.data;
     const token = result.token;
@@ -67,7 +70,7 @@ export default function LoginForm() {
       router.push("/home");
     }
   } catch {
-    setError("Login failed");
+    toast.error("Login failed");
   }
 };
 

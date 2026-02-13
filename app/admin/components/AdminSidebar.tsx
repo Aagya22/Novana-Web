@@ -1,50 +1,45 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import {
-  Home,
-  Calendar,
-  Settings,
-  BookOpen,
-  SmilePlus,
-  Target,
-  Dumbbell,
-  Bell,
-} from "lucide-react";
+import React, { useState } from "react";
+import { Settings, LogOut, BarChart, Users, Shield, Database } from "lucide-react";
 
-const navItems = [
-  { id: "home", label: "Dashboard", icon: Home, href: "/home" },
-  { id: "journal", label: "Journal", icon: BookOpen, href: "/journal" },
-  { id: "mood", label: "Mood", icon: SmilePlus, href: "/mood" },
-  { id: "habits", label: "Habits", icon: Target, href: "/habits" },
-  { id: "exercises", label: "Exercises", icon: Dumbbell, href: "/exercises" },
-  { id: "reminders", label: "Reminders", icon: Bell, href: "/reminders" },
-  { id: "calendar", label: "Calendar", icon: Calendar, href: "/calendar" },
-  { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
-];
+interface AdminSidebarProps {
+  adminUser: any;
+}
 
-export default function Sidebar() {
-  const router = useRouter();
-  const pathname = usePathname();
+export default function AdminSidebar({ adminUser }: AdminSidebarProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Get current active item based on pathname
-  const getCurrentItem = () => {
-    if (pathname === "/home" || pathname === "/") return "home";
-    const pathSegments = pathname.split("/").filter(Boolean);
-    return pathSegments[pathSegments.length - 1];
-  };
+  const menuItems = [
+    {
+      href: "/admin/dashboard",
+      icon: BarChart,
+      label: "Dashboard",
+      description: "Analytics & Overview"
+    },
+    {
+      href: "/admin/users",
+      icon: Users,
+      label: "Users",
+      description: "User Management"
+    },
+    {
+      href: "/admin/settings",
+      icon: Settings,
+      label: "Settings",
+      description: "System Configuration"
+    }
+  ];
 
-  const [activeItem, setActiveItem] = useState(getCurrentItem());
-
-  // Update active item when pathname changes
-  useEffect(() => {
-    setActiveItem(getCurrentItem());
-  }, [pathname]);
-  const handleNavigation = (item: (typeof navItems)[0]) => {
-    setActiveItem(item.id);
-    router.push(item.href);
+  const handleLogout = () => {
+    if (confirm("Are you sure you want to logout?")) {
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+      window.location.href = "/admin/login";
+    }
   };
 
   return (
@@ -71,7 +66,7 @@ export default function Sidebar() {
           left: 0,
           height: "100vh",
           width: isExpanded ? "280px" : "0px",
-          background:
+          background: 
             "linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.98) 100%)",
           backdropFilter: "blur(20px)",
           borderRight: "1px solid rgba(216,149,155,0.2)",
@@ -83,7 +78,6 @@ export default function Sidebar() {
           transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
           display: "flex",
           flexDirection: "column",
-          paddingTop: "80px",
         }}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
@@ -109,48 +103,47 @@ export default function Sidebar() {
           />
         </div>
 
-        {/* Nav Links */}
+        {/* Menu Items */}
         <nav
           style={{
             flex: 1,
             padding: "0 20px",
             display: "flex",
             flexDirection: "column",
-            gap: "6px",
+            gap: "8px"
           }}
         >
-          {navItems.map((item, index) => {
+          {menuItems.map((item, index) => {
             const Icon = item.icon;
-            const isActive = activeItem === item.id;
+            const isActive = window.location.pathname === item.href;
 
             return (
-              <button
-                key={item.id}
-                onClick={() => handleNavigation(item)}
+              <a
+                key={item.href}
+                href={item.href}
                 style={{
                   display: "flex",
                   alignItems: "center",
                   gap: "16px",
-                  padding: "14px 16px",
+                  padding: "16px",
                   background: isActive
                     ? "linear-gradient(90deg, rgba(216,149,155,0.12) 0%, rgba(130,150,114,0.08) 100%)"
                     : "transparent",
                   border: "none",
                   borderRadius: "14px",
-                  cursor: "pointer",
                   color: isActive 
                     ? "#344C3D"
                     : "#6b7280",
+                  textDecoration: "none",
                   fontSize: "15px",
                   fontFamily: "'Inter', sans-serif",
                   fontWeight: isActive ? 600 : 500,
-                  letterSpacing: "0.3px",
-                  whiteSpace: "nowrap",
                   transition: "all 0.3s ease",
-                  textAlign: "left",
-                  width: "100%",
                   position: "relative",
                   overflow: "hidden",
+                  opacity: isExpanded ? 1 : 0,
+                  transform: isExpanded ? "translateX(0)" : "translateX(-20px)",
+                  transitionDelay: `${0.1 + index * 0.05}s`
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive) {
@@ -176,14 +169,14 @@ export default function Sidebar() {
                       top: "50%",
                       transform: "translateY(-50%)",
                       width: "3px",
-                      height: "20px",
+                      height: "24px",
                       background: "linear-gradient(180deg, #829672, #344C3D)",
-                      borderRadius: "2px",
+                      borderRadius: "2px"
                     }}
                   />
                 )}
 
-                <span 
+                <div 
                   style={{ 
                     display: "flex", 
                     alignItems: "center",
@@ -192,25 +185,74 @@ export default function Sidebar() {
                   }}
                 >
                   <Icon size={20} strokeWidth={2.5} />
-                </span>
+                </div>
 
-                <span
-                  style={{
-                    opacity: isExpanded ? 1 : 0,
-                    transform: isExpanded
-                      ? "translateX(0)"
-                      : "translateX(-12px)",
-                    transition: isExpanded
-                      ? `opacity 0.3s ease ${0.1 + index * 0.03}s, transform 0.3s ease ${0.1 + index * 0.03}s`
-                      : "opacity 0.15s ease, transform 0.15s ease",
-                  }}
-                >
-                  {item.label}
-                </span>
-              </button>
+                <div style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "2px"
+                }}>
+                  <span style={{
+                    fontSize: "15px",
+                    fontWeight: isActive ? 600 : 500
+                  }}>
+                    {item.label}
+                  </span>
+                  <span style={{
+                    fontSize: "12px",
+                    color: "#9ca3af",
+                    fontWeight: "400"
+                  }}>
+                    {item.description}
+                  </span>
+                </div>
+              </a>
             );
           })}
         </nav>
+
+        {/* Logout Section */}
+        <div
+          style={{
+            padding: "24px",
+            borderTop: "1px solid rgba(216,149,155,0.1)",
+          }}
+        >
+          <button
+            onClick={handleLogout}
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              gap: "16px",
+              padding: "16px",
+              background: "transparent",
+              border: "1px solid rgba(239,68,68,0.2)",
+              borderRadius: "14px",
+              color: "#dc2626",
+              fontSize: "15px",
+              fontWeight: "600",
+              cursor: "pointer",
+              transition: "all 0.3s ease",
+              opacity: isExpanded ? 1 : 0,
+              transform: isExpanded ? "translateY(0)" : "translateY(10px)",
+              transitionDelay: "0.3s"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(239,68,68,0.05)";
+              e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)";
+              e.currentTarget.style.transform = "translateY(0)";
+            }}
+          >
+            <LogOut size={20} strokeWidth={2} />
+            <span>Logout</span>
+          </button>
+        </div>
       </aside>
     </>
   );

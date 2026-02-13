@@ -5,6 +5,7 @@ import Header from "../components/header";
 import Sidebar from "../components/sidebar";
 import { FileText, Plus, Edit, Trash2, Check, Target } from "lucide-react";
 import { API } from "../../../lib/api/endpoints";
+import { toast } from "react-toastify";
 
 interface HabitEntry {
   _id: string;
@@ -21,6 +22,7 @@ export default function HabitsPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingEntry, setEditingEntry] = useState<HabitEntry | null>(null);
+  const [darkMode, setDarkMode] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -29,6 +31,24 @@ export default function HabitsPage() {
 
   useEffect(() => {
     fetchEntries();
+    // Initialize dark mode state
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(savedDarkMode);
+    if (savedDarkMode) {
+      document.documentElement.className = 'dark';
+    }
+
+    // Listen for storage changes to sync dark mode across tabs
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'darkMode') {
+        const newDarkMode = e.newValue === 'true';
+        setDarkMode(newDarkMode);
+        document.documentElement.className = newDarkMode ? 'dark' : '';
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const fetchEntries = async () => {
@@ -72,9 +92,13 @@ export default function HabitsPage() {
         setShowForm(false);
         setEditingEntry(null);
         setFormData({ name: "", description: "", frequency: "daily" });
+        toast.success(editingEntry ? "Habit updated successfully!" : "Habit added successfully!");
+      } else {
+        toast.error(data.message || "Failed to save habit");
       }
     } catch (error) {
       console.error('Error saving entry:', error);
+      toast.error("Failed to save habit");
     }
   };
 
@@ -101,9 +125,13 @@ export default function HabitsPage() {
       const data = await response.json();
       if (data.success) {
         fetchEntries();
+        toast.success("Habit deleted successfully!");
+      } else {
+        toast.error(data.message || "Failed to delete habit");
       }
     } catch (error) {
       console.error('Error deleting habit:', error);
+      toast.error("Failed to delete habit");
     }
   };
 
@@ -119,9 +147,13 @@ export default function HabitsPage() {
       const data = await response.json();
       if (data.success) {
         fetchEntries();
+        toast.success("Habit completed!");
+      } else {
+        toast.error(data.message || "Failed to complete habit");
       }
     } catch (error) {
       console.error('Error completing habit:', error);
+      toast.error("Failed to complete habit");
     }
   };
 
@@ -129,9 +161,12 @@ export default function HabitsPage() {
     <div
       style={{
         minHeight: "100vh",
-        background: "#f4faf6",
-        color: "#1e3a2b",
+        background: darkMode 
+          ? "linear-gradient(135deg, #1f2937 0%, #111827 50%, #374151 100%)"
+          : "linear-gradient(135deg, #f4f3f1 0%, #e8f0e6 50%, #f2d1d4 100%)",
+        color: darkMode ? "#f9fafb" : "#1e3a2b",
         fontFamily: "'Inter', sans-serif",
+        transition: "background 0.3s ease, color 0.3s ease"
       }}
     >
       <Header />
@@ -150,10 +185,10 @@ export default function HabitsPage() {
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <h1 style={{ fontSize: "28px", fontWeight: 700, color: "#1e3a2b", margin: 0 }}>
+            <h1 style={{ fontSize: "28px", fontWeight: 700, color: darkMode ? "#f9fafb" : "#1e3a2b", margin: 0 }}>
               Other Habits
             </h1>
-            <p style={{ color: "#5a9a72", margin: "4px 0 0 0" }}>
+            <p style={{ color: darkMode ? "#9ca3af" : "#5a9a72", margin: "4px 0 0 0" }}>
               Build and track your daily habits
             </p>
           </div>
@@ -181,10 +216,14 @@ export default function HabitsPage() {
         {showForm && (
           <div
             style={{
-              background: "#ffffff",
-              border: "1px solid #e2ebe6",
+              background: darkMode ? "rgba(31,41,55,0.9)" : "rgba(255,255,255,0.95)",
+              border: `1px solid ${darkMode ? "rgba(75,85,99,0.3)" : "#e2ebe6"}`,
               borderRadius: "16px",
               padding: "24px",
+              backdropFilter: "blur(10px)",
+              boxShadow: darkMode 
+                ? "0 8px 32px rgba(0,0,0,0.3)"
+                : "0 8px 32px rgba(0,0,0,0.1)"
             }}
           >
             <form onSubmit={handleSubmit}>
@@ -197,9 +236,11 @@ export default function HabitsPage() {
                   required
                   style={{
                     padding: "12px",
-                    border: "1px solid #e2ebe6",
+                    border: `1px solid ${darkMode ? "rgba(75,85,99,0.4)" : "#e2ebe6"}`,
                     borderRadius: "8px",
                     fontSize: "16px",
+                    background: darkMode ? "rgba(55,65,81,0.5)" : "#ffffff",
+                    color: darkMode ? "#f3f4f6" : "#1f2937"
                   }}
                 />
                 <select
@@ -208,9 +249,11 @@ export default function HabitsPage() {
                   required
                   style={{
                     padding: "12px",
-                    border: "1px solid #e2ebe6",
+                    border: `1px solid ${darkMode ? "rgba(75,85,99,0.4)" : "#e2ebe6"}`,
                     borderRadius: "8px",
                     fontSize: "16px",
+                    background: darkMode ? "rgba(55,65,81,0.5)" : "#ffffff",
+                    color: darkMode ? "#f3f4f6" : "#1f2937"
                   }}
                 >
                   <option value="daily">Daily</option>
@@ -224,10 +267,12 @@ export default function HabitsPage() {
                   rows={3}
                   style={{
                     padding: "12px",
-                    border: "1px solid #e2ebe6",
+                    border: `1px solid ${darkMode ? "rgba(75,85,99,0.4)" : "#e2ebe6"}`,
                     borderRadius: "8px",
                     fontSize: "16px",
                     resize: "vertical",
+                    background: darkMode ? "rgba(55,65,81,0.5)" : "#ffffff",
+                    color: darkMode ? "#f3f4f6" : "#1f2937"
                   }}
                 />
                 <div style={{ display: "flex", gap: "12px" }}>
@@ -253,11 +298,11 @@ export default function HabitsPage() {
                       setFormData({ name: "", description: "", frequency: "daily" });
                     }}
                     style={{
-                      background: "#f7fbf8",
-                      border: "1px solid #e2ebe6",
+                      background: darkMode ? "rgba(55,65,81,0.5)" : "#f7fbf8",
+                      border: `1px solid ${darkMode ? "rgba(75,85,99,0.3)" : "#e2ebe6"}`,
                       borderRadius: "8px",
                       padding: "12px 20px",
-                      color: "#5a9a72",
+                      color: darkMode ? "#9ca3af" : "#5a9a72",
                       fontWeight: 600,
                       cursor: "pointer",
                     }}
@@ -272,19 +317,25 @@ export default function HabitsPage() {
 
         {/* Entries List */}
         {loading ? (
-          <div style={{ textAlign: "center", padding: "40px" }}>Loading...</div>
+          <div style={{ textAlign: "center", padding: "40px", color: darkMode ? "#9ca3af" : "#6b7280" }}>
+            Loading...
+          </div>
         ) : entries.length === 0 ? (
           <div
             style={{
               textAlign: "center",
               padding: "60px 20px",
-              background: "#ffffff",
-              border: "1px solid #e2ebe6",
+              background: darkMode ? "rgba(31,41,55,0.9)" : "rgba(255,255,255,0.95)",
+              border: `1px solid ${darkMode ? "rgba(75,85,99,0.3)" : "#e2ebe6"}`,
               borderRadius: "16px",
+              backdropFilter: "blur(10px)",
+              boxShadow: darkMode 
+                ? "0 8px 32px rgba(0,0,0,0.3)"
+                : "0 8px 32px rgba(0,0,0,0.1)"
             }}
           >
-            <FileText size={48} color="#7aaa8e" />
-            <p style={{ color: "#5a9a72", margin: "16px 0 0 0" }}>
+            <FileText size={48} color={darkMode ? "#6b7280" : "#7aaa8e"} />
+            <p style={{ color: darkMode ? "#9ca3af" : "#5a9a72", margin: "16px 0 0 0" }}>
               No habits yet. Start building positive habits!
             </p>
           </div>
@@ -294,15 +345,20 @@ export default function HabitsPage() {
               <div
                 key={entry._id}
                 style={{
-                  background: "#ffffff",
-                  border: "1px solid #e2ebe6",
+                  background: darkMode ? "rgba(31,41,55,0.9)" : "rgba(255,255,255,0.95)",
+                  border: `1px solid ${darkMode ? "rgba(75,85,99,0.3)" : "#e2ebe6"}`,
                   borderRadius: "16px",
                   padding: "24px",
+                  backdropFilter: "blur(10px)",
+                  boxShadow: darkMode 
+                    ? "0 8px 32px rgba(0,0,0,0.3)"
+                    : "0 8px 32px rgba(0,0,0,0.1)",
+                  transition: "all 0.3s ease"
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "12px" }}>
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ fontSize: "18px", fontWeight: 600, color: "#1e3a2b", margin: 0 }}>
+                    <h3 style={{ fontSize: "18px", fontWeight: 600, color: darkMode ? "#f9fafb" : "#1e3a2b", margin: 0 }}>
                       {entry.name}
                     </h3>
                     <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: "8px" }}>
@@ -317,14 +373,14 @@ export default function HabitsPage() {
                         {entry.frequency}
                       </span>
                       <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                        <Target size={14} color="#7aaa8e" />
-                        <span style={{ fontSize: "14px", color: "#7aaa8e" }}>
+                        <Target size={14} color={darkMode ? "#9ca3af" : "#7aaa8e"} />
+                        <span style={{ fontSize: "14px", color: darkMode ? "#9ca3af" : "#7aaa8e" }}>
                           Streak: {entry.streak} days
                         </span>
                       </div>
                     </div>
                     {entry.description && (
-                      <p style={{ color: "#5a9a72", margin: "8px 0 0 0", lineHeight: 1.5 }}>
+                      <p style={{ color: darkMode ? "#9ca3af" : "#5a9a72", margin: "8px 0 0 0", lineHeight: 1.5 }}>
                         {entry.description}
                       </p>
                     )}
@@ -350,12 +406,12 @@ export default function HabitsPage() {
                     <button
                       onClick={() => handleEdit(entry)}
                       style={{
-                        background: "#f7fbf8",
-                        border: "1px solid #e2ebe6",
+                        background: darkMode ? "rgba(55,65,81,0.5)" : "#f7fbf8",
+                        border: `1px solid ${darkMode ? "rgba(75,85,99,0.3)" : "#e2ebe6"}`,
                         borderRadius: "8px",
                         padding: "8px",
                         cursor: "pointer",
-                        color: "#5a9a72",
+                        color: darkMode ? "#9ca3af" : "#5a9a72",
                       }}
                     >
                       <Edit size={16} />
@@ -363,12 +419,12 @@ export default function HabitsPage() {
                     <button
                       onClick={() => handleDelete(entry._id)}
                       style={{
-                        background: "#fee",
-                        border: "1px solid #fcc",
+                        background: darkMode ? "rgba(127,29,29,0.3)" : "#fee",
+                        border: `1px solid ${darkMode ? "rgba(185,28,28,0.4)" : "#fcc"}`,
                         borderRadius: "8px",
                         padding: "8px",
                         cursor: "pointer",
-                        color: "#c33",
+                        color: darkMode ? "#f87171" : "#c33",
                       }}
                     >
                       <Trash2 size={16} />

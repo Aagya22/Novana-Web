@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { Search, UserPlus, Edit2, Trash2, X, Eye, EyeOff } from "lucide-react";
+import { toast } from "react-toastify";
 
 interface User {
   _id: string;
@@ -10,6 +11,7 @@ interface User {
   username: string;
   phoneNumber: string;
   role: string;
+  imageUrl?: string;
 }
 
 interface AdminDashboardClientProps {
@@ -30,6 +32,8 @@ export default function AdminDashboardClient({
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   // Filter users based on search query
   const filteredUsers = useMemo(() => {
@@ -46,31 +50,35 @@ export default function AdminDashboardClient({
     );
   }, [users, searchQuery]);
 
+  // Calculate overview stats
+  const totalUsers = users.length;
+  const totalAdmins = users.filter(user => user.role === 'admin').length;
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
+  // Reset to first page when search changes
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   const handleCreateUser = async (formData: FormData) => {
     try {
       const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050";
       
-      const password = formData.get("password") as string;
-      
-      const userData = {
-        fullName: formData.get("fullName"),
-        email: formData.get("email"),
-        username: formData.get("username"),
-        password: password,
-        confirmPassword: password, // Add confirmPassword with same value as password
-        phoneNumber: formData.get("phoneNumber"),
-      };
-      
-      console.log("Creating user with data:", userData);
+      console.log("Creating user with form data:", formData);
       console.log("API URL:", `${base}/api/admin/users`);
       
       const res = await fetch(`${base}/api/admin/users`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          // Don't set Content-Type for FormData, let browser set it with boundary
         },
-        body: JSON.stringify(userData),
+        body: formData,
       });
 
       console.log("Response status:", res.status);
@@ -101,11 +109,10 @@ export default function AdminDashboardClient({
 
       setUsers([...users, responseData.data]);
       setIsCreateModalOpen(false);
-      setShowPassword(false);
-      alert("User created successfully!");
+      toast.success("User created successfully!");
     } catch (error: any) {
       console.error("Create user error:", error);
-      alert(`Failed to create user: ${error.message}`);
+      toast.error(`Failed to create user: ${error.message}`);
     }
   };
 
@@ -114,25 +121,48 @@ export default function AdminDashboardClient({
 
     try {
       const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050";
-      const updateData = {
-        fullName: formData.get("fullName"),
-        email: formData.get("email"),
-        username: formData.get("username"),
-        phoneNumber: formData.get("phoneNumber"),
-      };
+      
+      // Check if a file was uploaded
+      const imageFile = formData.get("image") as File;
+      const hasImage = imageFile && imageFile.size > 0;
 
-      console.log("Updating user with data:", updateData);
+      let res: Response;
+      let responseData: any;
 
-      const res = await fetch(`${base}/api/admin/users/${selectedUser._id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateData),
-      });
+      if (hasImage) {
+        // Use FormData for file upload
+        console.log("Updating user with form data (including image):", formData);
+        
+        res = await fetch(`${base}/api/admin/users/${selectedUser._id}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            // Don't set Content-Type for FormData
+          },
+          body: formData,
+        });
+      } else {
+        // Use JSON for text-only updates
+        const updateData = {
+          fullName: formData.get("fullName"),
+          email: formData.get("email"),
+          username: formData.get("username"),
+          phoneNumber: formData.get("phoneNumber"),
+        };
 
-      const responseData = await res.json();
+        console.log("Updating user with data:", updateData);
+
+        res = await fetch(`${base}/api/admin/users/${selectedUser._id}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updateData),
+        });
+      }
+
+      responseData = await res.json();
       console.log("Update response:", responseData);
 
       if (!res.ok) {
@@ -159,10 +189,10 @@ export default function AdminDashboardClient({
       setUsers(users.map((u) => (u._id === selectedUser._id ? responseData.data : u)));
       setIsEditModalOpen(false);
       setSelectedUser(null);
-      alert("User updated successfully!");
+      toast.success("User updated successfully!");
     } catch (error: any) {
       console.error("Update user error:", error);
-      alert(`Failed to update user: ${error.message}`);
+      toast.error(`Failed to update user: ${error.message}`);
     }
   };
 
@@ -184,9 +214,9 @@ export default function AdminDashboardClient({
       }
 
       setUsers(users.filter((u) => u._id !== userId));
-      alert("User deleted successfully!");
+      toast.success("User deleted successfully!");
     } catch (error) {
-      alert("Failed to delete user");
+      toast.error("Failed to delete user");
     } finally {
       setIsDeleting(false);
     }
@@ -198,7 +228,12 @@ export default function AdminDashboardClient({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div style={{
+      minHeight: "100vh",
+      background: "linear-gradient(135deg, #f4f3f1 0%, #e8f0e6 50%, #f2d1d4 100%)",
+      transition: "background 0.3s ease",
+      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
+    }}>
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;600;700&display=swap');
         
@@ -272,6 +307,24 @@ export default function AdminDashboardClient({
           transform: translateY(-1px);
           box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
         }
+        
+        .sidebar-enter {
+          transform: translateX(100%);
+        }
+        
+        .sidebar-enter-active {
+          transform: translateX(0%);
+          transition: transform 300ms ease-in-out;
+        }
+        
+        .sidebar-exit {
+          transform: translateX(0%);
+        }
+        
+        .sidebar-exit-active {
+          transform: translateX(100%);
+          transition: transform 300ms ease-in-out;
+        }
       `}</style>
 
       <div className="max-w-7xl mx-auto p-6 md:p-8">
@@ -287,10 +340,28 @@ export default function AdminDashboardClient({
                   Manage your users with ease
                 </p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center">
                 <div className="flex items-center gap-3 bg-white rounded-xl px-4 py-2 shadow-sm">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                    {adminUser?.fullName?.charAt(0).toUpperCase()}
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                    {adminUser?.imageUrl ? (
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050"}${adminUser.imageUrl}`}
+                        alt={`${adminUser.fullName}'s profile`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            parent.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">${adminUser.fullName?.charAt(0).toUpperCase()}</div>`;
+                          }
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                        {adminUser?.fullName?.charAt(0).toUpperCase()}
+                      </div>
+                    )}
                   </div>
                   <div className="text-sm">
                     <div className="font-semibold text-gray-800">{adminUser?.fullName}</div>
@@ -316,6 +387,32 @@ export default function AdminDashboardClient({
             </div>
           </div>
         </header>
+
+        {/* Overview Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 animate-slide-in" style={{ animationDelay: '0.1s' }}>
+          <div className="glass-effect rounded-2xl p-6 shadow-lg">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                <UserPlus className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Users</p>
+                <p className="text-2xl font-bold text-gray-800">{totalUsers}</p>
+              </div>
+            </div>
+          </div>
+          <div className="glass-effect rounded-2xl p-6 shadow-lg">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                <Edit2 className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Admins</p>
+                <p className="text-2xl font-bold text-gray-800">{totalAdmins}</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Search and Actions Bar */}
         <div className="mb-6 glass-effect rounded-2xl p-4 shadow-lg animate-slide-in" style={{ animationDelay: '0.1s' }}>
@@ -345,7 +442,7 @@ export default function AdminDashboardClient({
           {/* Search Results Count */}
           {searchQuery && (
             <div className="mt-3 text-sm text-gray-600 mono animate-fade-in">
-              Found {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''}
+              Found {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''} • Page {currentPage} of {totalPages}
             </div>
           )}
         </div>
@@ -362,6 +459,7 @@ export default function AdminDashboardClient({
             <table className="w-full">
               <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
                 <tr className="text-left text-sm font-semibold text-gray-700">
+                  <th className="py-4 px-6">Profile</th>
                   <th className="py-4 px-6">Name</th>
                   <th className="py-4 px-6">Email</th>
                   <th className="py-4 px-6">Username</th>
@@ -371,12 +469,35 @@ export default function AdminDashboardClient({
                 </tr>
               </thead>
               <tbody className="bg-white">
-                {filteredUsers.map((user, index) => (
+                {paginatedUsers.map((user, index) => (
                   <tr
                     key={user._id}
                     className="border-t border-gray-100 table-row-hover"
                     style={{ animationDelay: `${0.3 + index * 0.05}s` }}
                   >
+                    <td className="py-4 px-6">
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                        {user.imageUrl ? (
+                          <img
+                            src={`${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050"}${user.imageUrl}`}
+                            alt={`${user.fullName}'s profile`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                parent.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">${user.fullName.charAt(0).toUpperCase()}</div>`;
+                              }
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                            {user.fullName.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                    </td>
                     <td className="py-4 px-6 font-medium text-gray-800">{user.fullName}</td>
                     <td className="py-4 px-6 text-gray-600 mono text-sm">{user.email}</td>
                     <td className="py-4 px-6 text-gray-600 mono text-sm">{user.username}</td>
@@ -411,9 +532,9 @@ export default function AdminDashboardClient({
                     </td>
                   </tr>
                 ))}
-                {filteredUsers.length === 0 && (
+                {paginatedUsers.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-12 text-center">
+                    <td colSpan={7} className="py-12 text-center">
                       <div className="flex flex-col items-center gap-3">
                         <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
                           <Search className="w-8 h-8 text-gray-400" />
@@ -429,6 +550,46 @@ export default function AdminDashboardClient({
             </table>
           </div>
         </section>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-6 flex items-center justify-between glass-effect rounded-2xl p-4 shadow-lg animate-slide-in" style={{ animationDelay: '0.3s' }}>
+            <div className="text-sm text-gray-600">
+              Showing {startIndex + 1} to {Math.min(endIndex, filteredUsers.length)} of {filteredUsers.length} users
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                    currentPage === page
+                      ? 'text-white bg-indigo-600 border border-indigo-600'
+                      : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+              
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Create User Modal */}
@@ -458,6 +619,7 @@ export default function AdminDashboardClient({
           isEditMode={true}
         />
       )}
+
     </div>
   );
 }
@@ -476,6 +638,16 @@ function UserModal({ title, user, onClose, onSubmit, showPassword, setShowPasswo
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    
+    if (!isEditMode) {
+      const password = formData.get("password") as string;
+      const confirmPassword = formData.get("confirmPassword") as string;
+      if (password !== confirmPassword) {
+        toast.error("Passwords do not match");
+        return;
+      }
+    }
+    
     onSubmit(formData);
   };
 
@@ -552,7 +724,43 @@ function UserModal({ title, user, onClose, onSubmit, showPassword, setShowPasswo
               />
             </div>
 
-            {/* Only show password field when creating new user */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Profile Picture
+              </label>
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                  {user?.imageUrl ? (
+                    <img
+                      src={`${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050"}${user.imageUrl}`}
+                      alt={`${user.fullName}'s profile`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                          parent.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">${user.fullName?.charAt(0).toUpperCase()}</div>`;
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                      {user?.fullName?.charAt(0).toUpperCase() || '?'}
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 input-field file:mr-4 file:py-2 file:px-4 file:rounded-l-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Upload a profile picture (optional)</p>
+                </div>
+              </div>
+            </div>
             {!isEditMode && (
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -566,6 +774,34 @@ function UserModal({ title, user, onClose, onSubmit, showPassword, setShowPasswo
                     minLength={8}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 input-field mono pr-12"
                     placeholder="Enter password (min 8 characters)"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5 text-gray-500" />
+                    ) : (
+                      <Eye className="w-5 h-5 text-gray-500" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+            {!isEditMode && (
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    required
+                    minLength={8}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 input-field mono pr-12"
+                    placeholder="Confirm password"
                   />
                   <button
                     type="button"
