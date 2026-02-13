@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext } from "react";
 
-type Theme = "light" | "dark";
+type Theme = "light";
 
 const ThemeContext = createContext<{
   theme: Theme;
@@ -13,20 +13,11 @@ const ThemeContext = createContext<{
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const theme: Theme = "light"; // Always light mode
 
-  useEffect(() => {
-    const stored = localStorage.getItem("novana-theme") as Theme | null;
-    if (stored) setTheme(stored);
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    localStorage.setItem("novana-theme", theme);
-  }, [theme]);
-
-  const toggleTheme = () =>
-    setTheme((t) => (t === "dark" ? "light" : "dark"));
+  const toggleTheme = () => {
+    // No-op since we only support light mode
+  };
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

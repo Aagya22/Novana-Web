@@ -5,6 +5,7 @@ import Header from "../components/header";
 import Sidebar from "../components/sidebar";
 import { Bell, Plus, Edit, Trash2 } from "lucide-react";
 import { API } from "../../../lib/api/endpoints";
+import { toast } from "react-toastify";
 
 interface Reminder {
   _id: string;
@@ -18,11 +19,10 @@ export default function RemindersPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Reminder | null>(null);
+  const [darkMode, setDarkMode] = useState(false);
   const [formData, setFormData] = useState({ title: "", time: "" });
 
-  useEffect(() => {
-    fetchReminders();
-  }, []);
+  /* ---------------- FETCH REMINDERS ---------------- */
 
   const fetchReminders = async () => {
     try {
@@ -39,13 +39,45 @@ export default function RemindersPage() {
     }
   };
 
+  /* ---------------- USE EFFECT ---------------- */
+
+  useEffect(() => {
+    fetchReminders();
+
+    const savedDarkMode = localStorage.getItem("darkMode") === "true";
+    setDarkMode(savedDarkMode);
+
+    if (savedDarkMode) {
+      document.documentElement.classList.add("dark");
+    }
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "darkMode") {
+        const newDarkMode = e.newValue === "true";
+        setDarkMode(newDarkMode);
+
+        if (newDarkMode) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  /* ---------------- CREATE / UPDATE ---------------- */
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
 
     try {
+      let response;
       if (editing) {
-        await fetch(API.REMINDERS.UPDATE(editing._id), {
+        response = await fetch(API.REMINDERS.UPDATE(editing._id), {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -54,7 +86,7 @@ export default function RemindersPage() {
           body: JSON.stringify(formData),
         });
       } else {
-        await fetch(API.REMINDERS.CREATE, {
+        response = await fetch(API.REMINDERS.CREATE, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -63,134 +95,219 @@ export default function RemindersPage() {
           body: JSON.stringify(formData),
         });
       }
-      fetchReminders();
-      setShowForm(false);
-      setEditing(null);
-      setFormData({ title: "", time: "" });
+
+      const data = await response.json();
+      if (data.success) {
+        fetchReminders();
+        setShowForm(false);
+        setEditing(null);
+        setFormData({ title: "", time: "" });
+        toast.success(editing ? "Reminder updated successfully!" : "Reminder added successfully!");
+      } else {
+        toast.error(data.message || "Failed to save reminder");
+      }
     } catch (err) {
       console.error(err);
+      toast.error("Failed to save reminder");
     }
   };
 
+  /* ---------------- DELETE ---------------- */
+
   const handleDelete = async (id: string) => {
     const token = localStorage.getItem("token");
-    await fetch(API.REMINDERS.DELETE(id), {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    fetchReminders();
+
+    try {
+      const response = await fetch(API.REMINDERS.DELETE(id), {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        fetchReminders();
+        toast.success("Reminder deleted successfully!");
+      } else {
+        toast.error(data.message || "Failed to delete reminder");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete reminder");
+    }
   };
+
+  /* ---------------- TOGGLE ---------------- */
 
   const toggleReminder = async (id: string) => {
     const token = localStorage.getItem("token");
-    await fetch(API.REMINDERS.TOGGLE(id), {
-      method: "PATCH",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    fetchReminders();
+
+    try {
+      const response = await fetch(API.REMINDERS.TOGGLE(id), {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        fetchReminders();
+        toast.success("Reminder status updated!");
+      } else {
+        toast.error(data.message || "Failed to update reminder");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update reminder");
+    }
   };
 
+  /* ---------------- UI ---------------- */
+
   return (
-    <div style={{ minHeight: "100vh", background: "#f4f8fb" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: darkMode
+          ? "linear-gradient(135deg, #1f2937 0%, #111827 50%, #374151 100%)"
+          : "linear-gradient(135deg, #f4f3f1 0%, #e8f0e6 50%, #f2d1d4 100%)",
+        transition: "background 0.3s ease",
+      }}
+    >
       <Header />
       <Sidebar />
 
-      <main style={{ padding: "32px", marginLeft: "240px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-          <h1>Reminders</h1>
+      <main
+        style={{
+          padding: "32px",
+          marginLeft: "240px", // sidebar width
+          maxWidth: "1200px",
+        }}
+      >
+        {/* Header Section */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 24,
+          }}
+        >
+          <div>
+            <h1
+              style={{
+                fontSize: "28px",
+                fontWeight: 700,
+                color: darkMode ? "#f9fafb" : "#1f2937",
+                margin: 0,
+              }}
+            >
+              Reminders
+            </h1>
+            <p
+              style={{
+                color: darkMode ? "#9ca3af" : "#6b7280",
+                margin: "4px 0 0 0",
+              }}
+            >
+              Manage your daily reminders
+            </p>
+          </div>
+
           <button
             onClick={() => setShowForm(true)}
             style={{
-              background: "#5b8def",
+              background: "linear-gradient(135deg, #829672, #344C3D)",
               color: "#fff",
               border: "none",
-              padding: "10px 16px",
-              borderRadius: 8,
+              padding: "12px 20px",
+              borderRadius: 12,
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
               gap: 8,
+              fontWeight: 600,
             }}
           >
-            <Plus size={16} /> Add Reminder
+            <Plus size={18} /> Add Reminder
           </button>
         </div>
 
-        {showForm && (
-          <form onSubmit={handleSubmit} style={{ background: "#fff", padding: 20, borderRadius: 12, marginBottom: 20 }}>
-            <h3>{editing ? "Edit Reminder" : "Add New Reminder"}</h3>
-            <input
-              type="text"
-              placeholder="Title"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              required
-              style={{ width: "100%", padding: 10, marginBottom: 10, border: "1px solid #ddd", borderRadius: 4 }}
-            />
-            <input
-              type="time"
-              value={formData.time}
-              onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-              required
-              style={{ width: "100%", padding: 10, marginBottom: 10, border: "1px solid #ddd", borderRadius: 4 }}
-            />
-            <div style={{ display: "flex", gap: 10 }}>
-              <button type="submit" style={{ background: "#5b8def", color: "#fff", border: "none", padding: "10px 16px", borderRadius: 4 }}>
-                {editing ? "Update" : "Add"}
-              </button>
-              <button type="button" onClick={() => { setShowForm(false); setEditing(null); setFormData({ title: "", time: "" }); }} style={{ background: "#ccc", color: "#000", border: "none", padding: "10px 16px", borderRadius: 4 }}>
-                Cancel
-              </button>
-            </div>
-          </form>
-        )}
-
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          <div style={{ display: "grid", gap: 16 }}>
-            {reminders.map((r) => (
-              <div
-                key={r._id}
-                style={{
-                  background: "#fff",
-                  padding: 16,
-                  borderRadius: 12,
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <input
-                    type="checkbox"
-                    checked={r.done}
-                    onChange={() => toggleReminder(r._id)}
-                  />
-                  <div>
-                    <h4 style={{ margin: 0, textDecoration: r.done ? "line-through" : "none" }}>{r.title}</h4>
-                    <p style={{ margin: 0, color: "#777" }}>{r.time}</p>
-                  </div>
-                </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button
-                    onClick={() => { setEditing(r); setFormData({ title: r.title, time: r.time }); setShowForm(true); }}
-                    style={{ background: "#f6c445", color: "#fff", border: "none", padding: "6px 12px", borderRadius: 4, cursor: "pointer" }}
-                  >
-                    <Edit size={14} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(r._id)}
-                    style={{ background: "#ff7a9a", color: "#fff", border: "none", padding: "6px 12px", borderRadius: 4, cursor: "pointer" }}
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              </div>
-            ))}
+        {/* Loading */}
+        {loading && (
+          <div style={{ textAlign: "center", padding: 40 }}>
+            Loading...
           </div>
         )}
+
+        {/* Empty State */}
+        {!loading && reminders.length === 0 && (
+          <div
+            style={{
+              textAlign: "center",
+              padding: 60,
+              background: darkMode
+                ? "rgba(31,41,55,0.9)"
+                : "rgba(255,255,255,0.95)",
+              borderRadius: 16,
+            }}
+          >
+            <Bell size={48} />
+            <p>No reminders yet.</p>
+          </div>
+        )}
+
+        {/* Reminder List */}
+        <div style={{ display: "grid", gap: 16 }}>
+          {reminders.map((r) => (
+            <div
+              key={r._id}
+              style={{
+                background: darkMode
+                  ? "rgba(31,41,55,0.9)"
+                  : "rgba(255,255,255,0.95)",
+                padding: 20,
+                borderRadius: 16,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <div style={{ display: "flex", gap: 16 }}>
+                <input
+                  type="checkbox"
+                  checked={r.done}
+                  onChange={() => toggleReminder(r._id)}
+                />
+                <div>
+                  <h4
+                    style={{
+                      margin: 0,
+                      textDecoration: r.done ? "line-through" : "none",
+                    }}
+                  >
+                    {r.title}
+                  </h4>
+                  <p style={{ margin: 0 }}>{r.time}</p>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  onClick={() => {
+                    setEditing(r);
+                    setFormData({ title: r.title, time: r.time });
+                    setShowForm(true);
+                  }}
+                >
+                  <Edit size={16} />
+                </button>
+
+                <button onClick={() => handleDelete(r._id)}>
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </main>
     </div>
   );

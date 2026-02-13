@@ -36,5 +36,9 @@ export default async function AdminDashboardPage() {
     console.error(err);
   }
 
-  return <AdminDashboardClient initialUsers={users} adminUser={user} token={token || ""} />;
+  return (
+    <div className="p-8">
+      <AdminDashboardClient initialUsers={users} adminUser={user} token={token || ""} />
+    </div>
+  );
 }

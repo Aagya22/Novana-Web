@@ -54,8 +54,13 @@ export const handleLogin = async (formData: LoginData, options?: { persist?: boo
 }
 
 export const handleLogout = async () => {
-    await clearAuthCookies();
-    return redirect('/login');
+    try {
+        await clearAuthCookies();
+        redirect('/login');
+    } catch (error) {
+       
+        throw error;
+    }
 }
 
 export async function handleWhoAmI() {
