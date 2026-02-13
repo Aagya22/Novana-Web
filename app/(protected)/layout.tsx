@@ -1,16 +1,16 @@
 import React from "react";
-import { getAuthToken, getUserData } from "@/lib/cookie";
 import { redirect } from "next/navigation";
-import AdminSidebar from "./components/AdminSidebar";
+import { getAuthToken, getUserData } from "@/lib/cookie";
 
-interface AdminLayoutProps {
+interface ProtectedLayoutProps {
   children: React.ReactNode;
 }
 
-export default async function AdminLayout({ children }: AdminLayoutProps) {
+export default async function ProtectedLayout({ children }: ProtectedLayoutProps) {
   const token = await getAuthToken();
-
-  if (!token) redirect("/login");
+  if (!token) {
+    redirect("/login");
+  }
 
   const base =
     process.env.API_BASE_URL ||
@@ -33,16 +33,16 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
       }
     }
   } catch {
-    // If backend is unreachable, fall back to cookie role.
+    // fall back to cookie role if backend unreachable
   }
 
-  if (!user) redirect("/login");
-  if (user.role !== "admin") redirect("/home");
+  if (!user) {
+    redirect("/login");
+  }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <AdminSidebar adminUser={user} />
-      <main className="ml-0">{children}</main>
-    </div>
-  );
+  if (user.role === "admin") {
+    redirect("/admin/dashboard");
+  }
+
+  return <>{children}</>;
 }

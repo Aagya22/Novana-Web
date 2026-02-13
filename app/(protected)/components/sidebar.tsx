@@ -83,32 +83,11 @@ export default function Sidebar() {
           transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
           display: "flex",
           flexDirection: "column",
-          paddingTop: "80px",
+          paddingTop: "20px",
         }}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
       >
-        {/* Logo only */}
-        <div
-          style={{
-            padding: "20px 0",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginBottom: "32px"
-          }}
-        >
-          <img 
-            src="/novacane.png" 
-            alt="Novana logo"
-            style={{
-              width: "48px",
-              height: "48px",
-              objectFit: "contain"
-            }}
-          />
-        </div>
-
         {/* Nav Links */}
         <nav
           style={{

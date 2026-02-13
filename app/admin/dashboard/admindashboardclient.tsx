@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { Search, UserPlus, Edit2, Trash2, X, Eye, EyeOff } from "lucide-react";
-import { toast } from "react-toastify";
+import React, { useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { Users, UserCheck, Activity, TrendingUp, ArrowRight } from "lucide-react";
 
 interface User {
   _id: string;
@@ -12,6 +12,7 @@ interface User {
   phoneNumber: string;
   role: string;
   imageUrl?: string;
+  createdAt: string;
 }
 
 interface AdminDashboardClientProps {
@@ -23,819 +24,230 @@ interface AdminDashboardClientProps {
 export default function AdminDashboardClient({
   initialUsers,
   adminUser,
-  token,
 }: AdminDashboardClientProps) {
-  const [users, setUsers] = useState<User[]>(initialUsers);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const router = useRouter();
 
-  // Filter users based on search query
-  const filteredUsers = useMemo(() => {
-    if (!searchQuery.trim()) return users;
+  // Calculate stats
+  const stats = useMemo(() => {
+    const totalUsers = initialUsers.length;
+    const totalAdmins = initialUsers.filter(user => user.role === 'admin').length;
+    const regularUsers = totalUsers - totalAdmins;
     
-    const query = searchQuery.toLowerCase();
-    return users.filter(
-      (user) =>
-        user.fullName.toLowerCase().includes(query) ||
-        user.email.toLowerCase().includes(query) ||
-        user.username.toLowerCase().includes(query) ||
-        user.phoneNumber.includes(query) ||
-        user.role.toLowerCase().includes(query)
-    );
-  }, [users, searchQuery]);
+    // Get users created in last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const recentUsers = initialUsers.filter(user => 
+      new Date(user.createdAt) >= thirtyDaysAgo
+    ).length;
 
-  // Calculate overview stats
-  const totalUsers = users.length;
-  const totalAdmins = users.filter(user => user.role === 'admin').length;
+    return {
+      totalUsers,
+      totalAdmins,
+      regularUsers,
+      recentUsers
+    };
+  }, [initialUsers]);
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+  // Get 5 most recent users
+  const recentUsers = useMemo(() => {
+    return [...initialUsers]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 5);
+  }, [initialUsers]);
 
-  // Reset to first page when search changes
-  useMemo(() => {
-    setCurrentPage(1);
-  }, [searchQuery]);
-
-  const handleCreateUser = async (formData: FormData) => {
-    try {
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050";
-      
-      console.log("Creating user with form data:", formData);
-      console.log("API URL:", `${base}/api/admin/users`);
-      
-      const res = await fetch(`${base}/api/admin/users`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          // Don't set Content-Type for FormData, let browser set it with boundary
-        },
-        body: formData,
-      });
-
-      console.log("Response status:", res.status);
-      
-      const responseData = await res.json();
-      console.log("Response data:", responseData);
-
-      if (!res.ok) {
-        // Handle both error formats from backend
-        let errorMessage = "Failed to create user";
-        
-        if (responseData.message) {
-          errorMessage = responseData.message;
-        } else if (responseData.errors) {
-          // Handle zod error format
-          const zodErrors = responseData.errors;
-          if (zodErrors.fieldErrors) {
-            errorMessage = Object.entries(zodErrors.fieldErrors)
-              .map(([field, errors]: [string, any]) => `${field}: ${errors.join(", ")}`)
-              .join("; ");
-          } else if (zodErrors.formErrors) {
-            errorMessage = zodErrors.formErrors.join(", ");
-          }
-        }
-        
-        throw new Error(errorMessage);
-      }
-
-      setUsers([...users, responseData.data]);
-      setIsCreateModalOpen(false);
-      toast.success("User created successfully!");
-    } catch (error: any) {
-      console.error("Create user error:", error);
-      toast.error(`Failed to create user: ${error.message}`);
-    }
-  };
-
-  const handleUpdateUser = async (formData: FormData) => {
-    if (!selectedUser) return;
-
-    try {
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050";
-      
-      // Check if a file was uploaded
-      const imageFile = formData.get("image") as File;
-      const hasImage = imageFile && imageFile.size > 0;
-
-      let res: Response;
-      let responseData: any;
-
-      if (hasImage) {
-        // Use FormData for file upload
-        console.log("Updating user with form data (including image):", formData);
-        
-        res = await fetch(`${base}/api/admin/users/${selectedUser._id}`, {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            // Don't set Content-Type for FormData
-          },
-          body: formData,
-        });
-      } else {
-        // Use JSON for text-only updates
-        const updateData = {
-          fullName: formData.get("fullName"),
-          email: formData.get("email"),
-          username: formData.get("username"),
-          phoneNumber: formData.get("phoneNumber"),
-        };
-
-        console.log("Updating user with data:", updateData);
-
-        res = await fetch(`${base}/api/admin/users/${selectedUser._id}`, {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updateData),
-        });
-      }
-
-      responseData = await res.json();
-      console.log("Update response:", responseData);
-
-      if (!res.ok) {
-        // Handle both error formats from backend
-        let errorMessage = "Failed to update user";
-        
-        if (responseData.message) {
-          errorMessage = responseData.message;
-        } else if (responseData.errors) {
-          // Handle zod error format
-          const zodErrors = responseData.errors;
-          if (zodErrors.fieldErrors) {
-            errorMessage = Object.entries(zodErrors.fieldErrors)
-              .map(([field, errors]: [string, any]) => `${field}: ${errors.join(", ")}`)
-              .join("; ");
-          } else if (zodErrors.formErrors) {
-            errorMessage = zodErrors.formErrors.join(", ");
-          }
-        }
-        
-        throw new Error(errorMessage);
-      }
-
-      setUsers(users.map((u) => (u._id === selectedUser._id ? responseData.data : u)));
-      setIsEditModalOpen(false);
-      setSelectedUser(null);
-      toast.success("User updated successfully!");
-    } catch (error: any) {
-      console.error("Update user error:", error);
-      toast.error(`Failed to update user: ${error.message}`);
-    }
-  };
-
-  const handleDeleteUser = async (userId: string) => {
-    if (!confirm("Are you sure you want to delete this user?")) return;
-
-    setIsDeleting(true);
-    try {
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050";
-      const res = await fetch(`${base}/api/admin/users/${userId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to delete user");
-      }
-
-      setUsers(users.filter((u) => u._id !== userId));
-      toast.success("User deleted successfully!");
-    } catch (error) {
-      toast.error("Failed to delete user");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  const openEditModal = (user: User) => {
-    setSelectedUser(user);
-    setIsEditModalOpen(true);
-  };
+  const backendBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050";
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(135deg, #f4f3f1 0%, #e8f0e6 50%, #f2d1d4 100%)",
-      transition: "background 0.3s ease",
-      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
-    }}>
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;600;700&display=swap');
-        
-        * {
-          font-family: 'Sora', sans-serif;
-        }
-        
-        .mono {
-          font-family: 'Space Mono', monospace;
-        }
-        
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-        
-        .animate-slide-in {
-          animation: slideIn 0.3s ease-out forwards;
-        }
-        
-        .animate-fade-in {
-          animation: fadeIn 0.2s ease-out forwards;
-        }
-        
-        .glass-effect {
-          background: rgba(255, 255, 255, 0.7);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .table-row-hover {
-          transition: all 0.2s ease;
-        }
-        
-        .table-row-hover:hover {
-          background: rgba(79, 70, 229, 0.05);
-          transform: translateX(4px);
-        }
-        
-        .btn-primary {
-          background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-          transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover {
-          background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
-          transform: translateY(-2px);
-          box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
-        }
-        
-        .input-field {
-          transition: all 0.2s ease;
-        }
-        
-        .input-field:focus {
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
-        }
-        
-        .sidebar-enter {
-          transform: translateX(100%);
-        }
-        
-        .sidebar-enter-active {
-          transform: translateX(0%);
-          transition: transform 300ms ease-in-out;
-        }
-        
-        .sidebar-exit {
-          transform: translateX(0%);
-        }
-        
-        .sidebar-exit-active {
-          transform: translateX(100%);
-          transition: transform 300ms ease-in-out;
-        }
-      `}</style>
-
-      <div className="max-w-7xl mx-auto p-6 md:p-8">
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <header className="mb-8 animate-slide-in">
-          <div className="glass-effect rounded-2xl p-6 shadow-lg">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <header className="mb-8 bg-white rounded-2xl shadow-sm p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <img
+                src="/novacane.png"
+                alt="Novana"
+                className="h-12 w-auto"
+              />
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  Admin Dashboard
-                </h1>
-                <p className="text-sm text-gray-600 mt-1 mono">
-                  Manage your users with ease
-                </p>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Dashboard</h1>
+                <p className="text-sm text-gray-600">Welcome back, {adminUser.fullName}</p>
               </div>
-              <div className="flex items-center">
-                <div className="flex items-center gap-3 bg-white rounded-xl px-4 py-2 shadow-sm">
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                    {adminUser?.imageUrl ? (
-                      <img
-                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050"}${adminUser.imageUrl}`}
-                        alt={`${adminUser.fullName}'s profile`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          const parent = target.parentElement;
-                          if (parent) {
-                            parent.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">${adminUser.fullName?.charAt(0).toUpperCase()}</div>`;
-                          }
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                        {adminUser?.fullName?.charAt(0).toUpperCase()}
-                      </div>
-                    )}
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+                {adminUser?.imageUrl ? (
+                  <img
+                    src={`${backendBase}${adminUser.imageUrl}`}
+                    alt={adminUser.fullName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                    {adminUser?.fullName?.charAt(0).toUpperCase()}
                   </div>
-                  <div className="text-sm">
-                    <div className="font-semibold text-gray-800">{adminUser?.fullName}</div>
-                    <div className="text-gray-500 mono text-xs">{adminUser?.role}</div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    if (confirm("Are you sure you want to logout?")) {
-                      document.cookie.split(";").forEach((c) => {
-                        document.cookie = c
-                          .replace(/^ +/, "")
-                          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-                      });
-                      window.location.href = "/admin/login";
-                    }
-                  }}
-                  className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold transition-all hover:shadow-lg"
-                >
-                  Logout
-                </button>
+                )}
+              </div>
+              <div className="text-sm">
+                <div className="font-semibold text-gray-900">{adminUser?.fullName}</div>
+                <div className="text-xs text-gray-500">{adminUser?.role}</div>
               </div>
             </div>
           </div>
         </header>
 
-        {/* Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 animate-slide-in" style={{ animationDelay: '0.1s' }}>
-          <div className="glass-effect rounded-2xl p-6 shadow-lg">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                <UserPlus className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold text-gray-800">{totalUsers}</p>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Total Users */}
+          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <Users className="w-6 h-6 text-blue-600" />
               </div>
             </div>
+            <h3 className="text-gray-600 text-sm font-medium mb-1">Total Users</h3>
+            <p className="text-3xl font-bold text-gray-900">{stats.totalUsers}</p>
           </div>
-          <div className="glass-effect rounded-2xl p-6 shadow-lg">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
-                <Edit2 className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Admins</p>
-                <p className="text-2xl font-bold text-gray-800">{totalAdmins}</p>
+
+          {/* Regular Users */}
+          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-green-100 rounded-lg">
+                <UserCheck className="w-6 h-6 text-green-600" />
               </div>
             </div>
+            <h3 className="text-gray-600 text-sm font-medium mb-1">Regular Users</h3>
+            <p className="text-3xl font-bold text-gray-900">{stats.regularUsers}</p>
+          </div>
+
+          {/* Admins */}
+          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-purple-100 rounded-lg">
+                <Activity className="w-6 h-6 text-purple-600" />
+              </div>
+            </div>
+            <h3 className="text-gray-600 text-sm font-medium mb-1">Administrators</h3>
+            <p className="text-3xl font-bold text-gray-900">{stats.totalAdmins}</p>
+          </div>
+
+          {/* New Users (30 days) */}
+          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-orange-500">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-orange-100 rounded-lg">
+                <TrendingUp className="w-6 h-6 text-orange-600" />
+              </div>
+            </div>
+            <h3 className="text-gray-600 text-sm font-medium mb-1">New (30 days)</h3>
+            <p className="text-3xl font-bold text-gray-900">{stats.recentUsers}</p>
           </div>
         </div>
 
-        {/* Search and Actions Bar */}
-        <div className="mb-6 glass-effect rounded-2xl p-4 shadow-lg animate-slide-in" style={{ animationDelay: '0.1s' }}>
-          <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
-            {/* Search Bar */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search users by name, email, username, phone, or role..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent input-field bg-white"
-              />
+        {/* Recent Users Section */}
+        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Recent Users</h2>
+              <p className="text-sm text-gray-600">Latest registered users</p>
             </div>
-
-            {/* Create User Button */}
             <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="btn-primary text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 justify-center shadow-lg"
+              onClick={() => router.push("/admin/users")}
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
             >
-              <UserPlus className="w-5 h-5" />
-              <span>Create User</span>
+              View All Users
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
-
-          {/* Search Results Count */}
-          {searchQuery && (
-            <div className="mt-3 text-sm text-gray-600 mono animate-fade-in">
-              Found {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''} • Page {currentPage} of {totalPages}
-            </div>
-          )}
-        </div>
-
-        {/* Users Table */}
-        <section className="glass-effect rounded-2xl shadow-lg overflow-hidden animate-slide-in" style={{ animationDelay: '0.2s' }}>
-          <div className="p-6 border-b border-gray-200 bg-white bg-opacity-50">
-            <h2 className="text-xl font-bold text-gray-800">
-              Users ({filteredUsers.length})
-            </h2>
-          </div>
-
+          
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
-                <tr className="text-left text-sm font-semibold text-gray-700">
-                  <th className="py-4 px-6">Profile</th>
-                  <th className="py-4 px-6">Name</th>
-                  <th className="py-4 px-6">Email</th>
-                  <th className="py-4 px-6">Username</th>
-                  <th className="py-4 px-6">Phone</th>
-                  <th className="py-4 px-6">Role</th>
-                  <th className="py-4 px-6 text-center">Actions</th>
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    User
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Role
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Joined
+                  </th>
                 </tr>
               </thead>
-              <tbody className="bg-white">
-                {paginatedUsers.map((user, index) => (
-                  <tr
-                    key={user._id}
-                    className="border-t border-gray-100 table-row-hover"
-                    style={{ animationDelay: `${0.3 + index * 0.05}s` }}
-                  >
-                    <td className="py-4 px-6">
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                        {user.imageUrl ? (
-                          <img
-                            src={`${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050"}${user.imageUrl}`}
-                            alt={`${user.fullName}'s profile`}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
-                              if (parent) {
-                                parent.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">${user.fullName.charAt(0).toUpperCase()}</div>`;
-                              }
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                            {user.fullName.charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="py-4 px-6 font-medium text-gray-800">{user.fullName}</td>
-                    <td className="py-4 px-6 text-gray-600 mono text-sm">{user.email}</td>
-                    <td className="py-4 px-6 text-gray-600 mono text-sm">{user.username}</td>
-                    <td className="py-4 px-6 text-gray-600 mono text-sm">{user.phoneNumber}</td>
-                    <td className="py-4 px-6">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                        user.role === 'admin' 
-                          ? 'bg-purple-100 text-purple-700' 
-                          : 'bg-blue-100 text-blue-700'
-                      }`}>
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => openEditModal(user)}
-                          className="p-2 hover:bg-indigo-50 rounded-lg transition-colors"
-                          title="Edit user"
-                        >
-                          <Edit2 className="w-4 h-4 text-indigo-600" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteUser(user._id)}
-                          disabled={isDeleting}
-                          className="p-2 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                          title="Delete user"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-600" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {paginatedUsers.length === 0 && (
+              <tbody className="divide-y divide-gray-200">
+                {recentUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center">
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
-                          <Search className="w-8 h-8 text-gray-400" />
-                        </div>
-                        <p className="text-gray-500 font-medium">
-                          {searchQuery ? "No users found matching your search" : "No users found"}
-                        </p>
-                      </div>
+                    <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
+                      No users found
                     </td>
                   </tr>
+                ) : (
+                  recentUsers.map((user) => (
+                    <tr 
+                      key={user._id} 
+                      className="hover:bg-gray-50 transition-colors cursor-pointer"
+                      onClick={() => router.push(`/admin/users/${user._id}`)}
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                            {user.imageUrl ? (
+                              <img
+                                src={`${backendBase}${user.imageUrl}`}
+                                alt={user.fullName}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const parent = target.parentElement;
+                                  if (parent) {
+                                    parent.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">${user.fullName?.charAt(0).toUpperCase()}</div>`;
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                                {user.fullName?.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <div className="font-medium text-gray-900">{user.fullName}</div>
+                            <div className="text-xs text-gray-500">@{user.username}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-sm text-gray-900">{user.email}</span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            user.role === "admin"
+                              ? "bg-purple-100 text-purple-800"
+                              : "bg-blue-100 text-blue-800"
+                          }`}
+                        >
+                          {user.role}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {new Date(user.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>
           </div>
-        </section>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-6 flex items-center justify-between glass-effect rounded-2xl p-4 shadow-lg animate-slide-in" style={{ animationDelay: '0.3s' }}>
-            <div className="text-sm text-gray-600">
-              Showing {startIndex + 1} to {Math.min(endIndex, filteredUsers.length)} of {filteredUsers.length} users
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Previous
-              </button>
-              
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg ${
-                    currentPage === page
-                      ? 'text-white bg-indigo-600 border border-indigo-600'
-                      : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
-              
-              <button
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Create User Modal */}
-      {isCreateModalOpen && (
-        <UserModal
-          title="Create New User"
-          onClose={() => setIsCreateModalOpen(false)}
-          onSubmit={handleCreateUser}
-          showPassword={showPassword}
-          setShowPassword={setShowPassword}
-          isEditMode={false}
-        />
-      )}
-
-      {/* Edit User Modal */}
-      {isEditModalOpen && selectedUser && (
-        <UserModal
-          title="Edit User"
-          user={selectedUser}
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setSelectedUser(null);
-          }}
-          onSubmit={handleUpdateUser}
-          showPassword={showPassword}
-          setShowPassword={setShowPassword}
-          isEditMode={true}
-        />
-      )}
-
-    </div>
-  );
-}
-
-interface UserModalProps {
-  title: string;
-  user?: User;
-  onClose: () => void;
-  onSubmit: (formData: FormData) => void;
-  showPassword: boolean;
-  setShowPassword: (show: boolean) => void;
-  isEditMode?: boolean;
-}
-
-function UserModal({ title, user, onClose, onSubmit, showPassword, setShowPassword, isEditMode = false }: UserModalProps) {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    
-    if (!isEditMode) {
-      const password = formData.get("password") as string;
-      const confirmPassword = formData.get("confirmPassword") as string;
-      if (password !== confirmPassword) {
-        toast.error("Passwords do not match");
-        return;
-      }
-    }
-    
-    onSubmit(formData);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slide-in">
-        {/* Modal Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 flex items-center justify-between rounded-t-2xl">
-          <h2 className="text-2xl font-bold">{title}</h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
-          >
-            <X className="w-6 h-6" />
-          </button>
         </div>
-
-        {/* Modal Body */}
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Full Name
-              </label>
-              <input
-                type="text"
-                name="fullName"
-                defaultValue={user?.fullName}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 input-field"
-                placeholder="John Doe"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                defaultValue={user?.email}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 input-field mono"
-                placeholder="john@example.com"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Username
-              </label>
-              <input
-                type="text"
-                name="username"
-                defaultValue={user?.username}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 input-field mono"
-                placeholder="johndoe"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                name="phoneNumber"
-                defaultValue={user?.phoneNumber}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 input-field mono"
-                placeholder="+1234567890"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Profile Picture
-              </label>
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                  {user?.imageUrl ? (
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050"}${user.imageUrl}`}
-                      alt={`${user.fullName}'s profile`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        const parent = target.parentElement;
-                        if (parent) {
-                          parent.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">${user.fullName?.charAt(0).toUpperCase()}</div>`;
-                        }
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                      {user?.fullName?.charAt(0).toUpperCase() || '?'}
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <input
-                    type="file"
-                    name="image"
-                    accept="image/*"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 input-field file:mr-4 file:py-2 file:px-4 file:rounded-l-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Upload a profile picture (optional)</p>
-                </div>
-              </div>
-            </div>
-            {!isEditMode && (
-              <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    required
-                    minLength={8}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 input-field mono pr-12"
-                    placeholder="Enter password (min 8 characters)"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-5 h-5 text-gray-500" />
-                    ) : (
-                      <Eye className="w-5 h-5 text-gray-500" />
-                    )}
-                  </button>
-                </div>
-              </div>
-            )}
-            {!isEditMode && (
-              <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="confirmPassword"
-                    required
-                    minLength={8}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 input-field mono pr-12"
-                    placeholder="Confirm password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-5 h-5 text-gray-500" />
-                    ) : (
-                      <Eye className="w-5 h-5 text-gray-500" />
-                    )}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Modal Footer */}
-          <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-6 py-3 border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 btn-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg"
-            >
-              {user ? "Update User" : "Create User"}
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   );

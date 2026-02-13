@@ -38,7 +38,8 @@ export default function AdminSidebar({ adminUser }: AdminSidebarProps) {
           .replace(/^ +/, "")
           .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
       });
-      window.location.href = "/admin/login";
+      localStorage.clear();
+      window.location.href = "/login";
     }
   };
 
@@ -78,29 +79,52 @@ export default function AdminSidebar({ adminUser }: AdminSidebarProps) {
           transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
           display: "flex",
           flexDirection: "column",
+          paddingTop: "20px",
         }}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
       >
-        {/* Logo only */}
+        {/* Logo Section */}
         <div
           style={{
-            padding: "20px 0",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginBottom: "32px"
+            padding: "0 20px 24px 20px",
+            borderBottom: "1px solid rgba(216,149,155,0.15)",
+            marginBottom: "16px",
           }}
         >
-          <img 
-            src="/novacane.png" 
-            alt="Novana logo"
-            style={{
-              width: "48px",
-              height: "48px",
-              objectFit: "contain"
-            }}
-          />
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <img
+              src="/novacane.png"
+              alt="Novana"
+              style={{
+                height: "36px",
+                width: "auto",
+              }}
+            />
+            <div>
+              <div
+                style={{
+                  fontSize: "16px",
+                  fontWeight: "700",
+                  background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                Novana
+              </div>
+              <div
+                style={{
+                  fontSize: "10px",
+                  color: "#9ca3af",
+                  fontWeight: "500",
+                }}
+              >
+                Admin Panel
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Menu Items */}
