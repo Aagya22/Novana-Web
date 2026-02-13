@@ -39,7 +39,7 @@ export default function LoginForm() {
 
     await setAuthToken(token);
 
-    // ✅ Map backend response to UserData format (include imageUrl if present)
+    // Map backend response to UserData format (include imageUrl if present)
     const mappedUser = {
       _id: user.id, // Map 'id' to '_id'
       email: user.email,

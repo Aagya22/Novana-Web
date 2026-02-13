@@ -63,7 +63,7 @@ export default function RegisterForm() {
             ← Back
           </button>
 
-          {/* 🔹 Pinterest-style heading */}
+       
           <h1 className="text-2xl font-semibold tracking-tight text-[#1a4d3f]">
             Welcome!
           </h1>
@@ -100,7 +100,7 @@ export default function RegisterForm() {
               error={errors.confirmPassword?.message}
             />
 
-            {/* 🔹 Softer Pinterest-style button */}
+          
             <button
               type="submit"
               disabled={isSubmitting}
@@ -123,7 +123,7 @@ export default function RegisterForm() {
   );
 }
 
-/* ---------------- UI-ONLY INPUT STYLES ---------------- */
+
 
 function Input({ label, placeholder, type = "text", register, error }: any) {
   return (

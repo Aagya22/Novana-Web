@@ -11,7 +11,7 @@ async function fetchUsers(token: string) {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-    next: { revalidate: 0 },
+    cache: "no-store",
   });
   if (!res.ok) {
     const text = await res.text();
@@ -25,7 +25,7 @@ export default async function AdminDashboardPage() {
   const token = await getAuthToken();
 
   if (!user || user.role !== "admin") {
-    redirect("/admin/login");
+    redirect("/login");
   }
 
   let users = [] as any[];
