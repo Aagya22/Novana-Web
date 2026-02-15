@@ -13,13 +13,12 @@ import {
   Trash2,
   Filter,
   MoreHorizontal,
-  Heart,
-  Share2,
   Clock,
   Plus,
   Edit,
 } from "lucide-react";
 import { API } from "../../../lib/api/endpoints";
+import AxiosInstance from "../../../lib/api/axios";
 import { toast } from "react-toastify";
 
 interface JournalEntry {
@@ -28,7 +27,7 @@ interface JournalEntry {
   content: string;
   date: string;
   createdAt: string;
-  mood?: string;
+  updatedAt: string;
 }
 
 export default function JournalPage() {
@@ -36,7 +35,8 @@ export default function JournalPage() {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -48,23 +48,28 @@ export default function JournalPage() {
   });
 
   useEffect(() => {
-    fetchEntries();
-  }, []);
+    setLoading(true);
+    const handle = setTimeout(() => {
+      fetchEntries();
+    }, 250);
+    return () => clearTimeout(handle);
+  }, [searchTerm, startDate, endDate]);
 
   const fetchEntries = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(API.JOURNALS.LIST, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      const data = await response.json();
+      const url = new URL(API.JOURNALS.LIST);
+      if (searchTerm.trim()) url.searchParams.set("q", searchTerm.trim());
+      if (startDate) url.searchParams.set("startDate", startDate);
+      if (endDate) url.searchParams.set("endDate", endDate);
+
+      const response = await AxiosInstance.get(url.toString());
+      const data = response.data;
       if (data.success) {
         setEntries(data.data);
       }
     } catch (error) {
       console.error('Error fetching entries:', error);
+      setEntries([]);
     } finally {
       setLoading(false);
     }
@@ -73,20 +78,15 @@ export default function JournalPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
       const url = editingEntry ? API.JOURNALS.UPDATE(editingEntry._id) : API.JOURNALS.CREATE;
       const method = editingEntry ? 'PUT' : 'POST';
 
-      const response = await fetch(url, {
+      const response = await AxiosInstance.request({
+        url,
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
+        data: formData,
       });
-
-      const data = await response.json();
+      const data = response.data;
       if (data.success) {
         fetchEntries();
         setShowForm(false);
@@ -114,14 +114,8 @@ export default function JournalPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(API.JOURNALS.DELETE(id), {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      const data = await response.json();
+      const response = await AxiosInstance.delete(API.JOURNALS.DELETE(id));
+      const data = response.data;
       if (data.success) {
         fetchEntries();
         setShowDeleteModal(false);
@@ -136,12 +130,7 @@ export default function JournalPage() {
     }
   };
 
-  const filteredEntries = entries.filter(entry => {
-    const matchesSearch = entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         entry.content.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = selectedFilter === "all" || entry.mood === selectedFilter;
-    return matchesSearch && matchesFilter;
-  });
+  const filteredEntries = entries;
 
   const handleDeleteEntry = (entryId: string) => {
     setEntryToDelete(entryId);
@@ -152,17 +141,6 @@ export default function JournalPage() {
     if (entryToDelete) {
       handleDelete(entryToDelete);
     }
-  };
-
-  const getMoodColor = (mood?: string) => {
-    const moodColors: { [key: string]: string } = {
-      grateful: "#10b981",
-      energetic: "#f59e0b", 
-      accomplished: "#8b5cf6",
-      reflective: "#06b6d4",
-      peaceful: "#84cc16"
-    };
-    return moodColors[mood || ""] || "#6b7280";
   };
 
   const formatDate = (dateString: string) => {
@@ -296,7 +274,7 @@ export default function JournalPage() {
               <Search size={18} color="#6b7280" strokeWidth={2} />
               <input
                 type="text"
-                placeholder="Search your entries..."
+                placeholder="Search by title..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
@@ -311,10 +289,49 @@ export default function JournalPage() {
                 }}
               />
             </div>
-            
-            <select
-              value={selectedFilter}
-              onChange={(e) => setSelectedFilter(e.target.value)}
+
+            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                style={{
+                  padding: "12px 16px",
+                  background: "rgba(255,255,255,0.8)",
+                  border: "1px solid rgba(216,149,155,0.2)",
+                  borderRadius: "12px",
+                  color: "#1f2937",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                  fontFamily: "'Inter', sans-serif"
+                }}
+              />
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                style={{
+                  padding: "12px 16px",
+                  background: "rgba(255,255,255,0.8)",
+                  border: "1px solid rgba(216,149,155,0.2)",
+                  borderRadius: "12px",
+                  color: "#1f2937",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                  fontFamily: "'Inter', sans-serif"
+                }}
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setSearchTerm("");
+                setStartDate("");
+                setEndDate("");
+              }}
               style={{
                 padding: "12px 16px",
                 background: "rgba(255,255,255,0.8)",
@@ -327,13 +344,8 @@ export default function JournalPage() {
                 fontFamily: "'Inter', sans-serif"
               }}
             >
-              <option value="all">All moods</option>
-              <option value="grateful">Grateful</option>
-              <option value="energetic">Energetic</option>
-              <option value="accomplished">Accomplished</option>
-              <option value="reflective">Reflective</option>
-              <option value="peaceful">Peaceful</option>
-            </select>
+              Clear
+            </button>
           </div>
         </div>
 
@@ -542,6 +554,10 @@ export default function JournalPage() {
                           <Clock size={14} strokeWidth={2} />
                           {formatDate(entry.date || entry.createdAt)}
                         </div>
+                        <div style={{ color: "#9ca3af", fontSize: "12px", fontWeight: "500" }}>
+                          Created: {formatDate(entry.createdAt)}
+                          {entry.updatedAt && entry.updatedAt !== entry.createdAt ? ` • Updated: ${formatDate(entry.updatedAt)}` : ""}
+                        </div>
                       </div>
                     </div>
                     
@@ -579,44 +595,7 @@ export default function JournalPage() {
                   </p>
 
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <button style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "8px 12px",
-                        background: "rgba(216,149,155,0.1)",
-                        border: "none",
-                        borderRadius: "8px",
-                        color: "#D8959B",
-                        fontSize: "12px",
-                        fontWeight: "600",
-                        cursor: "pointer",
-                        transition: "all 0.3s ease"
-                      }}>
-                        <Heart size={14} strokeWidth={2} />
-                        Like
-                      </button>
-                      <button style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "8px 12px",
-                        background: "rgba(130,150,114,0.1)",
-                        border: "none",
-                        borderRadius: "8px",
-                        color: "#829672",
-                        fontSize: "12px",
-                        fontWeight: "600",
-                        cursor: "pointer",
-                        transition: "all 0.3s ease"
-                      }}>
-                        <Share2 size={14} strokeWidth={2} />
-                        Share
-                      </button>
-                    </div>
-                    
-                    <div style={{ display: "flex", gap: "8px" }}>
+                    <div style={{ display: "flex", gap: "8px", marginLeft: "auto" }}>
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
@@ -684,8 +663,8 @@ export default function JournalPage() {
                 marginBottom: "32px",
                 maxWidth: "400px"
               }}>
-                {searchTerm || selectedFilter !== "all" 
-                  ? "Try adjusting your search or filter to find entries."
+                {searchTerm || startDate || endDate
+                  ? "Try adjusting your search or date filter to find entries."
                   : "Start your wellness journey by writing your first journal entry."}
               </p>
               <button

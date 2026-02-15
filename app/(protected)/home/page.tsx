@@ -27,6 +27,12 @@ interface Reminder {
   done: boolean;
 }
 
+interface MoodEntry {
+  _id: string;
+  mood: number;
+  moodType?: string;
+}
+
 export default function Page() {
   const router = useRouter();
 
@@ -38,6 +44,19 @@ export default function Page() {
   const [habitsCount, setHabitsCount] = useState(0);
   const [currentMood, setCurrentMood] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
+
+  const getMoodLabel = (entry: MoodEntry) => {
+    if (entry.moodType && typeof entry.moodType === "string") {
+      const t = entry.moodType.replace(/[_-]+/g, " ").trim();
+      if (t.length > 0) return t.charAt(0).toUpperCase() + t.slice(1);
+    }
+
+    if (entry.mood <= 2) return "Very Sad";
+    if (entry.mood <= 4) return "Sad";
+    if (entry.mood <= 6) return "Neutral";
+    if (entry.mood <= 8) return "Happy";
+    return "Very Happy";
+  };
 
   useEffect(() => {
     fetchOverview();
@@ -80,7 +99,8 @@ export default function Page() {
       if (eData?.success) setExercisesCount(eData.data.length);
       if (hData?.success) setHabitsCount(hData.data.length);
       if (mData?.success && mData.data.length > 0) {
-        setCurrentMood(mData.data[mData.data.length - 1].mood);
+        const latest: MoodEntry = mData.data[0];
+        setCurrentMood(getMoodLabel(latest));
       }
     } catch (err) {
       console.error(err);
