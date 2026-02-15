@@ -26,6 +26,9 @@ export const API = {
   MOODS: {
     LIST: "http://localhost:5050/api/moods",
     CREATE: "http://localhost:5050/api/moods",
+    ANALYTICS: "http://localhost:5050/api/moods/analytics",
+    OVERVIEW: "http://localhost:5050/api/moods/overview",
+    BY_DATE: "http://localhost:5050/api/moods/by-date",
     GET: (id: string) => `http://localhost:5050/api/moods/${id}`,
     UPDATE: (id: string) => `http://localhost:5050/api/moods/${id}`,
     DELETE: (id: string) => `http://localhost:5050/api/moods/${id}`,
