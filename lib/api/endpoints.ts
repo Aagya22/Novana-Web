@@ -22,6 +22,8 @@ export const API = {
     GET: (id: string) => `http://localhost:5050/api/exercises/${id}`,
     UPDATE: (id: string) => `http://localhost:5050/api/exercises/${id}`,
     DELETE: (id: string) => `http://localhost:5050/api/exercises/${id}`,
+    GUIDED_COMPLETE: "http://localhost:5050/api/exercises/guided/complete",
+    GUIDED_HISTORY: "http://localhost:5050/api/exercises/guided/history",
   },
   MOODS: {
     LIST: "http://localhost:5050/api/moods",
