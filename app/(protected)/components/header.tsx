@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Bell, MessageSquare, Search, LogOut } from "lucide-react";
+import { Bell, Search, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleLogout } from "@/lib/actions/auth-action";
 import { showToast } from "@/lib/toast";
+import { API } from "@/lib/api/endpoints";
 
 function readUserDataFromCookie() {
   if (typeof document === "undefined") return null;
@@ -22,6 +23,10 @@ export default function Header() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [user, setUser] = useState<any | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  const [reminderOpen, setReminderOpen] = useState(false);
+  const [reminderLoading, setReminderLoading] = useState(false);
+  const [reminderNotifications, setReminderNotifications] = useState<any[]>([]);
 
   useEffect(() => {
     const u = readUserDataFromCookie();
@@ -55,6 +60,35 @@ export default function Header() {
       window.removeEventListener("storage", storageHandler);
     };
   }, []);
+
+  const fetchReminderNotifications = async () => {
+    try {
+      setReminderLoading(true);
+      const token = window.localStorage.getItem("token");
+      if (!token) return;
+      const res = await fetch(API.REMINDERS.NOTIFICATIONS(20), {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const payload = await res.json();
+      if (payload?.success && Array.isArray(payload?.data)) {
+        setReminderNotifications(payload.data);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setReminderLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const handler = () => {
+      // refresh list when poller delivers items
+      if (reminderOpen) fetchReminderNotifications();
+    };
+    window.addEventListener("reminder_notifications_updated", handler as EventListener);
+    return () => window.removeEventListener("reminder_notifications_updated", handler as EventListener);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reminderOpen]);
 
   const onLogout = async () => {
     // Show confirmation dialog
@@ -195,7 +229,8 @@ export default function Header() {
 
       {/* Action Buttons */}
       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-        {/* Messages */}
+        {/* Reminders */}
+        <div style={{ position: "relative" }}>
         <button
           style={{
             background: "rgba(255,255,255,0.8)",
@@ -224,53 +259,135 @@ export default function Header() {
             e.currentTarget.style.transform = "translateY(0)";
             e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)";
           }}
-        >
-          <MessageSquare size={22} strokeWidth={2} />
-          {/* Notification badge */}
-          <div style={{
-            position: "absolute",
-            top: "8px",
-            right: "8px",
-            width: "8px",
-            height: "8px",
-            borderRadius: "50%",
-            background: "#D8959B",
-            border: "2px solid white"
-          }} />
-        </button>
-
-        {/* Notifications */}
-        <button
-          style={{
-            background: "rgba(255,255,255,0.8)",
-            border: "1px solid rgba(216,149,155,0.2)",
-            borderRadius: "14px",
-            width: "46px",
-            height: "46px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            color: "#6b7280",
-            transition: "all 0.3s ease",
-            position: "relative" as const,
-            boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(242,209,212,0.4)";
-            e.currentTarget.style.color = "#D8959B";
-            e.currentTarget.style.transform = "translateY(-2px)";
-            e.currentTarget.style.boxShadow = "0 6px 20px rgba(216,149,155,0.2)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "rgba(255,255,255,0.8)";
-            e.currentTarget.style.color = "#6b7280";
-            e.currentTarget.style.transform = "translateY(0)";
-            e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)";
+          onClick={() => {
+            const next = !reminderOpen;
+            setReminderOpen(next);
+            if (next) fetchReminderNotifications();
           }}
         >
           <Bell size={22} strokeWidth={2} />
+          {/* simple badge when there are unread notifications */}
+          {reminderNotifications.some((n) => !n?.readAt) && (
+            <div style={{
+              position: "absolute",
+              top: "8px",
+              right: "8px",
+              width: "8px",
+              height: "8px",
+              borderRadius: "50%",
+              background: "#D8959B",
+              border: "2px solid white"
+            }} />
+          )}
         </button>
+
+        {reminderOpen && (
+          <div
+            style={{
+              position: "absolute",
+              top: 56,
+              right: 0,
+              width: 340,
+              borderRadius: 16,
+              background: "rgba(255,255,255,0.96)",
+              border: "1px solid rgba(216,149,155,0.2)",
+              boxShadow: "0 16px 60px rgba(0,0,0,0.15)",
+              overflow: "hidden",
+              zIndex: 120,
+            }}
+          >
+            <div style={{
+              padding: "14px 14px 10px 14px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              borderBottom: "1px solid rgba(216,149,155,0.12)",
+            }}>
+              <div style={{ fontWeight: 800, color: "#111827" }}>Reminders</div>
+              <button
+                onClick={() => router.push("/reminders")}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#344C3D",
+                  cursor: "pointer",
+                  fontWeight: 700,
+                }}
+              >
+                View
+              </button>
+            </div>
+
+            <div style={{ maxHeight: 340, overflowY: "auto" }}>
+              {reminderLoading && (
+                <div style={{ padding: 14, color: "#6b7280", fontWeight: 600 }}>Loading…</div>
+              )}
+
+              {!reminderLoading && reminderNotifications.length === 0 && (
+                <div style={{ padding: 14, color: "#6b7280", fontWeight: 600 }}>No reminders yet.</div>
+              )}
+
+              {!reminderLoading && reminderNotifications.map((n) => {
+                const type = n?.type === "mood" ? "Mood" : n?.type === "exercise" ? "Exercise" : "Journal";
+                const when = n?.scheduledFor
+                  ? new Date(n.scheduledFor).toLocaleString()
+                  : (n?.deliveredAt ? new Date(n.deliveredAt).toLocaleString() : "");
+                return (
+                  <div
+                    key={n._id}
+                    style={{
+                      padding: "12px 14px",
+                      borderBottom: "1px solid rgba(0,0,0,0.06)",
+                      background: n?.readAt ? "transparent" : "rgba(130,150,114,0.08)",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontWeight: 800, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {n.title}
+                        </div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: "#6b7280", marginTop: 2 }}>
+                          {type}{when ? ` • ${when}` : ""}
+                        </div>
+                      </div>
+
+                      {!n?.readAt && (
+                        <button
+                          onClick={async () => {
+                            try {
+                              const token = window.localStorage.getItem("token");
+                              if (!token) return;
+                              await fetch(API.REMINDERS.MARK_NOTIFICATION_READ(n._id), {
+                                method: "PATCH",
+                                headers: { Authorization: `Bearer ${token}` },
+                              });
+                              fetchReminderNotifications();
+                            } catch {
+                              showToast("Failed to update notification", "error", "top");
+                            }
+                          }}
+                          style={{
+                            background: "transparent",
+                            border: "1px solid rgba(0,0,0,0.10)",
+                            borderRadius: 10,
+                            padding: "8px 10px",
+                            cursor: "pointer",
+                            fontWeight: 800,
+                            color: "#344C3D",
+                            height: 34,
+                          }}
+                        >
+                          Read
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        </div>
 
         {/* User Avatar */}
         <div style={{ position: "relative" }}>

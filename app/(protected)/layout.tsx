@@ -1,6 +1,7 @@
 import React from "react";
 import { redirect } from "next/navigation";
 import { getAuthToken, getUserData } from "@/lib/cookie";
+import ReminderToastPoller from "@/app/components/ReminderToastPoller";
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
@@ -44,5 +45,10 @@ export default async function ProtectedLayout({ children }: ProtectedLayoutProps
     redirect("/admin/dashboard");
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <ReminderToastPoller />
+    </>
+  );
 }
