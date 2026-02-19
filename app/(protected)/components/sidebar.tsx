@@ -8,7 +8,6 @@ import {
   Settings,
   BookOpen,
   SmilePlus,
-  Target,
   Dumbbell,
   Bell,
 } from "lucide-react";
@@ -17,7 +16,6 @@ const navItems = [
   { id: "home", label: "Dashboard", icon: Home, href: "/home" },
   { id: "journal", label: "Journal", icon: BookOpen, href: "/journal" },
   { id: "mood", label: "Mood", icon: SmilePlus, href: "/mood" },
-  { id: "habits", label: "Habits", icon: Target, href: "/habits" },
   { id: "exercises", label: "Exercises", icon: Dumbbell, href: "/exercises" },
   { id: "reminders", label: "Reminders", icon: Bell, href: "/reminders" },
   { id: "calendar", label: "Calendar", icon: Calendar, href: "/calendar" },
@@ -29,7 +27,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Get current active item based on pathname
+
   const getCurrentItem = () => {
     if (pathname === "/home" || pathname === "/") return "home";
     const pathSegments = pathname.split("/").filter(Boolean);
@@ -38,7 +36,7 @@ export default function Sidebar() {
 
   const [activeItem, setActiveItem] = useState(getCurrentItem());
 
-  // Update active item when pathname changes
+  
   useEffect(() => {
     setActiveItem(getCurrentItem());
   }, [pathname]);

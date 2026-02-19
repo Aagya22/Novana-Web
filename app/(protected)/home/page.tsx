@@ -7,11 +7,9 @@ import {
   BookOpen,
   Dumbbell,
   SmilePlus,
-  FileText,
   Bell,
   User,
   Calendar,
-  Target,
   TrendingUp,
   CheckCircle,
   Clock,
@@ -41,7 +39,6 @@ export default function Page() {
 
   const [journalCount, setJournalCount] = useState(0);
   const [exercisesCount, setExercisesCount] = useState(0);
-  const [habitsCount, setHabitsCount] = useState(0);
   const [currentMood, setCurrentMood] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
 
@@ -75,14 +72,11 @@ export default function Page() {
         setUserName(whoData.data?.fullName || whoData.data?.username);
       }
 
-      const [jRes, eRes, hRes, mRes] = await Promise.all([
+      const [jRes, eRes, mRes] = await Promise.all([
         fetch(API.JOURNALS.LIST, {
           headers: { Authorization: `Bearer ${token}` },
         }),
         fetch(API.EXERCISES.LIST, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        fetch(API.HABITS.LIST, {
           headers: { Authorization: `Bearer ${token}` },
         }),
         fetch(API.MOODS.LIST, {
@@ -92,12 +86,10 @@ export default function Page() {
 
       const jData = await jRes.json();
       const eData = await eRes.json();
-      const hData = await hRes.json();
       const mData = await mRes.json();
 
       if (jData?.success) setJournalCount(jData.data.length);
       if (eData?.success) setExercisesCount(eData.data.length);
-      if (hData?.success) setHabitsCount(hData.data.length);
       if (mData?.success && mData.data.length > 0) {
         const latest: MoodEntry = mData.data[0];
         setCurrentMood(getMoodLabel(latest));
@@ -130,7 +122,6 @@ export default function Page() {
     { id: "journal", label: "Journal", desc: "Write your daily thoughts", Icon: BookOpen, color: "#D8959B" },
     { id: "exercises", label: "Exercises", desc: "Track your workouts", Icon: Dumbbell, color: "#829672" },
     { id: "mood", label: "Mood Tracker", desc: "Monitor your emotions", Icon: SmilePlus, color: "#344C3D" },
-    { id: "habits", label: "Habits", desc: "Build consistency", Icon: FileText, color: "#D8959B" },
   ];
 
   return (
@@ -179,7 +170,6 @@ export default function Page() {
             <StatCard title="Journal Entries" value={journalCount.toString()} icon={BookOpen} />
             <StatCard title="Current Mood" value={currentMood || "Not set"} icon={SmilePlus} />
             <StatCard title="Exercises" value={exercisesCount.toString()} icon={Dumbbell} />
-            <StatCard title="Active Habits" value={habitsCount.toString()} icon={Target} />
           </div>
 
           {/* Feature Cards */}
