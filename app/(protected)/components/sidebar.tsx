@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -81,7 +81,7 @@ export default function Sidebar() {
           transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
           display: "flex",
           flexDirection: "column",
-          paddingTop: "20px",
+          paddingTop: "80px",
         }}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
@@ -119,7 +119,7 @@ export default function Sidebar() {
                     ? "#344C3D"
                     : "#6b7280",
                   fontSize: "15px",
-                  fontFamily: "'Inter', sans-serif",
+                  fontFamily: "system-ui, -apple-system, sans-serif",
                   fontWeight: isActive ? 600 : 500,
                   letterSpacing: "0.3px",
                   whiteSpace: "nowrap",

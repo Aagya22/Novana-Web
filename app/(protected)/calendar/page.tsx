@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useMemo, useState, useEffect } from "react";
 import Header from "../components/header";
@@ -461,8 +461,8 @@ export default function CalendarPage() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "linear-gradient(135deg, #f4f3f1 0%, #e8f0e6 50%, #f2d1d4 100%)",
-      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
+      background: "#F5F3EF",
+      fontFamily: "system-ui, -apple-system, sans-serif"
     }}>
       <Header />
       <Sidebar />
@@ -475,13 +475,12 @@ export default function CalendarPage() {
       }}>
         {/* Page Header */}
         <div style={{
-          background: "rgba(255,255,255,0.9)",
+          background: "#FFFFFF",
           borderRadius: "20px",
-          padding: "32px",
-          marginBottom: "32px",
-          border: "1px solid rgba(216,149,155,0.2)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
-          backdropFilter: "blur(10px)",
+          padding: "28px 32px",
+          marginBottom: "28px",
+          border: "1px solid rgba(30,58,47,0.08)",
+          boxShadow: "0 2px 12px rgba(30,58,47,0.08)",
         }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
@@ -500,22 +499,19 @@ export default function CalendarPage() {
               </div>
               <div>
                 <h1 style={{
-                  fontSize: "32px",
-                  fontWeight: "700",
-                  color: "#1f2937",
+                  fontSize: "28px",
+                  fontWeight: 700,
+                  color: "#1C1917",
                   margin: 0,
-                  background: "linear-gradient(135deg, #1f2937, #344C3D)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text"
+                  fontFamily: "Georgia, serif",
                 }}>
                   Calendar
                 </h1>
                 <p style={{
-                  color: "#6b7280",
-                  fontSize: "16px",
+                  color: "#78716C",
+                  fontSize: "14px",
                   margin: "4px 0 0 0",
-                  fontWeight: "500"
+                  fontWeight: 500
                 }}>
                   Track your wellness schedule • {schedules.length} scheduled items
                 </p>
@@ -582,7 +578,7 @@ export default function CalendarPage() {
                   color: "#1f2937",
                   fontSize: "14px",
                   width: "100%",
-                  fontFamily: "'Inter', sans-serif",
+                  fontFamily: "system-ui, -apple-system, sans-serif",
                   fontWeight: "500"
                 }}
               />
@@ -889,7 +885,7 @@ export default function CalendarPage() {
                   border: "1px solid rgba(216,149,155,0.3)",
                   borderRadius: "12px",
                   fontSize: "16px",
-                  fontFamily: "'Inter', sans-serif",
+                  fontFamily: "system-ui, -apple-system, sans-serif",
                   background: "rgba(255,255,255,0.8)"
                 }}
               />
@@ -904,7 +900,7 @@ export default function CalendarPage() {
                     border: "1px solid rgba(216,149,155,0.3)",
                     borderRadius: "12px",
                     fontSize: "16px",
-                    fontFamily: "'Inter', sans-serif",
+                    fontFamily: "system-ui, -apple-system, sans-serif",
                     background: "rgba(255,255,255,0.8)"
                   }}
                 />
@@ -917,7 +913,7 @@ export default function CalendarPage() {
                     border: "1px solid rgba(216,149,155,0.3)",
                     borderRadius: "12px",
                     fontSize: "16px",
-                    fontFamily: "'Inter', sans-serif",
+                    fontFamily: "system-ui, -apple-system, sans-serif",
                     background: "rgba(255,255,255,0.8)"
                   }}
                 />
@@ -933,7 +929,7 @@ export default function CalendarPage() {
                   border: "1px solid rgba(216,149,155,0.3)",
                   borderRadius: "12px",
                   fontSize: "16px",
-                  fontFamily: "'Inter', sans-serif",
+                  fontFamily: "system-ui, -apple-system, sans-serif",
                   background: "rgba(255,255,255,0.8)"
                 }}
               />
@@ -949,7 +945,7 @@ export default function CalendarPage() {
                   borderRadius: "12px",
                   fontSize: "16px",
                   resize: "vertical",
-                  fontFamily: "'Inter', sans-serif",
+                  fontFamily: "system-ui, -apple-system, sans-serif",
                   background: "rgba(255,255,255,0.8)"
                 }}
               />
@@ -966,7 +962,7 @@ export default function CalendarPage() {
                     fontSize: "16px",
                     fontWeight: "600",
                     cursor: "pointer",
-                    fontFamily: "'Inter', sans-serif"
+                    fontFamily: "system-ui, -apple-system, sans-serif"
                   }}
                 >
                   Cancel
@@ -982,7 +978,7 @@ export default function CalendarPage() {
                     fontSize: "16px",
                     fontWeight: "600",
                     cursor: "pointer",
-                    fontFamily: "'Inter', sans-serif"
+                    fontFamily: "system-ui, -apple-system, sans-serif"
                   }}
                 >
                   {editingSchedule ? "Save Changes" : "Create Schedule"}

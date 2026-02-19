@@ -220,7 +220,8 @@ export default function RemindersPage() {
         minHeight: "100vh",
         background: darkMode
           ? "linear-gradient(135deg, #1f2937 0%, #111827 50%, #374151 100%)"
-          : "linear-gradient(135deg, #f4f3f1 0%, #e8f0e6 50%, #f2d1d4 100%)",
+          : "#F5F3EF",
+        fontFamily: "system-ui, -apple-system, sans-serif",
         transition: "background 0.3s ease",
       }}
     >
@@ -230,8 +231,8 @@ export default function RemindersPage() {
       <main
         style={{
           padding: "32px",
-          marginLeft: "240px", // sidebar width
           maxWidth: "1200px",
+          margin: "0 auto",
         }}
       >
         {/* Header Section */}
@@ -247,7 +248,7 @@ export default function RemindersPage() {
             <div style={{ fontSize: 12, letterSpacing: 1.2, color: darkMode ? "rgba(255,255,255,0.5)" : "#6b7280", fontWeight: 700 }}>
               REMINDERS
             </div>
-            <h1 style={{ fontSize: "48px", fontWeight: 700, color: darkMode ? "#f9fafb" : "#1f2937", margin: 0, fontFamily: "'Playfair Display', serif" }}>
+            <h1 style={{ fontSize: "36px", fontWeight: 700, color: darkMode ? "#f9fafb" : "#1C1917", margin: 0, fontFamily: "Georgia, serif" }}>
               Stay on track
             </h1>
             <p
@@ -491,7 +492,7 @@ export default function RemindersPage() {
               boxShadow: darkMode ? "0 20px 60px rgba(0,0,0,0.4)" : "0 12px 40px rgba(0,0,0,0.08)",
             }}
           >
-            <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 10, color: darkMode ? "#f9fafb" : "#111827", fontFamily: "'Playfair Display', serif" }}>
+            <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 10, color: darkMode ? "#f9fafb" : "#1C1917", fontFamily: "Georgia, serif" }}>
               Active Reminders
             </div>
 

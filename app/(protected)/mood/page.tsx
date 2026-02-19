@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 import Header from "../components/header";
@@ -271,531 +271,360 @@ export default function MoodPage() {
     return { icon, label, count: overview.mostFrequent.count };
   }, [overview]);
 
+  const C = {
+    bg: "#F5F3EF",
+    forest: "#1E3A2F",
+    forestMid: "#3D6B4F",
+    sage: "#829672",
+    blush: "#D8959B",
+    card: "#FFFFFF",
+    text: "#1C1917",
+    muted: "#78716C",
+    border: "rgba(30,58,47,0.08)",
+  };
+
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg, #f4f3f1 0%, #e8f0e6 50%, #f2d1d4 100%)",
-        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-      }}
-    >
+    <div style={{ minHeight: "100vh", background: C.bg, fontFamily: "system-ui, -apple-system, sans-serif" }}>
       <Header />
-      <Sidebar />
+      <div style={{ display: "flex" }}>
+        <Sidebar />
+        <main style={{ flex: 1, padding: "32px", maxWidth: "1400px", margin: "0 auto" }}>
 
-      <main
-        style={{
-          padding: "32px",
-          maxWidth: "1400px",
-          margin: "0 auto",
-        }}
-      >
-        <div style={{ marginBottom: "20px" }}>
-          <div style={{ fontSize: "12px", letterSpacing: "0.12em", color: "rgba(31,41,55,0.60)", fontWeight: 800 }}>
-            MOOD TRACKER
+          {/* Hero */}
+          <div style={{
+            position: "relative",
+            background: `linear-gradient(135deg, ${C.forest} 0%, ${C.forestMid} 100%)`,
+            borderRadius: "24px",
+            padding: "40px",
+            marginBottom: "24px",
+            overflow: "hidden",
+            boxShadow: "0 8px 40px rgba(30,58,47,0.2)",
+          }}>
+            <div style={{ position: "absolute", top: "-60px", right: "180px", width: "200px", height: "200px", borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
+            <div style={{ position: "absolute", bottom: "-80px", right: "20px", width: "260px", height: "260px", borderRadius: "50%", background: "rgba(255,255,255,0.03)", pointerEvents: "none" }} />
+            <div style={{ zIndex: 1, position: "relative" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "14px" }}>
+                <div style={{ width: "52px", height: "52px", borderRadius: "15px", background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <SmilePlus size={26} color="white" strokeWidth={1.8} />
+                </div>
+                <div>
+                  <h1 style={{ margin: 0, fontFamily: "Georgia, serif", fontSize: "34px", fontWeight: 700, color: "#FFFFFF", lineHeight: 1.15 }}>
+                    Mood Tracker
+                  </h1>
+                  <p style={{ margin: 0, color: "rgba(255,255,255,0.5)", fontSize: "13px", fontWeight: 500 }}>
+                    {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+                  </p>
+                </div>
+              </div>
+              <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "15px", lineHeight: 1.65, maxWidth: "400px", margin: 0 }}>
+                A moment of awareness goes a long way. Log how you feel and watch your patterns emerge.
+              </p>
+            </div>
           </div>
-          <h1 style={{ margin: "8px 0 0 0", fontSize: "44px", fontWeight: 800, color: "#111827" }}>
-            How are you?
-          </h1>
-        </div>
 
-        {/* Mood Selector */}
-        <div
-          style={{
-            background: "rgba(255,255,255,0.9)",
-            borderRadius: "20px",
-            padding: "22px",
-            border: "1px solid rgba(216,149,155,0.2)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
-            backdropFilter: "blur(10px)",
-          }}
-        >
-          <div style={{ textAlign: "center", fontSize: "12px", fontWeight: 800, letterSpacing: "0.12em", color: "rgba(107,114,128,0.9)", marginBottom: "14px" }}>
-            SELECT YOUR CURRENT MOOD
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              gap: "14px",
-              overflowX: "auto",
-              paddingBottom: "6px",
-              justifyContent: "center",
-            }}
-          >
-            {MOOD_OPTIONS.map((opt) => {
-              const selected = todayMoodType === opt.key;
-              return (
-                <button
-                  key={opt.key}
-                  type="button"
-                  onClick={() => {
-                    setTodayMoodType(opt.key);
-                    setTodayMoodScore(opt.score);
-                  }}
-                  style={{
-                    minWidth: "96px",
-                    padding: "12px 10px",
-                    background: selected ? "rgba(52,76,61,0.08)" : "rgba(255,255,255,0.85)",
-                    border: selected ? "1px solid rgba(52,76,61,0.35)" : "1px solid rgba(216,149,155,0.18)",
-                    borderRadius: "18px",
-                    cursor: "pointer",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: "10px",
-                    transition: "all 0.2s ease",
-                  }}
-                >
-                  <div
+          {/* Mood selector card */}
+          <div style={{ background: C.card, borderRadius: "20px", padding: "28px", marginBottom: "20px", border: `1px solid ${C.border}`, boxShadow: "0 2px 10px rgba(30,58,47,0.06)" }}>
+            <p style={{ margin: "0 0 16px 0", fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", color: C.muted, textTransform: "uppercase" }}>
+              How are you feeling right now?
+            </p>
+            <div style={{ display: "flex", gap: "10px", overflowX: "auto", paddingBottom: "4px", marginBottom: "20px" }}>
+              {MOOD_OPTIONS.map((opt) => {
+                const selected = todayMoodType === opt.key;
+                return (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    onClick={() => { setTodayMoodType(opt.key); setTodayMoodScore(opt.score); }}
                     style={{
-                      width: "44px",
-                      height: "44px",
-                      borderRadius: "999px",
+                      flexShrink: 0,
                       display: "flex",
+                      flexDirection: "column",
                       alignItems: "center",
-                      justifyContent: "center",
-                      background: selected ? "rgba(52,76,61,0.12)" : "rgba(107,114,128,0.08)",
+                      gap: "8px",
+                      padding: "14px 12px",
+                      minWidth: "84px",
+                      background: selected ? `${C.blush}12` : "#F5F3EF",
+                      border: selected ? `2px solid ${C.blush}` : "2px solid transparent",
+                      borderRadius: "16px",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      boxShadow: selected ? `0 4px 16px ${C.blush}30` : "none",
                     }}
                   >
-                    <Icon icon={opt.icon} width={26} height={26} />
-                  </div>
-                  <div style={{ fontSize: "12px", fontWeight: 800, color: selected ? "#111827" : "rgba(17,24,39,0.75)" }}>
-                    {opt.label}
-                  </div>
-                </button>
-              );
-            })}
+                    <div style={{ width: "48px", height: "48px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: selected ? `${C.blush}18` : "rgba(130,150,114,0.1)" }}>
+                      <Icon icon={opt.icon} width={28} height={28} />
+                    </div>
+                    <span style={{ fontSize: "12px", fontWeight: 600, color: selected ? C.text : C.muted, whiteSpace: "nowrap" }}>
+                      {opt.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <div style={{ display: "flex", gap: "12px", alignItems: "flex-end" }}>
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Add a note (optional)…"
+                rows={2}
+                style={{ flex: 1, padding: "12px 14px", border: `1px solid ${C.border}`, borderRadius: "12px", fontSize: "14px", resize: "vertical", fontFamily: "system-ui, -apple-system, sans-serif", background: "#F5F3EF", color: C.text, lineHeight: "1.6", outline: "none" }}
+              />
+              <button
+                type="button"
+                onClick={handleSaveToday}
+                disabled={saving}
+                style={{
+                  flexShrink: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "12px 22px",
+                  background: `linear-gradient(135deg, ${C.forest}, ${C.sage})`,
+                  color: "white",
+                  border: "none",
+                  borderRadius: "12px",
+                  fontWeight: 600,
+                  fontSize: "14px",
+                  cursor: saving ? "not-allowed" : "pointer",
+                  boxShadow: "0 4px 14px rgba(30,58,47,0.25)",
+                  opacity: saving ? 0.8 : 1,
+                  transition: "all 0.2s",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <SmilePlus size={16} />
+                {saving ? "Saving…" : "Save Mood"}
+              </button>
+            </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "12px", marginTop: "16px" }}>
-            <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="Add a short note (optional)"
-              rows={2}
-              style={{
-                padding: "14px",
-                border: "1px solid rgba(216,149,155,0.22)",
-                borderRadius: "14px",
-                fontSize: "14px",
-                resize: "vertical",
-                fontFamily: "'Inter', sans-serif",
-                background: "rgba(255,255,255,0.75)",
-                color: "#111827",
-                lineHeight: "1.5",
-              }}
-            />
-
-            <button
-              type="button"
-              onClick={handleSaveToday}
-              disabled={saving}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "10px",
-                padding: "14px 18px",
-                background: "linear-gradient(135deg, #344C3D, #829672)",
-                color: "white",
-                border: "none",
-                borderRadius: "14px",
-                fontWeight: 800,
-                cursor: saving ? "not-allowed" : "pointer",
-                fontSize: "14px",
-                boxShadow: "0 10px 24px rgba(52,76,61,0.25)",
-                opacity: saving ? 0.8 : 1,
-              }}
-            >
-              <SmilePlus size={18} strokeWidth={2.5} />
-              {saving ? "Saving..." : "Save Today's Mood"}
-            </button>
+          {/* Tabs */}
+          <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
+            {([["week", "This Week"], ["more", "History"]] as [TabKey, string][]).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setTab(key)}
+                style={{
+                  padding: "10px 22px",
+                  borderRadius: "999px",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  background: tab === key ? C.forest : C.card,
+                  color: tab === key ? "white" : C.muted,
+                  border: tab === key ? "none" : `1px solid ${C.border}`,
+                  transition: "all 0.2s",
+                  boxShadow: tab === key ? "0 4px 12px rgba(30,58,47,0.2)" : "none",
+                }}
+              >
+                {label}
+              </button>
+            ))}
           </div>
-        </div>
 
-        {/* Tabs */}
-        <div style={{ display: "flex", gap: "10px", marginTop: "18px", marginBottom: "18px" }}>
-          <button
-            type="button"
-            onClick={() => setTab("week")}
-            style={{
-              padding: "12px 16px",
-              borderRadius: "999px",
-              border: tab === "week" ? "1px solid rgba(52,76,61,0.35)" : "1px solid rgba(216,149,155,0.18)",
-              background: tab === "week" ? "rgba(52,76,61,0.10)" : "rgba(255,255,255,0.75)",
-              fontWeight: 900,
-              cursor: "pointer",
-            }}
-          >
-            This Week
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("more")}
-            style={{
-              padding: "12px 16px",
-              borderRadius: "999px",
-              border: tab === "more" ? "1px solid rgba(52,76,61,0.35)" : "1px solid rgba(216,149,155,0.18)",
-              background: tab === "more" ? "rgba(52,76,61,0.10)" : "rgba(255,255,255,0.75)",
-              fontWeight: 900,
-              cursor: "pointer",
-            }}
-          >
-            See more
-          </button>
-        </div>
+          {tab === "week" ? (
+            <>
+              {/* Weekly mood grid */}
+              <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1px solid ${C.border}`, boxShadow: "0 2px 10px rgba(30,58,47,0.06)", marginBottom: "20px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px" }}>
+                  <h2 style={{ margin: 0, fontSize: "18px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>This Week</h2>
+                  <span style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: C.muted, fontWeight: 500 }}>
+                    <Calendar size={14} />
+                    Week of {weekStartDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </span>
+                </div>
+                {overviewLoading ? (
+                  <p style={{ color: C.muted, padding: "12px 0" }}>Loading…</p>
+                ) : (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "10px" }}>
+                    {Array.from({ length: 7 }).map((_, idx) => {
+                      const dateObj = addDays(weekStartDate, idx);
+                      const day = overview?.days?.[idx];
+                      const dateKey = day?.date ?? toLocalDateKey(dateObj);
+                      const entry = day?.entry ?? null;
+                      const isSelected = selectedDay === dateKey;
+                      const isToday = toLocalDateKey(new Date()) === dateKey;
+                      const icon = entry ? getMoodIconByKey(entry.moodType, entry.mood) : null;
+                      return (
+                        <button
+                          key={dateKey}
+                          type="button"
+                          onClick={() => setSelectedDay(isSelected ? null : dateKey)}
+                          style={{
+                            padding: "14px 8px",
+                            borderRadius: "16px",
+                            border: isSelected ? `2px solid ${C.blush}` : isToday ? `2px solid ${C.sage}` : `1px solid ${C.border}`,
+                            background: isSelected ? `${C.blush}10` : isToday ? `${C.sage}08` : "#F5F3EF",
+                            cursor: "pointer",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: "8px",
+                            transition: "all 0.15s",
+                          }}
+                        >
+                          <span style={{ fontSize: "10px", fontWeight: 700, color: isToday ? C.sage : C.muted, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                            {formatWeekdayShort(dateObj).slice(0, 2)}
+                          </span>
+                          <div style={{ width: "40px", height: "40px", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", background: entry ? `${getMoodColor(entry.mood)}18` : "#E8E1D9" }}>
+                            {icon ? <Icon icon={icon} width={24} height={24} /> : <span style={{ fontSize: "18px", color: "#C0B8B0" }}>·</span>}
+                          </div>
+                          <span style={{ fontSize: "11px", fontWeight: 600, color: entry ? C.text : "#A8A29E" }}>
+                            {entry ? entry.mood + "/10" : "—"}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                {selectedDay && (
+                  <div style={{ marginTop: "16px", paddingTop: "16px", borderTop: `1px solid ${C.border}` }}>
+                    <p style={{ margin: "0 0 10px 0", fontSize: "12px", fontWeight: 600, color: C.muted, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                      {new Date(selectedDay + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+                    </p>
+                    {selectedEntry ? (
+                      <div style={{ display: "flex", gap: "14px", alignItems: "center" }}>
+                        <div style={{ width: "52px", height: "52px", borderRadius: "16px", background: `${getMoodColor(selectedEntry.mood)}15`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <Icon icon={getMoodIconByKey(selectedEntry.moodType, selectedEntry.mood)} width={30} height={30} />
+                        </div>
+                        <div>
+                          <p style={{ margin: 0, fontSize: "17px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>
+                            {getMoodLabelByEntry(selectedEntry)}
+                          </p>
+                          <p style={{ margin: "2px 0 0 0", fontSize: "13px", color: C.muted }}>{selectedEntry.mood}/10</p>
+                          {selectedEntry.note && <p style={{ margin: "8px 0 0 0", fontSize: "14px", color: C.text, lineHeight: 1.65 }}>{selectedEntry.note}</p>}
+                        </div>
+                      </div>
+                    ) : (
+                      <p style={{ margin: 0, color: C.muted, fontSize: "14px" }}>No mood logged for this day.</p>
+                    )}
+                  </div>
+                )}
+              </div>
 
-        {tab === "week" ? (
-          <>
-            {/* Weekly Grid */}
-            <div
-              style={{
-                background: "rgba(255,255,255,0.9)",
-                borderRadius: "20px",
-                padding: "22px",
-                border: "1px solid rgba(216,149,155,0.2)",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
-                backdropFilter: "blur(10px)",
-                marginBottom: "18px",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
-                <div style={{ fontSize: "22px", fontWeight: 900, color: "#111827" }}>This Week</div>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "rgba(107,114,128,0.9)", fontWeight: 700, fontSize: "13px" }}>
-                  <Calendar size={16} />
-                  Week of {weekStartDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+              {/* Stats row */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
+                <div style={{ background: C.card, borderRadius: "20px", padding: "22px 24px", border: `1px solid ${C.border}`, boxShadow: "0 2px 10px rgba(30,58,47,0.06)" }}>
+                  <p style={{ margin: "0 0 14px 0", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", color: C.muted, textTransform: "uppercase" }}>Most Frequent</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                    <div style={{ width: "52px", height: "52px", borderRadius: "14px", background: `${C.blush}15`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      {mostFrequentDisplay
+                        ? <Icon icon={mostFrequentDisplay.icon} width={30} height={30} />
+                        : <Icon icon={neutralFace} width={30} height={30} />
+                      }
+                    </div>
+                    <div>
+                      <p style={{ margin: 0, fontSize: "20px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>
+                        {mostFrequentDisplay?.label || "—"}
+                      </p>
+                      <p style={{ margin: "3px 0 0 0", fontSize: "12px", color: C.muted }}>
+                        {mostFrequentDisplay ? `${mostFrequentDisplay.count}× this week` : "No data yet"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ background: C.card, borderRadius: "20px", padding: "22px 24px", border: `1px solid ${C.border}`, boxShadow: "0 2px 10px rgba(30,58,47,0.06)", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                  <p style={{ margin: "0 0 8px 0", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", color: C.muted, textTransform: "uppercase" }}>Logging Streak</p>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: "6px" }}>
+                    <span style={{ fontSize: "44px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif", lineHeight: 1 }}>
+                      {overview?.streak ?? 0}
+                    </span>
+                    <span style={{ fontSize: "16px", color: C.muted, fontWeight: 500 }}>days</span>
+                  </div>
+                  <div style={{ marginTop: "8px", height: "4px", borderRadius: "2px", background: `${C.border}`, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${Math.min(100, (overview?.streak ?? 0) * 14)}%`, background: C.sage, borderRadius: "2px", transition: "width 0.6s ease" }} />
+                  </div>
+                </div>
+
+                <div style={{ background: C.card, borderRadius: "20px", padding: "22px 24px", border: `1px solid ${C.border}`, boxShadow: "0 2px 10px rgba(30,58,47,0.06)" }}>
+                  <p style={{ margin: "0 0 14px 0", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", color: C.muted, textTransform: "uppercase" }}>Weekly Average</p>
+                  <p style={{ margin: 0, fontSize: "26px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>
+                    {overview?.avgThisWeek?.label || "—"}
+                  </p>
+                  <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: C.muted }}>
+                    {overview?.avgThisWeek ? `${overview.avgThisWeek.score}/10` : "No logs this week"}
+                  </p>
+                </div>
+              </div>
+            </>
+          ) : (
+            /* History tab */
+            <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1px solid ${C.border}`, boxShadow: "0 2px 10px rgba(30,58,47,0.06)" }}>
+              <div style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "20px", flexWrap: "wrap" }}>
+                <h2 style={{ margin: 0, fontSize: "18px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif", flex: 1 }}>Mood History</h2>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                  <input
+                    type="date"
+                    value={dateQuery}
+                    onChange={(e) => setDateQuery(e.target.value)}
+                    style={{ padding: "10px 14px", border: `1px solid ${C.border}`, borderRadius: "10px", background: "#F5F3EF", color: C.text, fontSize: "13px", fontFamily: "system-ui, -apple-system, sans-serif", outline: "none" }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fetchMoodByDate(dateQuery)}
+                    disabled={dateResultLoading}
+                    style={{ display: "flex", alignItems: "center", gap: "6px", padding: "10px 16px", background: C.forest, color: "white", border: "none", borderRadius: "10px", fontSize: "13px", fontWeight: 600, cursor: dateResultLoading ? "not-allowed" : "pointer" }}
+                  >
+                    <Search size={14} />
+                    {dateResultLoading ? "…" : "Search"}
+                  </button>
                 </div>
               </div>
 
-              {overviewLoading ? (
-                <div style={{ padding: "20px", color: "rgba(107,114,128,0.9)", fontWeight: 700 }}>Loading...</div>
-              ) : (
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
-                    gap: "12px",
-                  }}
-                >
-                  {Array.from({ length: 7 }).map((_, idx) => {
-                    const dateObj = addDays(weekStartDate, idx);
-                    const day = overview?.days?.[idx];
-                    const dateKey = day?.date ?? toLocalDateKey(dateObj);
-                    const entry = day?.entry ?? null;
-                    const isSelected = selectedDay === dateKey;
-
-                    const icon = entry ? getMoodIconByKey(entry.moodType, entry.mood) : null;
-                    const score = entry?.mood ?? null;
-
-                    return (
-                      <button
-                        key={dateKey}
-                        type="button"
-                        onClick={() => setSelectedDay(dateKey)}
-                        style={{
-                          padding: "14px 10px",
-                          borderRadius: "16px",
-                          border: isSelected ? "1px solid rgba(52,76,61,0.35)" : "1px solid rgba(216,149,155,0.18)",
-                          background: isSelected ? "rgba(52,76,61,0.10)" : "rgba(255,255,255,0.75)",
-                          cursor: "pointer",
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          gap: "10px",
-                          minHeight: "104px",
-                        }}
-                      >
-                        <div style={{
-                          width: "40px",
-                          height: "40px",
-                          borderRadius: "12px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          background: entry ? `${getMoodColor(entry.mood)}18` : "rgba(107,114,128,0.08)",
-                        }}>
-                          {icon ? <Icon icon={icon} width={24} height={24} /> : <Clock size={18} color="rgba(107,114,128,0.9)" />}
-                        </div>
-                        <div style={{ fontSize: "12px", fontWeight: 900, color: "rgba(17,24,39,0.85)" }}>{formatWeekdayShort(dateObj)}</div>
-                        <div style={{ fontSize: "11px", fontWeight: 800, color: entry ? "rgba(17,24,39,0.75)" : "rgba(107,114,128,0.85)" }}>
-                          {entry ? getMoodLabelByEntry(entry) : "No log"}
-                        </div>
-                        {score !== null && (
-                          <div style={{ fontSize: "11px", fontWeight: 900, color: getMoodColor(score) }}>{score}/10</div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Click-to-show detail */}
-              {selectedDay && (
-                <div style={{ marginTop: "16px", paddingTop: "16px", borderTop: "1px solid rgba(216,149,155,0.18)" }}>
-                  <div style={{ fontWeight: 900, color: "#111827", marginBottom: "8px" }}>
-                    {selectedDay}
-                  </div>
-
-                  {selectedEntry ? (
-                    <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-                      <div style={{
-                        width: "44px",
-                        height: "44px",
-                        borderRadius: "14px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        background: `${getMoodColor(selectedEntry.mood)}18`,
-                      }}>
-                        <Icon icon={getMoodIconByKey(selectedEntry.moodType, selectedEntry.mood)} width={26} height={26} />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: "16px", fontWeight: 900, color: "#111827" }}>
-                          {getMoodLabelByEntry(selectedEntry)}
-                        </div>
-                        <div style={{ fontSize: "13px", fontWeight: 800, color: "rgba(107,114,128,0.95)", marginTop: "2px" }}>
-                          {selectedEntry.mood}/10
-                        </div>
-                        {selectedEntry.note && (
-                          <div style={{ marginTop: "8px", color: "rgba(31,41,55,0.85)", fontWeight: 600, lineHeight: 1.5 }}>
-                            {selectedEntry.note}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ color: "rgba(107,114,128,0.95)", fontWeight: 700 }}>
-                      No mood logged for this day.
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Stats */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-                gap: "14px",
-              }}
-            >
-              <div style={{
-                background: "rgba(255,255,255,0.9)",
-                borderRadius: "20px",
-                padding: "22px",
-                border: "1px solid rgba(216,149,155,0.2)",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <div style={{
-                    width: "44px",
-                    height: "44px",
-                    borderRadius: "14px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: "rgba(107,114,128,0.08)",
-                  }}>
-                    {mostFrequentDisplay ? (
-                      <Icon icon={mostFrequentDisplay.icon} width={26} height={26} />
-                    ) : (
-                      <Icon icon={neutralFace} width={26} height={26} />
-                    )}
+              {dateResult ? (
+                <div style={{ display: "flex", gap: "14px", alignItems: "center", padding: "16px 18px", background: `${getMoodColor(dateResult.mood)}08`, borderRadius: "14px", marginBottom: "20px", borderLeft: `4px solid ${getMoodColor(dateResult.mood)}` }}>
+                  <div style={{ width: "52px", height: "52px", borderRadius: "14px", background: `${getMoodColor(dateResult.mood)}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <Icon icon={getMoodIconByKey(dateResult.moodType, dateResult.mood)} width={30} height={30} />
                   </div>
                   <div>
-                    <div style={{ fontSize: "24px", fontWeight: 900, color: "#111827" }}>
-                      {mostFrequentDisplay?.label || "—"}
-                    </div>
-                    <div style={{ fontSize: "12px", fontWeight: 900, letterSpacing: "0.08em", color: "rgba(107,114,128,0.9)" }}>
-                      MOST FREQUENT
-                    </div>
+                    <p style={{ margin: 0, fontSize: "17px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>{getMoodLabelByEntry(dateResult)}</p>
+                    <p style={{ margin: "2px 0 0 0", fontSize: "13px", color: C.muted }}>{dateResult.mood}/10 · {dateQuery}</p>
+                    {dateResult.note && <p style={{ margin: "8px 0 0 0", fontSize: "14px", color: C.text, lineHeight: 1.65 }}>{dateResult.note}</p>}
                   </div>
                 </div>
-              </div>
+              ) : dateQuery && !dateResultLoading ? (
+                <div style={{ padding: "14px 18px", background: "#F5F3EF", borderRadius: "12px", marginBottom: "20px", color: C.muted, fontSize: "14px" }}>
+                  No mood log found for {dateQuery}.
+                </div>
+              ) : null}
 
-              <div style={{
-                background: "rgba(255,255,255,0.9)",
-                borderRadius: "20px",
-                padding: "22px",
-                border: "1px solid rgba(216,149,155,0.2)",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
-                textAlign: "center",
-              }}>
-                <div style={{ fontSize: "14px", fontWeight: 900, color: "rgba(107,114,128,0.9)", letterSpacing: "0.08em" }}>
-                  STREAK
-                </div>
-                <div style={{ fontSize: "34px", fontWeight: 950, marginTop: "10px", color: "#111827" }}>
-                  {overview?.streak ?? 0}
-                </div>
-                <div style={{ fontSize: "12px", fontWeight: 900, color: "rgba(107,114,128,0.9)", letterSpacing: "0.08em" }}>
-                  DAYS
-                </div>
-              </div>
-
-              <div style={{
-                background: "rgba(255,255,255,0.9)",
-                borderRadius: "20px",
-                padding: "22px",
-                border: "1px solid rgba(216,149,155,0.2)",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
-                textAlign: "center",
-              }}>
-                <div style={{ fontSize: "14px", fontWeight: 900, color: "rgba(107,114,128,0.9)", letterSpacing: "0.08em" }}>
-                  AVG MOOD (THIS WEEK)
-                </div>
-                <div style={{ fontSize: "28px", fontWeight: 950, marginTop: "10px", color: "#111827" }}>
-                  {overview?.avgThisWeek?.label || "—"}
-                </div>
-                <div style={{ marginTop: "6px", fontSize: "13px", fontWeight: 800, color: "rgba(107,114,128,0.95)" }}>
-                  {overview?.avgThisWeek ? `${overview.avgThisWeek.score}/10` : "No logs"}
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          /* See more */
-          <div
-            style={{
-              background: "rgba(255,255,255,0.9)",
-              borderRadius: "20px",
-              padding: "22px",
-              border: "1px solid rgba(216,149,155,0.2)",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center", marginBottom: "16px" }}>
-              <div style={{ fontSize: "18px", fontWeight: 950, color: "#111827" }}>Search by date</div>
-              <div style={{ flex: 1 }} />
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <input
-                  type="date"
-                  value={dateQuery}
-                  onChange={(e) => setDateQuery(e.target.value)}
-                  style={{
-                    padding: "12px 14px",
-                    border: "1px solid rgba(216,149,155,0.22)",
-                    borderRadius: "14px",
-                    fontWeight: 800,
-                    background: "rgba(255,255,255,0.75)",
-                    color: "#111827",
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => fetchMoodByDate(dateQuery)}
-                  disabled={dateResultLoading}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "10px",
-                    padding: "12px 14px",
-                    borderRadius: "14px",
-                    border: "1px solid rgba(52,76,61,0.30)",
-                    background: "rgba(52,76,61,0.10)",
-                    fontWeight: 900,
-                    cursor: dateResultLoading ? "not-allowed" : "pointer",
-                  }}
-                >
-                  <Search size={18} />
-                  {dateResultLoading ? "Searching..." : "Search"}
-                </button>
-              </div>
-            </div>
-
-            <div style={{
-              padding: "16px",
-              borderRadius: "18px",
-              border: "1px solid rgba(216,149,155,0.18)",
-              background: "rgba(255,255,255,0.75)",
-              marginBottom: "18px",
-            }}>
-              {dateResultLoading ? (
-                <div style={{ color: "rgba(107,114,128,0.95)", fontWeight: 800 }}>Loading...</div>
-              ) : dateResult ? (
-                <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-                  <div style={{
-                    width: "44px",
-                    height: "44px",
-                    borderRadius: "14px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: `${getMoodColor(dateResult.mood)}18`,
-                  }}>
-                    <Icon icon={getMoodIconByKey(dateResult.moodType, dateResult.mood)} width={26} height={26} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: "15px", fontWeight: 950, color: "#111827" }}>
-                      {getMoodLabelByEntry(dateResult)}
-                    </div>
-                    <div style={{ fontSize: "13px", fontWeight: 800, color: "rgba(107,114,128,0.95)" }}>
-                      {dateResult.mood}/10 • {dateQuery}
-                    </div>
-                    {dateResult.note && (
-                      <div style={{ marginTop: "8px", color: "rgba(31,41,55,0.85)", fontWeight: 650, lineHeight: 1.5 }}>
-                        {dateResult.note}
-                      </div>
-                    )}
-                  </div>
-                </div>
+              <p style={{ margin: "0 0 14px 0", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", color: C.muted, textTransform: "uppercase" }}>All Entries</p>
+              {entriesLoading ? (
+                <p style={{ color: C.muted }}>Loading…</p>
+              ) : entries.length === 0 ? (
+                <p style={{ color: C.muted }}>No entries yet.</p>
               ) : (
-                <div style={{ color: "rgba(107,114,128,0.95)", fontWeight: 800 }}>No mood found for this date.</div>
-              )}
-            </div>
-
-            <div style={{ fontSize: "18px", fontWeight: 950, color: "#111827", marginBottom: "12px" }}>All entries</div>
-            {entriesLoading ? (
-              <div style={{ color: "rgba(107,114,128,0.95)", fontWeight: 800 }}>Loading...</div>
-            ) : entries.length === 0 ? (
-              <div style={{ color: "rgba(107,114,128,0.95)", fontWeight: 800 }}>No entries yet.</div>
-            ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "12px" }}>
-                {entries.map((entry) => (
-                  <div
-                    key={entry._id}
-                    style={{
-                      padding: "16px",
-                      borderRadius: "18px",
-                      border: "1px solid rgba(216,149,155,0.18)",
-                      background: "rgba(255,255,255,0.75)",
-                      boxShadow: "0 4px 18px rgba(0,0,0,0.06)",
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                      <div style={{
-                        width: "44px",
-                        height: "44px",
-                        borderRadius: "14px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        background: `${getMoodColor(entry.mood)}18`,
-                      }}>
-                        <Icon icon={getMoodIconByKey(entry.moodType, entry.mood)} width={26} height={26} />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: "15px", fontWeight: 950, color: "#111827" }}>{getMoodLabelByEntry(entry)}</div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px", color: "rgba(107,114,128,0.95)", fontWeight: 800, fontSize: "12px" }}>
-                          <Clock size={14} />
-                          {entry.date ? toLocalDateKey(new Date(entry.date)) : ""} • {entry.mood}/10
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "14px" }}>
+                  {entries.map((entry) => (
+                    <div
+                      key={entry._id}
+                      style={{ padding: "16px 18px", borderRadius: "16px", background: "#F5F3EF", border: `1px solid ${C.border}`, borderLeft: `4px solid ${getMoodColor(entry.mood)}` }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                        <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: `${getMoodColor(entry.mood)}15`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <Icon icon={getMoodIconByKey(entry.moodType, entry.mood)} width={26} height={26} />
+                        </div>
+                        <div>
+                          <p style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>{getMoodLabelByEntry(entry)}</p>
+                          <p style={{ margin: "2px 0 0 0", fontSize: "12px", color: C.muted }}>
+                            {entry.date ? toLocalDateKey(new Date(entry.date)) : ""} · {entry.mood}/10
+                          </p>
                         </div>
                       </div>
+                      {entry.note && (
+                        <p style={{ margin: "10px 0 0 0", fontSize: "13px", color: C.text, lineHeight: 1.65 }}>{entry.note}</p>
+                      )}
                     </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
-                    {entry.note && (
-                      <div style={{ marginTop: "10px", color: "rgba(31,41,55,0.85)", fontWeight: 650, lineHeight: 1.5, fontSize: "13px" }}>
-                        {entry.note}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

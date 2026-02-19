@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
-import { Bell, Search, LogOut } from "lucide-react";
+import { Bell, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleLogout } from "@/lib/actions/auth-action";
 import { showToast } from "@/lib/toast";
@@ -91,20 +91,19 @@ export default function Header() {
   }, [reminderOpen]);
 
   const onLogout = async () => {
-    // Show confirmation dialog
     const confirmed = window.confirm("Are you sure you want to logout?");
     if (!confirmed) return;
 
     try {
       setIsLoggingOut(true);
       await handleLogout();
-      // If we reach here, logout succeeded (though redirect should happen first)
+
       showToast('Logging out...', 'success');
     } catch (error) {
-      // Check if it's a Next.js redirect error (expected)
+
       if (error && typeof error === 'object' && 'digest' in error && 
           typeof error.digest === 'string' && error.digest.includes('NEXT_REDIRECT')) {
-        // This is the expected redirect, not a real error
+        
         showToast('Logging out...', 'success');
         return;
       }
@@ -147,85 +146,24 @@ export default function Header() {
       }}
     >
       {/* Logo Section */}
-      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+      <div style={{ display: "flex", alignItems: "center" }}>
         <div style={{
-          width: "48px",
-          height: "48px",
-          borderRadius: "14px",
-          background: "linear-gradient(135deg, #344C3D, #829672)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "white",
-          fontSize: "20px",
-          fontWeight: "700",
-          boxShadow: "0 4px 16px rgba(52,76,61,0.3)",
-          overflow: "hidden"
+          // width: "48px",
+          // height: "48px",
         }}>
           <img 
             src="/novacane.png" 
             alt="Novana logo"
             style={{
-              width: "40px",
-              height: "40px",
-              objectFit: "contain"
+              width: "100px",
+              height: "100px",
+              objectFit: "fill",
             }}
           />
         </div>
-        <div>
-          <div style={{
-            fontSize: "18px",
-            fontWeight: "700",
-            background: "linear-gradient(135deg, #344C3D, #829672)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-            lineHeight: "1"
-          }}>
-            Novana
-          </div>
-          <div style={{
-            fontSize: "12px",
-            color: "#6b7280",
-            fontWeight: "500",
-            marginTop: "2px"
-          }}>
-            Wellness Platform
-          </div>
-        </div>
       </div>
 
-      {/* Search Bar */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          background: "rgba(242,209,212,0.3)",
-          border: "1px solid rgba(216,149,155,0.3)",
-          borderRadius: "16px",
-          padding: "12px 20px",
-          width: "400px",
-          transition: "all 0.3s ease",
-          color: "#6b7280",
-        }}
-      >
-        <Search size={18} strokeWidth={2} />
-        <input
-          type="text"
-          placeholder="Search wellness content..."
-          style={{
-            background: "transparent",
-            border: "none",
-            outline: "none",
-            color: "#1f2937",
-            fontSize: "14px",
-            width: "100%",
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: "500",
-          }}
-        />
-      </div>
+
 
       {/* Action Buttons */}
       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -481,7 +419,7 @@ export default function Header() {
             cursor: isLoggingOut ? "not-allowed" : "pointer",
             transition: "all 0.3s ease",
             opacity: isLoggingOut ? 0.6 : 1,
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "system-ui, -apple-system, sans-serif",
             boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
           }}
           onMouseEnter={(e) => {

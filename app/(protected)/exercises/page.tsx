@@ -162,9 +162,9 @@ export default function ExercisesPage() {
         minHeight: "100vh",
         background: darkMode
           ? "radial-gradient(1200px 600px at 20% 10%, rgba(139, 92, 246, 0.20), transparent 55%), radial-gradient(900px 500px at 85% 25%, rgba(45, 212, 191, 0.18), transparent 55%), linear-gradient(135deg, #0b0f14 0%, #0a0a0a 60%, #0f172a 100%)"
-          : "linear-gradient(135deg, #f4f3f1 0%, #e8f0e6 50%, #f2d1d4 100%)",
+          : "#F5F3EF",
         color: darkMode ? "#f3f4f6" : "#1e3a2b",
-        fontFamily: "'Inter', sans-serif",
+        fontFamily: "system-ui, -apple-system, sans-serif",
         transition: "background 0.3s ease, color 0.3s ease",
       }}
     >
@@ -268,7 +268,7 @@ export default function ExercisesPage() {
                 fontWeight: 800,
                 lineHeight: 1.05,
                 marginTop: "8px",
-                fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif",
+                fontFamily: "Georgia, serif",
               }}
             >
               Mind &amp; Body
