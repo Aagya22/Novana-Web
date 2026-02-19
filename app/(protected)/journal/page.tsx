@@ -552,9 +552,10 @@ export default function JournalPage() {
                       <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#6b7280", fontSize: "14px", fontWeight: "500" }}>
                           <Clock size={14} strokeWidth={2} />
-                          {formatDate(entry.date || entry.createdAt)}
+                          {formatDate(entry.createdAt)}
                         </div>
                         <div style={{ color: "#9ca3af", fontSize: "12px", fontWeight: "500" }}>
+                          {entry.date ? `Entry date: ${new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} • ` : ""}
                           Created: {formatDate(entry.createdAt)}
                           {entry.updatedAt && entry.updatedAt !== entry.createdAt ? ` • Updated: ${formatDate(entry.updatedAt)}` : ""}
                         </div>

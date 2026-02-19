@@ -50,6 +50,9 @@ export const API = {
     UPDATE: (id: string) => `http://localhost:5050/api/reminders/${id}`,
     DELETE: (id: string) => `http://localhost:5050/api/reminders/${id}`,
     TOGGLE: (id: string) => `http://localhost:5050/api/reminders/${id}/toggle`,
+    NOTIFICATIONS: (limit = 20) => `http://localhost:5050/api/reminders/notifications?limit=${limit}`,
+    MARK_NOTIFICATION_READ: (id: string) => `http://localhost:5050/api/reminders/notifications/${id}/read`,
+    DUE: (windowMinutes = 2) => `http://localhost:5050/api/reminders/due?windowMinutes=${windowMinutes}`,
   },
   
 };
