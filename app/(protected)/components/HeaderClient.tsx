@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useRef, useState } from "react";
 import { Bell, MessageSquare, Search, LogOut } from "lucide-react";
@@ -100,7 +100,7 @@ export default function HeaderClient({ user }: Props) {
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
         <span
           style={{
-            fontFamily: "'Playfair Display', serif",
+            fontFamily: "Georgia, serif",
             fontSize: "20px",
             fontWeight: 700,
             color: "#2E8B57",
@@ -137,7 +137,7 @@ export default function HeaderClient({ user }: Props) {
             color: "#1e3a2b",
             fontSize: "13px",
             width: "100%",
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "system-ui, -apple-system, sans-serif",
           }}
         />
       </div>
@@ -228,7 +228,7 @@ export default function HeaderClient({ user }: Props) {
                   fontWeight: 700,
                   color: "#fff",
                   background: "linear-gradient(135deg, #2E8B57, #3aaa6e)",
-                  fontFamily: "'Playfair Display', serif",
+                  fontFamily: "Georgia, serif",
                 }}
               >
                 {initials}
@@ -254,7 +254,7 @@ export default function HeaderClient({ user }: Props) {
             cursor: isLoggingOut ? "not-allowed" : "pointer",
             transition: "all 0.2s ease",
             opacity: isLoggingOut ? 0.6 : 1,
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "system-ui, -apple-system, sans-serif",
           }}
         >
           <LogOut size={16} />

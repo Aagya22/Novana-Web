@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -8,7 +8,6 @@ import {
   Settings,
   BookOpen,
   SmilePlus,
-  Target,
   Dumbbell,
   Bell,
 } from "lucide-react";
@@ -17,7 +16,6 @@ const navItems = [
   { id: "home", label: "Dashboard", icon: Home, href: "/home" },
   { id: "journal", label: "Journal", icon: BookOpen, href: "/journal" },
   { id: "mood", label: "Mood", icon: SmilePlus, href: "/mood" },
-  { id: "habits", label: "Habits", icon: Target, href: "/habits" },
   { id: "exercises", label: "Exercises", icon: Dumbbell, href: "/exercises" },
   { id: "reminders", label: "Reminders", icon: Bell, href: "/reminders" },
   { id: "calendar", label: "Calendar", icon: Calendar, href: "/calendar" },
@@ -29,7 +27,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Get current active item based on pathname
+
   const getCurrentItem = () => {
     if (pathname === "/home" || pathname === "/") return "home";
     const pathSegments = pathname.split("/").filter(Boolean);
@@ -38,7 +36,7 @@ export default function Sidebar() {
 
   const [activeItem, setActiveItem] = useState(getCurrentItem());
 
-  // Update active item when pathname changes
+  
   useEffect(() => {
     setActiveItem(getCurrentItem());
   }, [pathname]);
@@ -83,7 +81,7 @@ export default function Sidebar() {
           transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
           display: "flex",
           flexDirection: "column",
-          paddingTop: "20px",
+          paddingTop: "80px",
         }}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
@@ -121,7 +119,7 @@ export default function Sidebar() {
                     ? "#344C3D"
                     : "#6b7280",
                   fontSize: "15px",
-                  fontFamily: "'Inter', sans-serif",
+                  fontFamily: "system-ui, -apple-system, sans-serif",
                   fontWeight: isActive ? 600 : 500,
                   letterSpacing: "0.3px",
                   whiteSpace: "nowrap",

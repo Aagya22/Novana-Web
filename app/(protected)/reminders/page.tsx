@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import Header from "../components/header";
@@ -215,69 +215,62 @@ export default function RemindersPage() {
 
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: darkMode
-          ? "linear-gradient(135deg, #1f2937 0%, #111827 50%, #374151 100%)"
-          : "linear-gradient(135deg, #f4f3f1 0%, #e8f0e6 50%, #f2d1d4 100%)",
-        transition: "background 0.3s ease",
-      }}
-    >
+    <div style={{ minHeight: "100vh", background: "#F5F3EF", fontFamily: "system-ui, -apple-system, sans-serif" }}>
       <Header />
       <Sidebar />
 
-      <main
-        style={{
-          padding: "32px",
-          marginLeft: "240px", // sidebar width
-          maxWidth: "1200px",
-        }}
-      >
-        {/* Header Section */}
+      <main style={{ padding: "32px", maxWidth: "1100px", margin: "0 auto" }}>
+        {/* Forest Green Hero Banner */}
         <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 24,
+            background: "linear-gradient(135deg, #1E3A2F 0%, #3D6B4F 100%)",
+            borderRadius: 20,
+            padding: "40px 44px",
+            marginBottom: 28,
+            position: "relative",
+            overflow: "hidden",
           }}
         >
-          <div>
-            <div style={{ fontSize: 12, letterSpacing: 1.2, color: darkMode ? "rgba(255,255,255,0.5)" : "#6b7280", fontWeight: 700 }}>
-              REMINDERS
+          <div style={{ position: "absolute", top: -30, right: -30, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.05)" }} />
+          <div style={{ position: "absolute", bottom: -50, right: 80, width: 130, height: 130, borderRadius: "50%", background: "rgba(255,255,255,0.04)" }} />
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", position: "relative", zIndex: 1, flexWrap: "wrap", gap: 16 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 999, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Bell size={22} color="white" />
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: "rgba(255,255,255,0.65)", textTransform: "uppercase" as const }}>Reminders</span>
+              </div>
+              <h1 style={{ fontSize: 36, fontWeight: 700, color: "white", margin: 0, fontFamily: "Georgia, serif", lineHeight: 1.2 }}>
+                Stay on Track
+              </h1>
+              <p style={{ color: "rgba(255,255,255,0.7)", margin: "8px 0 0 0", fontSize: 15, maxWidth: 380 }}>
+                Gentle nudges for journaling, mood check-ins, and exercises
+              </p>
             </div>
-            <h1 style={{ fontSize: "48px", fontWeight: 700, color: darkMode ? "#f9fafb" : "#1f2937", margin: 0, fontFamily: "'Playfair Display', serif" }}>
-              Stay on track
-            </h1>
-            <p
+            <button
+              onClick={openCreate}
               style={{
-                color: darkMode ? "#9ca3af" : "#6b7280",
-                margin: "4px 0 0 0",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "12px 22px",
+                borderRadius: 12,
+                border: "none",
+                background: "rgba(255,255,255,0.92)",
+                color: "#1E3A2F",
+                fontWeight: 700,
+                fontSize: 14,
+                cursor: "pointer",
+                boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+                transition: "transform 0.15s",
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-1px)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
             >
-              Set reminders for journal, mood, and exercises
-            </p>
+              <Plus size={16} /> Add Reminder
+            </button>
           </div>
-
-          <button
-            onClick={openCreate}
-            style={{
-              background: darkMode ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.9)",
-              color: "#1f2937",
-              border: "none",
-              padding: "12px 20px",
-              borderRadius: 12,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              fontWeight: 600,
-              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-            }}
-          >
-            <Plus size={18} /> + Add
-          </button>
         </div>
 
         {/* Create / Edit Modal */}
@@ -287,7 +280,7 @@ export default function RemindersPage() {
             style={{
               position: "fixed",
               inset: 0,
-              background: "rgba(0,0,0,0.55)",
+              background: "rgba(0,0,0,0.52)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -298,38 +291,29 @@ export default function RemindersPage() {
             <div
               onClick={(e) => e.stopPropagation()}
               style={{
-                width: "min(560px, 100%)",
+                width: "min(540px, 100%)",
                 borderRadius: 18,
-                padding: 20,
-                background: darkMode ? "rgba(17,24,39,0.92)" : "rgba(255,255,255,0.95)",
-                border: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.06)",
-                boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
+                padding: "24px 28px",
+                background: "#FFFFFF",
+                border: "1px solid rgba(0,0,0,0.06)",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color: darkMode ? "#f9fafb" : "#111827" }}>
-                  {editing ? "Edit reminder" : "Add reminder"}
-                </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                <h2 style={{ fontSize: 20, fontWeight: 700, color: "#1C1917", margin: 0, fontFamily: "Georgia, serif" }}>
+                  {editing ? "Edit Reminder" : "New Reminder"}
+                </h2>
                 <button
                   onClick={() => setShowForm(false)}
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    color: darkMode ? "rgba(255,255,255,0.7)" : "#6b7280",
-                    cursor: "pointer",
-                    fontSize: 16,
-                    fontWeight: 700,
-                  }}
+                  style={{ background: "transparent", border: "none", color: "#78716C", cursor: "pointer", fontSize: 18, fontWeight: 700, lineHeight: 1 }}
                 >
-                  ✕
+                  
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} style={{ display: "grid", gap: 12 }}>
+              <form onSubmit={handleSubmit} style={{ display: "grid", gap: 14 }}>
                 <div style={{ display: "grid", gap: 6 }}>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: darkMode ? "rgba(255,255,255,0.65)" : "#6b7280" }}>
-                    Title
-                  </label>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: "#78716C", letterSpacing: 0.5 }}>TITLE</label>
                   <input
                     value={formData.title}
                     onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))}
@@ -337,30 +321,32 @@ export default function RemindersPage() {
                     required
                     style={{
                       padding: "12px 14px",
-                      borderRadius: 12,
-                      border: darkMode ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(0,0,0,0.08)",
-                      background: darkMode ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.9)",
-                      color: darkMode ? "#f9fafb" : "#111827",
+                      borderRadius: 10,
+                      border: "1px solid rgba(0,0,0,0.1)",
+                      background: "#F5F3EF",
+                      color: "#1C1917",
                       outline: "none",
+                      fontSize: 14,
+                      fontFamily: "system-ui",
                     }}
                   />
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                   <div style={{ display: "grid", gap: 6 }}>
-                    <label style={{ fontSize: 12, fontWeight: 700, color: darkMode ? "rgba(255,255,255,0.65)" : "#6b7280" }}>
-                      Type
-                    </label>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: "#78716C", letterSpacing: 0.5 }}>TYPE</label>
                     <select
                       value={formData.type}
                       onChange={(e) => setFormData((p) => ({ ...p, type: e.target.value as ReminderType }))}
                       style={{
                         padding: "12px 14px",
-                        borderRadius: 12,
-                        border: darkMode ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(0,0,0,0.08)",
-                        background: darkMode ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.9)",
-                        color: darkMode ? "#f9fafb" : "#111827",
+                        borderRadius: 10,
+                        border: "1px solid rgba(0,0,0,0.1)",
+                        background: "#F5F3EF",
+                        color: "#1C1917",
                         outline: "none",
+                        fontSize: 14,
+                        fontFamily: "system-ui",
                       }}
                     >
                       <option value="journal">Journal</option>
@@ -368,11 +354,8 @@ export default function RemindersPage() {
                       <option value="exercise">Exercise</option>
                     </select>
                   </div>
-
                   <div style={{ display: "grid", gap: 6 }}>
-                    <label style={{ fontSize: 12, fontWeight: 700, color: darkMode ? "rgba(255,255,255,0.65)" : "#6b7280" }}>
-                      Time
-                    </label>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: "#78716C", letterSpacing: 0.5 }}>TIME</label>
                     <input
                       type="time"
                       value={formData.time}
@@ -380,21 +363,21 @@ export default function RemindersPage() {
                       required
                       style={{
                         padding: "12px 14px",
-                        borderRadius: 12,
-                        border: darkMode ? "1px solid rgba(255,255,255,0.12)" : "1px solid rgba(0,0,0,0.08)",
-                        background: darkMode ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.9)",
-                        color: darkMode ? "#f9fafb" : "#111827",
+                        borderRadius: 10,
+                        border: "1px solid rgba(0,0,0,0.1)",
+                        background: "#F5F3EF",
+                        color: "#1C1917",
                         outline: "none",
+                        fontSize: 14,
+                        fontFamily: "system-ui",
                       }}
                     />
                   </div>
                 </div>
 
                 <div style={{ display: "grid", gap: 8 }}>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: darkMode ? "rgba(255,255,255,0.65)" : "#6b7280" }}>
-                    Days
-                  </label>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: "#78716C", letterSpacing: 0.5 }}>DAYS</label>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
                     {dayLabels.map((lbl, idx) => {
                       const active = formData.daysOfWeek.includes(idx);
                       return (
@@ -404,17 +387,11 @@ export default function RemindersPage() {
                           onClick={() => toggleDay(idx)}
                           style={{
                             width: 34,
-                            height: 28,
+                            height: 30,
                             borderRadius: 999,
-                            border: active
-                              ? "1px solid rgba(130,150,114,0.8)"
-                              : darkMode
-                                ? "1px solid rgba(255,255,255,0.08)"
-                                : "1px solid rgba(0,0,0,0.08)",
-                            background: active ? "rgba(130,150,114,0.25)" : "transparent",
-                            color: active
-                              ? (darkMode ? "#f9fafb" : "#1f2937")
-                              : (darkMode ? "rgba(255,255,255,0.6)" : "#6b7280"),
+                            border: active ? "1px solid #3D6B4F" : "1px solid rgba(0,0,0,0.1)",
+                            background: active ? "#3D6B4F" : "transparent",
+                            color: active ? "white" : "#78716C",
                             cursor: "pointer",
                             fontWeight: 700,
                             fontSize: 12,
@@ -427,8 +404,8 @@ export default function RemindersPage() {
                   </div>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 6 }}>
-                  <label style={{ display: "flex", gap: 10, alignItems: "center", color: darkMode ? "rgba(255,255,255,0.75)" : "#374151", fontWeight: 600 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4 }}>
+                  <label style={{ display: "flex", gap: 10, alignItems: "center", color: "#1C1917", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
                     <input
                       type="checkbox"
                       checked={formData.enabled}
@@ -439,16 +416,17 @@ export default function RemindersPage() {
                   <button
                     type="submit"
                     style={{
-                      padding: "12px 18px",
-                      borderRadius: 12,
+                      padding: "11px 22px",
+                      borderRadius: 10,
                       border: "none",
-                      background: "linear-gradient(135deg, #829672, #344C3D)",
+                      background: "linear-gradient(135deg, #1E3A2F, #3D6B4F)",
                       color: "#fff",
                       cursor: "pointer",
                       fontWeight: 700,
+                      fontSize: 14,
                     }}
                   >
-                    {editing ? "Save" : "Create"}
+                    {editing ? "Save Changes" : "Create"}
                   </button>
                 </div>
               </form>
@@ -458,193 +436,150 @@ export default function RemindersPage() {
 
         {/* Loading */}
         {loading && (
-          <div style={{ textAlign: "center", padding: 40 }}>
-            Loading...
-          </div>
+          <div style={{ textAlign: "center" as const, padding: 48, color: "#78716C" }}>Loading reminders...</div>
         )}
 
         {/* Empty State */}
         {!loading && reminders.length === 0 && (
           <div
             style={{
-              textAlign: "center",
+              textAlign: "center" as const,
               padding: 60,
-              background: darkMode
-                ? "rgba(31,41,55,0.9)"
-                : "rgba(255,255,255,0.95)",
+              background: "#FFFFFF",
               borderRadius: 16,
+              border: "1px solid rgba(0,0,0,0.06)",
             }}
           >
-            <Bell size={48} />
-            <p>No reminders yet.</p>
+            <Bell size={44} color="#D8959B" style={{ marginBottom: 12 }} />
+            <p style={{ color: "#78716C", margin: 0, fontSize: 15 }}>No reminders yet. Add one to get started!</p>
           </div>
         )}
 
-        {/* Active Reminders */}
+        {/* Reminders List */}
         {!loading && reminders.length > 0 && (
-          <div
-            style={{
-              borderRadius: 22,
-              padding: 18,
-              background: darkMode ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.75)",
-              border: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.06)",
-              boxShadow: darkMode ? "0 20px 60px rgba(0,0,0,0.4)" : "0 12px 40px rgba(0,0,0,0.08)",
-            }}
-          >
-            <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 10, color: darkMode ? "#f9fafb" : "#111827", fontFamily: "'Playfair Display', serif" }}>
-              Active Reminders
-            </div>
+          <div style={{ display: "flex", flexDirection: "column" as const, gap: 10 }}>
+            {reminders.map((r) => {
+              const type = (r.type || "journal") as ReminderType;
+              const days = Array.isArray(r.daysOfWeek) ? r.daysOfWeek : [0, 1, 2, 3, 4, 5, 6];
+              const enabled = r.enabled ?? true;
+              const typeColor = type === "mood" ? "#D8959B" : type === "exercise" ? "#3D6B4F" : "#829672";
 
-            <div style={{ display: "grid" }}>
-              {reminders.map((r) => {
-                const type = (r.type || "journal") as ReminderType;
-                const days = Array.isArray(r.daysOfWeek) ? r.daysOfWeek : [0, 1, 2, 3, 4, 5, 6];
-                const enabled = r.enabled ?? true;
-
-                return (
+              return (
+                <div
+                  key={r._id}
+                  style={{
+                    background: "#FFFFFF",
+                    borderRadius: 14,
+                    padding: "16px 20px",
+                    border: "1px solid rgba(0,0,0,0.06)",
+                    borderLeft: `4px solid ${typeColor}`,
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 16,
+                    opacity: enabled ? 1 : 0.55,
+                    transition: "opacity 0.2s",
+                  }}
+                >
+                  {/* Type icon */}
                   <div
-                    key={r._id}
                     style={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: 11,
+                      background: `${typeColor}18`,
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "14px 10px",
-                      borderTop: "1px solid rgba(255,255,255,0.06)",
-                      gap: 12,
+                      justifyContent: "center",
+                      color: typeColor,
+                      flex: "0 0 auto",
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0 }}>
-                      <div
-                        style={{
-                          width: 42,
-                          height: 42,
-                          borderRadius: 12,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          background: darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
-                          color: darkMode ? "rgba(130,150,114,0.95)" : "#344C3D",
-                          flex: "0 0 auto",
-                        }}
-                      >
-                        {iconForType(type)}
+                    {iconForType(type)}
+                  </div>
+
+                  {/* Info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: "#1C1917", marginBottom: 4 }}>{r.title}</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" as const }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "#78716C" }}>{r.time}</span>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: "white", background: typeColor, padding: "2px 9px", borderRadius: 999, textTransform: "capitalize" as const }}>{type}</span>
+                      <div style={{ display: "flex", gap: 4 }}>
+                        {dayLabels.map((lbl, idx) => {
+                          const active = days.includes(idx);
+                          return (
+                            <div
+                              key={idx}
+                              style={{
+                                width: 22,
+                                height: 22,
+                                borderRadius: 999,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: 10,
+                                fontWeight: 800,
+                                color: active ? typeColor : "rgba(0,0,0,0.25)",
+                                border: active ? `1px solid ${typeColor}55` : "1px solid rgba(0,0,0,0.08)",
+                                background: active ? `${typeColor}15` : "transparent",
+                              }}
+                            >
+                              {lbl}
+                            </div>
+                          );
+                        })}
                       </div>
-
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-                          <div
-                            style={{
-                              fontWeight: 700,
-                              color: darkMode ? (enabled ? "#f9fafb" : "rgba(255,255,255,0.45)") : (enabled ? "#111827" : "rgba(17,24,39,0.45)"),
-                              whiteSpace: "nowrap",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              maxWidth: 360,
-                            }}
-                          >
-                            {r.title}
-                          </div>
-                        </div>
-
-                        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 4 }}>
-                          <div style={{ color: darkMode ? "rgba(255,255,255,0.55)" : "#6b7280", fontSize: 13, fontWeight: 600 }}>
-                            {r.time}
-                          </div>
-                          <div style={{ display: "flex", gap: 6 }}>
-                            {dayLabels.map((lbl, idx) => {
-                              const active = days.includes(idx);
-                              return (
-                                <div
-                                  key={idx}
-                                  style={{
-                                    width: 22,
-                                    height: 22,
-                                    borderRadius: 999,
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    fontSize: 11,
-                                    fontWeight: 800,
-                                    color: active
-                                      ? (darkMode ? "#cfe7d6" : "#344C3D")
-                                      : (darkMode ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.25)"),
-                                    border: active
-                                      ? "1px solid rgba(130,150,114,0.55)"
-                                      : darkMode
-                                        ? "1px solid rgba(255,255,255,0.08)"
-                                        : "1px solid rgba(0,0,0,0.06)",
-                                    background: active ? "rgba(130,150,114,0.18)" : "transparent",
-                                  }}
-                                >
-                                  {lbl}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, flex: "0 0 auto" }}>
-                      {/* Toggle */}
-                      <button
-                        onClick={() => toggleReminder(r._id)}
-                        aria-label={enabled ? "Disable reminder" : "Enable reminder"}
-                        style={{
-                          width: 54,
-                          height: 30,
-                          borderRadius: 999,
-                          border: "none",
-                          cursor: "pointer",
-                          background: enabled ? "rgba(130,150,114,0.95)" : (darkMode ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.12)"),
-                          padding: 3,
-                          position: "relative" as const,
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: 24,
-                            height: 24,
-                            borderRadius: 999,
-                            background: "white",
-                            position: "absolute",
-                            top: 3,
-                            left: enabled ? 27 : 3,
-                            transition: "left 0.15s ease",
-                          }}
-                        />
-                      </button>
-
-                      <button
-                        onClick={() => openEdit(r)}
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color: darkMode ? "rgba(255,255,255,0.65)" : "#6b7280",
-                          cursor: "pointer",
-                        }}
-                        aria-label="Edit reminder"
-                      >
-                        <Edit size={18} />
-                      </button>
-
-                      <button
-                        onClick={() => handleDelete(r._id)}
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color: darkMode ? "rgba(255,255,255,0.65)" : "#6b7280",
-                          cursor: "pointer",
-                        }}
-                        aria-label="Delete reminder"
-                      >
-                        <Trash2 size={18} />
-                      </button>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+
+                  {/* Actions */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flex: "0 0 auto" }}>
+                    <button
+                      onClick={() => toggleReminder(r._id)}
+                      aria-label={enabled ? "Disable reminder" : "Enable reminder"}
+                      style={{
+                        width: 52,
+                        height: 28,
+                        borderRadius: 999,
+                        border: "none",
+                        cursor: "pointer",
+                        background: enabled ? typeColor : "rgba(0,0,0,0.12)",
+                        padding: 3,
+                        position: "relative" as const,
+                        transition: "background 0.15s",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: 999,
+                          background: "white",
+                          position: "absolute",
+                          top: 3,
+                          left: enabled ? 27 : 3,
+                          transition: "left 0.15s ease",
+                        }}
+                      />
+                    </button>
+                    <button
+                      onClick={() => openEdit(r)}
+                      style={{ background: "transparent", border: "none", color: "#78716C", cursor: "pointer", padding: 4 }}
+                      aria-label="Edit reminder"
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(r._id)}
+                      style={{ background: "transparent", border: "none", color: "#78716C", cursor: "pointer", padding: 4 }}
+                      aria-label="Delete reminder"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </main>
