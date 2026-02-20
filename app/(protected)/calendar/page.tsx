@@ -236,12 +236,12 @@ export default function CalendarPage() {
           key={day}
           style={{
             height: "120px",
-            border: "1px solid rgba(216,149,155,0.2)",
+            border: "1px solid rgba(30,58,47,0.12)",
             borderRadius: "8px",
             padding: "8px",
             background: isToday 
-              ? "linear-gradient(135deg, rgba(216,149,155,0.1), rgba(130,150,114,0.1))"
-              : "rgba(255,255,255,0.7)",
+              ? "rgba(30,58,47,0.08)"
+              : "rgba(255,255,255,0.85)",
             cursor: "pointer",
             transition: "all 0.3s ease",
             position: "relative",
@@ -276,7 +276,7 @@ export default function CalendarPage() {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
             <div style={{
               fontWeight: isToday ? "700" : "600",
-              color: isToday ? "#344C3D" : "#1f2937",
+              color: isToday ? "#1E3A2F" : "#1f2937",
               fontSize: isToday ? "16px" : "14px"
             }}>
               {day}
@@ -299,9 +299,9 @@ export default function CalendarPage() {
                 padding: "2px 6px",
                 marginBottom: "2px",
                 borderRadius: "4px",
-                background: `rgba(52,76,61,0.10)`,
-                color: "#344C3D",
-                border: `1px solid rgba(52,76,61,0.18)`,
+                background: `rgba(30,58,47,0.09)`,
+                color: "#1E3A2F",
+                border: `1px solid rgba(30,58,47,0.18)`,
                 fontWeight: "500",
                 whiteSpace: "nowrap",
                 overflow: "hidden",
@@ -459,382 +459,246 @@ export default function CalendarPage() {
   };
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "#F5F3EF",
-      fontFamily: "system-ui, -apple-system, sans-serif"
-    }}>
+    <div style={{ minHeight: "100vh", background: "#F5F3EF", fontFamily: "system-ui, -apple-system, sans-serif" }}>
       <Header />
       <Sidebar />
 
-      <main style={{
-        marginLeft: "0",
-        padding: "32px",
-        maxWidth: "1400px",
-        margin: "0 auto",
-      }}>
-        {/* Page Header */}
-        <div style={{
-          background: "#FFFFFF",
-          borderRadius: "20px",
-          padding: "28px 32px",
-          marginBottom: "28px",
-          border: "1px solid rgba(30,58,47,0.08)",
-          boxShadow: "0 2px 12px rgba(30,58,47,0.08)",
-        }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-              <div style={{
-                width: "56px",
-                height: "56px",
-                borderRadius: "16px",
-                background: "linear-gradient(135deg, #D8959B, #829672)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "white",
-                boxShadow: "0 8px 24px rgba(216,149,155,0.3)"
-              }}>
-                <Calendar size={28} strokeWidth={2} />
+      <main style={{ padding: "32px", maxWidth: "1400px", margin: "0 auto" }}>
+        {/* Forest Green Hero Banner */}
+        <div
+          style={{
+            background: "linear-gradient(135deg, #1E3A2F 0%, #3D6B4F 100%)",
+            borderRadius: 20,
+            padding: "40px 44px",
+            marginBottom: 28,
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          <div style={{ position: "absolute", top: -40, right: -40, width: 220, height: 220, borderRadius: "50%", background: "rgba(255,255,255,0.04)" }} />
+          <div style={{ position: "absolute", bottom: -60, right: 100, width: 150, height: 150, borderRadius: "50%", background: "rgba(255,255,255,0.03)" }} />
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", position: "relative", zIndex: 1, flexWrap: "wrap", gap: 16 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Calendar size={22} color="white" />
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: "rgba(255,255,255,0.6)", textTransform: "uppercase" as const }}>Calendar</span>
               </div>
-              <div>
-                <h1 style={{
-                  fontSize: "28px",
-                  fontWeight: 700,
-                  color: "#1C1917",
-                  margin: 0,
-                  fontFamily: "Georgia, serif",
-                }}>
-                  Calendar
-                </h1>
-                <p style={{
-                  color: "#78716C",
-                  fontSize: "14px",
-                  margin: "4px 0 0 0",
-                  fontWeight: 500
-                }}>
-                  Track your wellness schedule • {schedules.length} scheduled items
-                </p>
-              </div>
-              
-              {/* View Toggle */}
-              <div style={{ marginLeft: "auto" }} />
+              <h1 style={{ fontSize: 36, fontWeight: 700, color: "white", margin: 0, fontFamily: "Georgia, serif", lineHeight: 1.2 }}>
+                Your Schedule
+              </h1>
+              <p style={{ color: "rgba(255,255,255,0.65)", margin: "8px 0 0 0", fontSize: 15 }}>
+                {schedules.length} scheduled item{schedules.length !== 1 ? "s" : ""} — stay organized
+              </p>
             </div>
-            
-            <button
-              onClick={openNewEventModal}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                padding: "16px 24px",
-                background: "linear-gradient(135deg, #344C3D, #829672)",
-                color: "white",
-                border: "none",
-                borderRadius: "16px",
-                fontSize: "16px",
-                fontWeight: "600",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                boxShadow: "0 8px 24px rgba(52,76,61,0.3)"
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = "0 12px 32px rgba(52,76,61,0.4)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "0 8px 24px rgba(52,76,61,0.3)";
-              }}
-            >
-              <PlusCircle size={20} strokeWidth={2} />
-              New Event
-            </button>
-          </div>
-
-          {/* Search and Filter */}
-          <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              background: "rgba(242,209,212,0.3)",
-              border: "1px solid rgba(216,149,155,0.2)",
-              borderRadius: "12px",
-              padding: "12px 16px",
-              flex: 1,
-              maxWidth: "400px"
-            }}>
-              <Search size={18} color="#6b7280" strokeWidth={2} />
-              <input
-                type="text"
-                placeholder="Search events..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+            <div style={{ display: "flex", flexDirection: "column" as const, gap: 10, alignItems: "flex-end" }}>
+              <button
+                onClick={openNewEventModal}
                 style={{
-                  background: "transparent",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "12px 22px",
+                  borderRadius: 12,
                   border: "none",
-                  outline: "none",
-                  color: "#1f2937",
-                  fontSize: "14px",
-                  width: "100%",
-                  fontFamily: "system-ui, -apple-system, sans-serif",
-                  fontWeight: "500"
+                  background: "rgba(255,255,255,0.92)",
+                  color: "#1E3A2F",
+                  fontWeight: 700,
+                  fontSize: 14,
+                  cursor: "pointer",
+                  boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+                  transition: "transform 0.15s",
                 }}
-              />
+                onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-1px)")}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
+              >
+                <PlusCircle size={16} /> New Event
+              </button>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  background: "rgba(255,255,255,0.1)",
+                  borderRadius: 10,
+                  padding: "10px 14px",
+                  minWidth: 220,
+                }}
+              >
+                <Search size={15} color="rgba(255,255,255,0.7)" />
+                <input
+                  type="text"
+                  placeholder="Search events..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    outline: "none",
+                    color: "white",
+                    fontSize: 13,
+                    fontFamily: "system-ui",
+                    fontWeight: 500,
+                    width: "100%",
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: "32px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 28 }}>
           {/* Main Calendar */}
-          <div style={{
-            background: "rgba(255,255,255,0.9)",
-            borderRadius: "20px",
-            padding: "24px",
-            border: "1px solid rgba(216,149,155,0.2)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
-            backdropFilter: "blur(10px)",
-          }}>
-            {/* Calendar Header */}
-            <div style={{ 
-              display: "flex", 
-              alignItems: "center", 
-              justifyContent: "space-between", 
-              marginBottom: "24px" 
-            }}>
+          <div
+            style={{
+              background: "#FFFFFF",
+              borderRadius: 18,
+              padding: "24px",
+              border: "1px solid rgba(30,58,47,0.08)",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+            }}
+          >
+            {/* Month Navigation */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
               <button
                 onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
                 style={{
-                  padding: "12px",
-                  background: "rgba(216,149,155,0.1)",
-                  border: "1px solid rgba(216,149,155,0.2)",
-                  borderRadius: "12px",
-                  color: "#D8959B",
+                  padding: "10px 12px",
+                  background: "rgba(30,58,47,0.08)",
+                  border: "1px solid rgba(30,58,47,0.15)",
+                  borderRadius: 10,
+                  color: "#1E3A2F",
                   cursor: "pointer",
-                  transition: "all 0.3s ease"
                 }}
               >
-                <ChevronLeft size={20} strokeWidth={2} />
+                <ChevronLeft size={18} strokeWidth={2} />
               </button>
-
-              <h2 style={{
-                fontSize: "24px",
-                fontWeight: "700",
-                color: "#1f2937",
-                margin: 0
-              }}>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: "#1C1917", margin: 0, fontFamily: "Georgia, serif" }}>
                 {formatDate(currentDate)}
               </h2>
-
               <button
                 onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
                 style={{
-                  padding: "12px",
-                  background: "rgba(216,149,155,0.1)",
-                  border: "1px solid rgba(216,149,155,0.2)",
-                  borderRadius: "12px",
-                  color: "#D8959B",
+                  padding: "10px 12px",
+                  background: "rgba(30,58,47,0.08)",
+                  border: "1px solid rgba(30,58,47,0.15)",
+                  borderRadius: 10,
+                  color: "#1E3A2F",
                   cursor: "pointer",
-                  transition: "all 0.3s ease"
                 }}
               >
-                <ChevronRight size={20} strokeWidth={2} />
+                <ChevronRight size={18} strokeWidth={2} />
               </button>
             </div>
 
+            {/* Day Headers */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 1, marginBottom: 6 }}>
+              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                <div
+                  key={day}
+                  style={{
+                    padding: "10px",
+                    textAlign: "center" as const,
+                    fontWeight: 700,
+                    color: "#78716C",
+                    fontSize: 12,
+                    letterSpacing: 0.5,
+                    textTransform: "uppercase" as const,
+                  }}
+                >
+                  {day}
+                </div>
+              ))}
+            </div>
+
             {/* Calendar Grid */}
-            <div style={{ marginBottom: "16px" }}>
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(7, 1fr)",
-                gap: "1px",
-                marginBottom: "8px"
-              }}>
-                {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
-                  <div
-                    key={day}
-                    style={{
-                      padding: "12px",
-                      textAlign: "center",
-                      fontWeight: "700",
-                      color: "#6b7280",
-                      fontSize: "14px",
-                      background: "rgba(216,149,155,0.05)"
-                    }}
-                  >
-                    {day}
-                  </div>
-                ))}
-              </div>
-              
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(7, 1fr)",
-                gap: "4px"
-              }}>
-                {renderCalendarGrid()}
-              </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
+              {renderCalendarGrid()}
             </div>
           </div>
 
-          {/* Sidebar - Upcoming Events */}
-          <div style={{
-            background: "rgba(255,255,255,0.9)",
-            borderRadius: "20px",
-            padding: "24px",
-            border: "1px solid rgba(216,149,155,0.2)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
-            backdropFilter: "blur(10px)",
-            height: "fit-content"
-          }}>
-            <h3 style={{
-              fontSize: "20px",
-              fontWeight: "700",
-              color: "#1f2937",
-              margin: "0 0 20px 0"
-            }}>
+          {/* Upcoming Events Sidebar */}
+          <div
+            style={{
+              background: "#FFFFFF",
+              borderRadius: 18,
+              padding: "20px",
+              border: "1px solid rgba(30,58,47,0.08)",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+              height: "fit-content",
+            }}
+          >
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: "#1C1917", margin: "0 0 16px 0", fontFamily: "Georgia, serif" }}>
               Upcoming Events
             </h3>
 
             {loading && (
-              <div style={{
-                marginBottom: "12px",
-                fontSize: "12px",
-                fontWeight: "600",
-                color: "#6b7280",
-              }}>
-                Loading...
-              </div>
+              <div style={{ fontSize: 13, color: "#78716C", marginBottom: 12 }}>Loading...</div>
             )}
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div style={{ display: "flex", flexDirection: "column" as const, gap: 10 }}>
               {upcomingEvents.slice(0, 6).map((event) => (
                 <div
                   key={event._id}
-                  style={{
-                    padding: "16px",
-                    background: "rgba(52,76,61,0.04)",
-                    border: "1px solid rgba(52,76,61,0.12)",
-                    borderRadius: "12px",
-                    transition: "all 0.3s ease",
-                    cursor: "pointer",
-                  }}
                   onClick={() => openEditModal(event)}
+                  style={{
+                    padding: "14px 16px",
+                    background: "#F5F3EF",
+                    border: "1px solid rgba(30,58,47,0.1)",
+                    borderLeft: "3px solid #1E3A2F",
+                    borderRadius: "0 10px 10px 0",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "rgba(52,76,61,0.07)";
-                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.background = "rgba(30,58,47,0.05)";
+                    e.currentTarget.style.transform = "translateX(2px)";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "rgba(52,76,61,0.04)";
-                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.background = "#F5F3EF";
+                    e.currentTarget.style.transform = "translateX(0)";
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
-                    <div style={{
-                      padding: "6px",
-                      background: "rgba(52,76,61,0.12)",
-                      borderRadius: "8px",
-                      color: "#344C3D",
-                    }}>
-                      <Calendar size={14} strokeWidth={2} />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{
-                        fontSize: "14px",
-                        fontWeight: "600",
-                        color: "#1f2937",
-                        marginBottom: "2px",
-                      }}>
-                        {event.title}
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#1C1917", marginBottom: 2 }}>{event.title}</div>
+                      <div style={{ fontSize: 12, color: "#78716C", fontWeight: 500 }}>
+                        {event.time} · {formatDateKey(event.date)}
                       </div>
-                      <div style={{
-                        fontSize: "12px",
-                        color: "#6b7280",
-                        fontWeight: "500",
-                      }}>
-                        {event.time} • {formatDateKey(event.date)}
-                      </div>
+                      {event.location && (
+                        <div style={{ display: "flex", gap: 4, alignItems: "center", marginTop: 4 }}>
+                          <MapPin size={11} color="#78716C" />
+                          <span style={{ fontSize: 11, color: "#78716C" }}>{event.location}</span>
+                        </div>
+                      )}
                     </div>
-
-                    <div style={{ display: "flex", gap: "8px" }}>
+                    <div style={{ display: "flex", gap: 4, flex: "0 0 auto" }}>
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openEditModal(event);
-                        }}
-                        style={{
-                          width: "32px",
-                          height: "32px",
-                          borderRadius: "10px",
-                          border: "1px solid rgba(52,76,61,0.14)",
-                          background: "rgba(255,255,255,0.7)",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: "#344C3D",
-                        }}
-                        aria-label="Edit schedule"
+                        onClick={(e) => { e.stopPropagation(); openEditModal(event); }}
+                        style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid rgba(30,58,47,0.14)", background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#1E3A2F" }}
+                        aria-label="Edit"
                       >
-                        <Edit3 size={14} strokeWidth={2} />
+                        <Edit3 size={12} strokeWidth={2} />
                       </button>
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteSchedule(event);
-                        }}
-                        style={{
-                          width: "32px",
-                          height: "32px",
-                          borderRadius: "10px",
-                          border: "1px solid rgba(239,68,68,0.18)",
-                          background: "rgba(255,255,255,0.7)",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: "#ef4444",
-                        }}
-                        aria-label="Delete schedule"
+                        onClick={(e) => { e.stopPropagation(); deleteSchedule(event); }}
+                        style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid rgba(239,68,68,0.2)", background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#ef4444" }}
+                        aria-label="Delete"
                       >
-                        <Trash2 size={14} strokeWidth={2} />
+                        <Trash2 size={12} strokeWidth={2} />
                       </button>
                     </div>
                   </div>
-
-                  {event.location && (
-                    <div style={{ display: "flex", gap: "6px", alignItems: "center", marginBottom: event.description ? "8px" : 0 }}>
-                      <MapPin size={12} strokeWidth={2} color="#6b7280" />
-                      <div style={{ fontSize: "12px", color: "#6b7280", fontWeight: "500" }}>{event.location}</div>
-                    </div>
-                  )}
-
-                  {event.description && (
-                    <p style={{
-                      fontSize: "12px",
-                      color: "#4b5563",
-                      margin: 0,
-                      lineHeight: "1.4",
-                    }}>
-                      {event.description}
-                    </p>
-                  )}
                 </div>
               ))}
-              
-              {upcomingEvents.length === 0 && (
-                <div style={{
-                  padding: "32px 16px",
-                  textAlign: "center",
-                  color: "#6b7280"
-                }}>
-                  <Calendar size={32} style={{ opacity: 0.5, marginBottom: "12px" }} />
-                  <div style={{ fontSize: "14px", fontWeight: "500" }}>
-                    No upcoming events
-                  </div>
+
+              {upcomingEvents.length === 0 && !loading && (
+                <div style={{ padding: "28px 12px", textAlign: "center" as const, color: "#78716C" }}>
+                  <Calendar size={30} style={{ opacity: 0.4, marginBottom: 10 }} />
+                  <div style={{ fontSize: 13, fontWeight: 500 }}>No upcoming events</div>
                 </div>
               )}
             </div>
@@ -844,144 +708,92 @@ export default function CalendarPage() {
 
       {/* Event Form Modal */}
       {showEventForm && (
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "rgba(0,0,0,0.5)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 1000,
-          backdropFilter: "blur(8px)"
-        }}>
-          <div style={{
-            background: "white",
-            borderRadius: "20px",
-            padding: "32px",
-            maxWidth: "500px",
-            width: "90%",
-            boxShadow: "0 20px 50px rgba(0,0,0,0.3)"
-          }}>
-            <h3 style={{
-              fontSize: "24px",
-              fontWeight: "700",
-              color: "#1f2937",
-              margin: "0 0 24px 0"
-            }}>
-              {editingSchedule ? "Edit Schedule" : "Create New Schedule"}
-            </h3>
-            
-            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+            backdropFilter: "blur(6px)",
+          }}
+          onClick={() => setShowEventForm(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "white",
+              borderRadius: 20,
+              padding: "28px 32px",
+              maxWidth: 500,
+              width: "90%",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.25)",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
+              <h3 style={{ fontSize: 22, fontWeight: 700, color: "#1C1917", margin: 0, fontFamily: "Georgia, serif" }}>
+                {editingSchedule ? "Edit Schedule" : "New Schedule"}
+              </h3>
+              <button
+                onClick={() => setShowEventForm(false)}
+                style={{ background: "transparent", border: "none", color: "#78716C", cursor: "pointer", fontSize: 18, fontWeight: 700, lineHeight: 1 }}
+              >
+                ✕
+              </button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column" as const, gap: 14 }}>
               <input
                 type="text"
                 placeholder="Event title"
                 value={formData.title}
                 onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))}
-                style={{
-                  padding: "16px",
-                  border: "1px solid rgba(216,149,155,0.3)",
-                  borderRadius: "12px",
-                  fontSize: "16px",
-                  fontFamily: "system-ui, -apple-system, sans-serif",
-                  background: "rgba(255,255,255,0.8)"
-                }}
+                style={{ padding: "14px", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 10, fontSize: 14, fontFamily: "system-ui", background: "#F5F3EF", outline: "none" }}
               />
-              
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <input
                   type="date"
                   value={formData.date}
                   onChange={(e) => setFormData((p) => ({ ...p, date: e.target.value }))}
-                  style={{
-                    padding: "16px",
-                    border: "1px solid rgba(216,149,155,0.3)",
-                    borderRadius: "12px",
-                    fontSize: "16px",
-                    fontFamily: "system-ui, -apple-system, sans-serif",
-                    background: "rgba(255,255,255,0.8)"
-                  }}
+                  style={{ padding: "14px", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 10, fontSize: 14, fontFamily: "system-ui", background: "#F5F3EF", outline: "none" }}
                 />
                 <input
                   type="time"
                   value={formData.time}
                   onChange={(e) => setFormData((p) => ({ ...p, time: e.target.value }))}
-                  style={{
-                    padding: "16px",
-                    border: "1px solid rgba(216,149,155,0.3)",
-                    borderRadius: "12px",
-                    fontSize: "16px",
-                    fontFamily: "system-ui, -apple-system, sans-serif",
-                    background: "rgba(255,255,255,0.8)"
-                  }}
+                  style={{ padding: "14px", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 10, fontSize: 14, fontFamily: "system-ui", background: "#F5F3EF", outline: "none" }}
                 />
               </div>
-
               <input
                 type="text"
                 placeholder="Location (optional)"
                 value={formData.location}
                 onChange={(e) => setFormData((p) => ({ ...p, location: e.target.value }))}
-                style={{
-                  padding: "16px",
-                  border: "1px solid rgba(216,149,155,0.3)",
-                  borderRadius: "12px",
-                  fontSize: "16px",
-                  fontFamily: "system-ui, -apple-system, sans-serif",
-                  background: "rgba(255,255,255,0.8)"
-                }}
+                style={{ padding: "14px", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 10, fontSize: 14, fontFamily: "system-ui", background: "#F5F3EF", outline: "none" }}
               />
-              
               <textarea
                 placeholder="Description (optional)"
                 rows={3}
                 value={formData.description}
                 onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
-                style={{
-                  padding: "16px",
-                  border: "1px solid rgba(216,149,155,0.3)",
-                  borderRadius: "12px",
-                  fontSize: "16px",
-                  resize: "vertical",
-                  fontFamily: "system-ui, -apple-system, sans-serif",
-                  background: "rgba(255,255,255,0.8)"
-                }}
+                style={{ padding: "14px", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 10, fontSize: 14, fontFamily: "system-ui", background: "#F5F3EF", outline: "none", resize: "vertical" as const }}
               />
-              
-              <div style={{ display: "flex", gap: "16px", justifyContent: "flex-end" }}>
+              <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 4 }}>
                 <button
                   onClick={() => setShowEventForm(false)}
-                  style={{
-                    padding: "16px 24px",
-                    background: "transparent",
-                    border: "1px solid #d1d5db",
-                    borderRadius: "12px",
-                    color: "#6b7280",
-                    fontSize: "16px",
-                    fontWeight: "600",
-                    cursor: "pointer",
-                    fontFamily: "system-ui, -apple-system, sans-serif"
-                  }}
+                  style={{ padding: "12px 20px", background: "transparent", border: "1px solid rgba(0,0,0,0.1)", borderRadius: 10, color: "#78716C", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "system-ui" }}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={saveSchedule}
-                  style={{
-                    padding: "16px 24px",
-                    background: "linear-gradient(135deg, #344C3D, #829672)",
-                    border: "none",
-                    borderRadius: "12px",
-                    color: "white",
-                    fontSize: "16px",
-                    fontWeight: "600",
-                    cursor: "pointer",
-                    fontFamily: "system-ui, -apple-system, sans-serif"
-                  }}
+                  style={{ padding: "12px 20px", background: "linear-gradient(135deg, #1E3A2F, #3D6B4F)", border: "none", borderRadius: 10, color: "white", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "system-ui" }}
                 >
-                  {editingSchedule ? "Save Changes" : "Create Schedule"}
+                  {editingSchedule ? "Save Changes" : "Create Event"}
                 </button>
               </div>
             </div>

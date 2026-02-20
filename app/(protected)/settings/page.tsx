@@ -14,8 +14,8 @@ export default async function SettingsPage() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "#F5F3EF",
-      fontFamily: "system-ui, -apple-system, sans-serif"
+      background: "linear-gradient(135deg, #f4f3f1 0%, #e8f0e6 50%, #f2d1d4 100%)",
+      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
     }}>
       <Header />
       <Sidebar />
@@ -30,13 +30,14 @@ export default async function SettingsPage() {
           <UpdateUserForm user={user} />
         ) : (
           <div style={{
-            background: "#FFFFFF",
+            background: "rgba(255,255,255,0.9)",
             borderRadius: "20px",
             padding: "32px",
-            border: "1px solid rgba(30,58,47,0.08)",
-            boxShadow: "0 2px 12px rgba(30,58,47,0.08)",
+            border: "1px solid rgba(216,149,155,0.2)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+            backdropFilter: "blur(10px)",
             textAlign: "center",
-            color: "#78716C"
+            color: "#6b7280"
           }}>
             Unable to load profile.
           </div>
