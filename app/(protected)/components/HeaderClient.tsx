@@ -17,24 +17,24 @@ export default function HeaderClient({ user }: Props) {
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const onLogout = async () => {
-    // Show confirmation dialog
+
     const confirmed = window.confirm("Are you sure you want to logout?");
     if (!confirmed) return;
 
     try {
       setIsLoggingOut(true);
       await handleLogout();
-      // If we reach here, logout succeeded (though redirect should happen first)
+
       showToast('Logging out...', 'success');
     } catch (error) {
-      // Check if it's a Next.js redirect error (expected)
+
       if (error && typeof error === 'object' && 'digest' in error && 
           typeof error.digest === 'string' && error.digest.includes('NEXT_REDIRECT')) {
-        // This is the expected redirect, not a real error
+
         showToast('Logging out...', 'success');
         return;
       }
-      // Real error occurred
+
       console.error("Logout failed:", error);
       showToast('Logout failed. Please try again.', 'error');
       setIsLoggingOut(false);
@@ -56,7 +56,7 @@ export default function HeaderClient({ user }: Props) {
       const result = await handleUpdateProfile(formData);
       setIsUploading(false);
       if (result.success) {
-        // refresh server component wrapper to get updated user
+  
         router.refresh();
       } else {
         showToast(result.message || "Failed to upload image", "error");
