@@ -104,6 +104,7 @@ export default function CalendarPage() {
   const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
   const [moodsByDay, setMoodsByDay] = useState<Record<string, MoodRangeItem>>({});
   const [loading, setLoading] = useState(false);
+  const [showDayModal, setShowDayModal] = useState(false);
   const [showEventForm, setShowEventForm] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<ScheduleItem | null>(null);
   const [formData, setFormData] = useState({
@@ -200,6 +201,9 @@ export default function CalendarPage() {
     return map;
   }, [schedules]);
 
+  const selectedDateKey = useMemo(() => toLocalDateKey(selectedDate), [selectedDate]);
+  const selectedDayEvents = schedulesByDate[selectedDateKey] ?? [];
+
   const parseScheduleDateTime = (s: ScheduleItem): Date | null => {
     const m = s.date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     const t = s.time.match(/^([01]\d|2[0-3]):([0-5]\d)$/);
@@ -258,7 +262,7 @@ export default function CalendarPage() {
               description: "",
               location: "",
             });
-            setShowEventForm(true);
+            setShowDayModal(true);
           }}
           onMouseEnter={(e) => {
             if (!isToday) {
@@ -468,84 +472,90 @@ export default function CalendarPage() {
         <div
           style={{
             background: "linear-gradient(135deg, #1E3A2F 0%, #3D6B4F 100%)",
-            borderRadius: 20,
+            borderRadius: "24px",
             padding: "40px 44px",
-            marginBottom: 28,
+            marginBottom: 0,
             position: "relative",
             overflow: "hidden",
+            boxShadow: "0 8px 40px rgba(30,58,47,0.2)",
           }}
         >
           <div style={{ position: "absolute", top: -40, right: -40, width: 220, height: 220, borderRadius: "50%", background: "rgba(255,255,255,0.04)" }} />
           <div style={{ position: "absolute", bottom: -60, right: 100, width: 150, height: 150, borderRadius: "50%", background: "rgba(255,255,255,0.03)" }} />
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", position: "relative", zIndex: 1, flexWrap: "wrap", gap: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", zIndex: 1, flexWrap: "wrap", gap: 16 }}>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Calendar size={22} color="white" />
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
+                <div style={{ width: 52, height: 52, borderRadius: 15, background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Calendar size={26} color="white" strokeWidth={1.8} />
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: "rgba(255,255,255,0.6)", textTransform: "uppercase" as const }}>Calendar</span>
+                <div>
+                  <h1 style={{ margin: 0, fontFamily: "Georgia, serif", fontSize: 34, fontWeight: 700, color: "#FFFFFF", lineHeight: 1.15 }}>
+                    Your Schedule
+                  </h1>
+                  <p style={{ margin: 0, color: "rgba(255,255,255,0.5)", fontSize: 13, fontWeight: 500 }}>
+                    {schedules.length} scheduled item{schedules.length !== 1 ? "s" : ""} — stay organized
+                  </p>
+                </div>
               </div>
-              <h1 style={{ fontSize: 36, fontWeight: 700, color: "white", margin: 0, fontFamily: "Georgia, serif", lineHeight: 1.2 }}>
-                Your Schedule
-              </h1>
-              <p style={{ color: "rgba(255,255,255,0.65)", margin: "8px 0 0 0", fontSize: 15 }}>
-                {schedules.length} scheduled item{schedules.length !== 1 ? "s" : ""} — stay organized
+              <p style={{ color: "rgba(255,255,255,0.65)", margin: 0, fontSize: 15, lineHeight: 1.65, maxWidth: 400 }}>
+                Plan your days and keep track of everything that matters most.
               </p>
             </div>
-            <div style={{ display: "flex", flexDirection: "column" as const, gap: 10, alignItems: "flex-end" }}>
-              <button
-                onClick={openNewEventModal}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  padding: "12px 22px",
-                  borderRadius: 12,
-                  border: "none",
-                  background: "rgba(255,255,255,0.92)",
-                  color: "#1E3A2F",
-                  fontWeight: 700,
-                  fontSize: 14,
-                  cursor: "pointer",
-                  boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
-                  transition: "transform 0.15s",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-1px)")}
-                onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
-              >
-                <PlusCircle size={16} /> New Event
-              </button>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  background: "rgba(255,255,255,0.1)",
-                  borderRadius: 10,
-                  padding: "10px 14px",
-                  minWidth: 220,
-                }}
-              >
-                <Search size={15} color="rgba(255,255,255,0.7)" />
-                <input
-                  type="text"
-                  placeholder="Search events..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    outline: "none",
-                    color: "white",
-                    fontSize: 13,
-                    fontFamily: "system-ui",
-                    fontWeight: 500,
-                    width: "100%",
-                  }}
-                />
-              </div>
-            </div>
+            <button
+              onClick={openNewEventModal}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "14px 24px",
+                borderRadius: 14,
+                border: "none",
+                background: "rgba(255,255,255,0.92)",
+                color: "#1E3A2F",
+                fontWeight: 700,
+                fontSize: 14,
+                cursor: "pointer",
+                boxShadow: "0 4px 20px rgba(216,149,155,0.45)",
+                transition: "transform 0.2s, box-shadow 0.2s",
+                flexShrink: 0,
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 28px rgba(216,149,155,0.55)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(216,149,155,0.45)"; }}
+            >
+              <PlusCircle size={16} /> New Event
+            </button>
           </div>
+        </div>
+
+        {/* Search Bar */}
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          background: "#FFFFFF",
+          border: "1px solid rgba(30,58,47,0.08)",
+          borderRadius: 14,
+          padding: "12px 16px",
+          marginBottom: 28,
+          boxShadow: "0 2px 8px rgba(30,58,47,0.05)",
+        }}>
+          <Search size={15} color="#9ca3af" />
+          <input
+            type="text"
+            placeholder="Search events..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              background: "transparent",
+              border: "none",
+              outline: "none",
+              color: "#1C1917",
+              fontSize: 14,
+              fontFamily: "system-ui, -apple-system, sans-serif",
+              fontWeight: 500,
+              width: "100%",
+            }}
+          />
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 28 }}>
@@ -705,6 +715,142 @@ export default function CalendarPage() {
           </div>
         </div>
       </main>
+
+      {/* Day Events Modal */}
+      {showDayModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 950,
+            backdropFilter: "blur(6px)",
+            padding: 24,
+          }}
+          onClick={() => setShowDayModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "white",
+              borderRadius: 20,
+              padding: "24px 26px",
+              maxWidth: 720,
+              width: "100%",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.25)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
+              <div style={{ minWidth: 0 }}>
+                <h3 style={{ fontSize: 20, fontWeight: 800, color: "#1C1917", margin: 0, fontFamily: "Georgia, serif" }}>
+                  Events on {formatDateKey(selectedDateKey)}
+                </h3>
+                <div style={{ marginTop: 6, fontSize: 13, color: "#78716C", fontWeight: 500 }}>
+                  {selectedDayEvents.length} event{selectedDayEvents.length !== 1 ? "s" : ""}
+                </div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+                <button
+                  type="button"
+                  onClick={() => { setShowDayModal(false); openNewEventModal(); }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "10px 14px",
+                    borderRadius: 12,
+                    border: "1px solid rgba(30,58,47,0.14)",
+                    background: "rgba(30,58,47,0.08)",
+                    color: "#1E3A2F",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  <PlusCircle size={16} /> New Event
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowDayModal(false)}
+                  style={{ width: 36, height: 36, borderRadius: 12, border: "1px solid rgba(0,0,0,0.08)", background: "#F5F3EF", color: "#78716C", cursor: "pointer", fontWeight: 800, lineHeight: 1 }}
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {selectedDayEvents.length === 0 ? (
+              <div style={{ padding: "22px 14px", textAlign: "center", color: "#78716C" }}>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>No events for this day</div>
+                <div style={{ fontSize: 13 }}>Click “New Event” to add one.</div>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {selectedDayEvents.map((event) => (
+                  <div
+                    key={event._id}
+                    style={{
+                      padding: "14px 16px",
+                      background: "#F5F3EF",
+                      border: "1px solid rgba(30,58,47,0.1)",
+                      borderLeft: "3px solid #1E3A2F",
+                      borderRadius: "0 12px 12px 0",
+                      display: "flex",
+                      alignItems: "flex-start",
+                      justifyContent: "space-between",
+                      gap: 10,
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: "#1C1917", marginBottom: 4 }}>{event.title}</div>
+                      <div style={{ fontSize: 12, color: "#78716C", fontWeight: 600 }}>
+                        {event.time}
+                      </div>
+                      {event.location && (
+                        <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 6 }}>
+                          <MapPin size={12} color="#78716C" />
+                          <span style={{ fontSize: 12, color: "#78716C", fontWeight: 500 }}>{event.location}</span>
+                        </div>
+                      )}
+                      {event.description && (
+                        <div style={{ marginTop: 8, fontSize: 13, color: "#1C1917", lineHeight: 1.6 }}>
+                          {event.description}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                      <button
+                        type="button"
+                        onClick={() => { setShowDayModal(false); openEditModal(event); }}
+                        style={{ width: 34, height: 34, borderRadius: 10, border: "1px solid rgba(30,58,47,0.14)", background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#1E3A2F" }}
+                        aria-label="Edit"
+                        title="Edit"
+                      >
+                        <Edit3 size={14} strokeWidth={2} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => deleteSchedule(event)}
+                        style={{ width: 34, height: 34, borderRadius: 10, border: "1px solid rgba(239,68,68,0.2)", background: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#ef4444" }}
+                        aria-label="Delete"
+                        title="Delete"
+                      >
+                        <Trash2 size={14} strokeWidth={2} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Event Form Modal */}
       {showEventForm && (

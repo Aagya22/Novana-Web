@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import React, { useEffect, useState } from "react";
-import { Bell, LogOut } from "lucide-react";
+import { Bell, Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleLogout } from "@/lib/actions/auth-action";
 import { showToast } from "@/lib/toast";
@@ -20,7 +20,6 @@ function readUserDataFromCookie() {
 
 export default function Header() {
   const router = useRouter();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [user, setUser] = useState<any | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -42,7 +41,7 @@ export default function Header() {
     };
 
     window.addEventListener("user_data_updated", handler as EventListener);
-    // also listen to storage events in case another tab updated cookie via localStorage
+
     const storageHandler = (ev: StorageEvent) => {
       if (ev.key === "user_data") {
         try {
@@ -74,7 +73,7 @@ export default function Header() {
         setReminderNotifications(payload.data);
       }
     } catch {
-      // ignore
+      
     } finally {
       setReminderLoading(false);
     }
@@ -82,20 +81,19 @@ export default function Header() {
 
   useEffect(() => {
     const handler = () => {
-      // refresh list when poller delivers items
+     
       if (reminderOpen) fetchReminderNotifications();
     };
     window.addEventListener("reminder_notifications_updated", handler as EventListener);
     return () => window.removeEventListener("reminder_notifications_updated", handler as EventListener);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [reminderOpen]);
 
-  const onLogout = async () => {
+  const onLogout_unused = async () => {
     const confirmed = window.confirm("Are you sure you want to logout?");
     if (!confirmed) return;
 
     try {
-      setIsLoggingOut(true);
       await handleLogout();
 
       showToast('Logging out...', 'success');
@@ -110,7 +108,6 @@ export default function Header() {
       // Real error occurred
       console.error("Logout failed:", error);
       showToast('Logout failed. Please try again.', 'error');
-      setIsLoggingOut(false);
     }
   };
 
@@ -146,13 +143,38 @@ export default function Header() {
       }}
     >
       {/* Logo Section */}
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <div style={{
-          // width: "48px",
-          // height: "48px",
-        }}>
-          <img 
-            src="/novacane.png" 
+      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent("toggle_sidebar"))}
+          style={{
+            background: "rgba(255,255,255,0.8)",
+            border: "1px solid rgba(216,149,155,0.2)",
+            borderRadius: "12px",
+            width: "40px",
+            height: "40px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            color: "#6b7280",
+            transition: "all 0.2s ease",
+            flexShrink: 0,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(242,209,212,0.4)";
+            e.currentTarget.style.color = "#344C3D";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(255,255,255,0.8)";
+            e.currentTarget.style.color = "#6b7280";
+          }}
+          title="Toggle sidebar"
+        >
+          <Menu size={20} strokeWidth={2} />
+        </button>
+        <div>
+          <img
+            src="/novacane.png"
             alt="Novana logo"
             style={{
               width: "100px",
@@ -300,6 +322,7 @@ export default function Header() {
                                 headers: { Authorization: `Bearer ${token}` },
                               });
                               fetchReminderNotifications();
+                              window.dispatchEvent(new CustomEvent("reminder_notifications_updated"));
                             } catch {
                               showToast("Failed to update notification", "error", "top");
                             }
@@ -399,51 +422,7 @@ export default function Header() {
           }} />
         </div>
 
-        {/* Logout Button */}
-        <button
-          onClick={onLogout}
-          disabled={isLoggingOut}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            padding: "12px 20px",
-            borderRadius: "14px",
-            background: isLoggingOut 
-              ? "rgba(156,163,175,0.2)" 
-              : "rgba(255,255,255,0.8)",
-            border: "1px solid rgba(216,149,155,0.2)",
-            color: isLoggingOut ? "#9ca3af" : "#6b7280",
-            fontSize: "14px",
-            fontWeight: 600,
-            cursor: isLoggingOut ? "not-allowed" : "pointer",
-            transition: "all 0.3s ease",
-            opacity: isLoggingOut ? 0.6 : 1,
-            fontFamily: "system-ui, -apple-system, sans-serif",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-          }}
-          onMouseEnter={(e) => {
-            if (!isLoggingOut) {
-              e.currentTarget.style.background = "rgba(239,68,68,0.1)";
-              e.currentTarget.style.color = "#dc2626";
-              e.currentTarget.style.borderColor = "rgba(239,68,68,0.3)";
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 6px 20px rgba(239,68,68,0.15)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isLoggingOut) {
-              e.currentTarget.style.background = "rgba(255,255,255,0.8)";
-              e.currentTarget.style.color = "#6b7280";
-              e.currentTarget.style.borderColor = "rgba(216,149,155,0.2)";
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)";
-            }
-          }}
-        >
-          <LogOut size={18} strokeWidth={2} />
-          {isLoggingOut ? "Logging out..." : "Logout"}
-        </button>
+
       </div>
     </header>
   );

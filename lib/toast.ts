@@ -2,13 +2,24 @@
 export const showToast = (
   message: string,
   type: 'success' | 'error' | 'info' = 'info',
-  position: 'top' | 'bottom' = 'top'
+  position: 'top' | 'bottom' = 'top',
+  durationMs: number = 4000
 ) => {
   if (typeof window !== 'undefined') {
     // Try to use react-hot-toast if available, fallback to custom implementation
     if ((window as any).showReactToast) {
-      (window as any).showReactToast(message, type);
-      return;
+      try {
+        (window as any).showReactToast(message, type, { duration: durationMs });
+        return;
+      } catch {
+        // fallback to old signature
+        try {
+          (window as any).showReactToast(message, type);
+          return;
+        } catch {
+          // continue to custom implementation
+        }
+      }
     }
 
     // Custom toast implementation
@@ -42,7 +53,7 @@ export const showToast = (
       toast.style.transform = 'translateY(0)';
     }, 100);
     
-    // Auto remove after 4 seconds
+    // Auto remove after durationMs
     setTimeout(() => {
       toast.style.transform = hiddenTransform;
       setTimeout(() => {
@@ -50,7 +61,7 @@ export const showToast = (
           toast.parentElement.removeChild(toast);
         }
       }, 300);
-    }, 4000);
+    }, Math.max(1500, durationMs));
   }
 };
 

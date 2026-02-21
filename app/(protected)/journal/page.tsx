@@ -37,6 +37,8 @@ export default function JournalPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [viewingEntry, setViewingEntry] = useState<JournalEntry | null>(null);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -143,6 +145,11 @@ export default function JournalPage() {
     }
   };
 
+  const openViewEntry = (entry: JournalEntry) => {
+    setViewingEntry(entry);
+    setShowViewModal(true);
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const today = new Date();
@@ -163,606 +170,363 @@ export default function JournalPage() {
     }
   };
 
-  return (
-    <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(135deg, #f4f3f1 0%, #e8f0e6 50%, #f2d1d4 100%)",
-      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
-    }}>
-      <Header />
-      <Sidebar />
+  const C = {
+    bg: "#F5F3EF",
+    forest: "#1E3A2F",
+    forestMid: "#3D6B4F",
+    sage: "#829672",
+    blush: "#D8959B",
+    card: "#FFFFFF",
+    text: "#1C1917",
+    muted: "#78716C",
+    border: "rgba(30,58,47,0.08)",
+  };
 
-      <main style={{
-        marginLeft: "0",
-        padding: "32px",
-        maxWidth: "1400px",
-        margin: "0 auto",
-      }}>
-        {/* Page Header */}
-        <div style={{
-          background: "rgba(255,255,255,0.9)",
-          borderRadius: "20px",
-          padding: "32px",
-          marginBottom: "32px",
-          border: "1px solid rgba(216,149,155,0.2)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
-          backdropFilter: "blur(10px)",
-        }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              <div style={{
-                width: "56px",
-                height: "56px",
-                borderRadius: "16px",
-                background: "linear-gradient(135deg, #D8959B, #829672)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "white",
-                boxShadow: "0 8px 24px rgba(216,149,155,0.3)"
-              }}>
-                <BookOpen size={28} strokeWidth={2} />
+  return (
+    <div style={{ minHeight: "100vh", background: C.bg, fontFamily: "system-ui, -apple-system, sans-serif" }}>
+      <Header />
+      <div style={{ display: "flex" }}>
+        <Sidebar />
+        <main style={{ flex: 1, padding: "32px", maxWidth: "1400px", margin: "0 auto" }}>
+
+          {/* Hero Banner */}
+          <div style={{
+            position: "relative",
+            background: `linear-gradient(135deg, ${C.forest} 0%, ${C.forestMid} 100%)`,
+            borderRadius: "24px",
+            padding: "40px 44px",
+            marginBottom: "24px",
+            overflow: "hidden",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "24px",
+            boxShadow: "0 8px 40px rgba(30,58,47,0.2)",
+          }}>
+            <div style={{ position: "absolute", top: "-50px", right: "160px", width: "180px", height: "180px", borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
+            <div style={{ position: "absolute", bottom: "-70px", right: "20px", width: "240px", height: "240px", borderRadius: "50%", background: "rgba(255,255,255,0.03)", pointerEvents: "none" }} />
+            <div style={{ zIndex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "14px" }}>
+                <div style={{ width: "52px", height: "52px", borderRadius: "15px", background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <BookOpen size={26} color="white" strokeWidth={1.8} />
+                </div>
+                <div>
+                  <h1 style={{ margin: 0, fontFamily: "Georgia, serif", fontSize: "34px", fontWeight: 700, color: "#FFFFFF", lineHeight: 1.15 }}>
+                    Your Journal
+                  </h1>
+                  <p style={{ margin: 0, color: "rgba(255,255,255,0.5)", fontSize: "13px", fontWeight: 500 }}>
+                    {entries.length} {entries.length === 1 ? "entry" : "entries"}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h1 style={{
-                  fontSize: "32px",
-                  fontWeight: "700",
-                  color: "#1f2937",
-                  margin: 0,
-                  background: "linear-gradient(135deg, #1f2937, #344C3D)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text"
-                }}>
-                  Journal
-                </h1>
-                <p style={{
-                  color: "#6b7280",
-                  fontSize: "16px",
-                  margin: "4px 0 0 0",
-                  fontWeight: "500"
-                }}>
-                  Capture your thoughts and reflections • {entries.length} entries
-                </p>
-              </div>
+              <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "15px", lineHeight: 1.65, maxWidth: "380px", margin: 0 }}>
+                A private space to reflect, process, and grow. Every word you write is a gift to your future self.
+              </p>
             </div>
-            
             <button
               onClick={() => setShowForm(true)}
               style={{
+                flexShrink: 0,
+                zIndex: 1,
                 display: "flex",
                 alignItems: "center",
-                gap: "12px",
-                padding: "16px 24px",
-                background: "linear-gradient(135deg, #344C3D, #829672)",
+                gap: "10px",
+                padding: "14px 24px",
+                background: C.blush,
                 color: "white",
                 border: "none",
-                borderRadius: "16px",
-                fontSize: "16px",
-                fontWeight: "600",
+                borderRadius: "14px",
+                fontSize: "15px",
+                fontWeight: 600,
                 cursor: "pointer",
-                transition: "all 0.3s ease",
-                boxShadow: "0 8px 24px rgba(52,76,61,0.3)"
+                boxShadow: "0 4px 20px rgba(216,149,155,0.45)",
+                transition: "transform 0.2s, box-shadow 0.2s",
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = "0 12px 32px rgba(52,76,61,0.4)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "0 8px 24px rgba(52,76,61,0.3)";
-              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 28px rgba(216,149,155,0.55)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 20px rgba(216,149,155,0.45)"; }}
             >
-              <PlusCircle size={20} strokeWidth={2} />
+              <PlusCircle size={18} strokeWidth={2} />
               New Entry
             </button>
           </div>
 
-          {/* Search and Filter */}
-          <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              background: "rgba(242,209,212,0.3)",
-              border: "1px solid rgba(216,149,155,0.2)",
-              borderRadius: "12px",
-              padding: "12px 16px",
-              flex: 1,
-              maxWidth: "400px"
-            }}>
-              <Search size={18} color="#6b7280" strokeWidth={2} />
+          {/* Search & Filter Bar */}
+          <div style={{
+            background: C.card,
+            borderRadius: "16px",
+            padding: "14px 18px",
+            marginBottom: "24px",
+            border: `1px solid ${C.border}`,
+            boxShadow: "0 2px 8px rgba(30,58,47,0.05)",
+            display: "flex",
+            gap: "10px",
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", background: "#F5F3EF", borderRadius: "10px", padding: "9px 14px", flex: 1, minWidth: "160px" }}>
+              <Search size={15} color={C.muted} strokeWidth={2} />
               <input
                 type="text"
-                placeholder="Search by title..."
+                placeholder="Search entries…"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  outline: "none",
-                  color: "#1f2937",
-                  fontSize: "14px",
-                  width: "100%",
-                  fontFamily: "'Inter', sans-serif",
-                  fontWeight: "500"
-                }}
+                style={{ background: "transparent", border: "none", outline: "none", color: C.text, fontSize: "14px", width: "100%", fontFamily: "system-ui, -apple-system, sans-serif" }}
               />
             </div>
-
-            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                style={{
-                  padding: "12px 16px",
-                  background: "rgba(255,255,255,0.8)",
-                  border: "1px solid rgba(216,149,155,0.2)",
-                  borderRadius: "12px",
-                  color: "#1f2937",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  cursor: "pointer",
-                  fontFamily: "'Inter', sans-serif"
-                }}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+              <Calendar size={14} color={C.muted} />
+              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
+                style={{ padding: "8px 12px", background: "#F5F3EF", border: "none", borderRadius: "10px", color: C.text, fontSize: "13px", cursor: "pointer", fontFamily: "system-ui, -apple-system, sans-serif", outline: "none" }}
               />
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                style={{
-                  padding: "12px 16px",
-                  background: "rgba(255,255,255,0.8)",
-                  border: "1px solid rgba(216,149,155,0.2)",
-                  borderRadius: "12px",
-                  color: "#1f2937",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  cursor: "pointer",
-                  fontFamily: "'Inter', sans-serif"
-                }}
+              <span style={{ color: C.muted, fontSize: "13px" }}>—</span>
+              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
+                style={{ padding: "8px 12px", background: "#F5F3EF", border: "none", borderRadius: "10px", color: C.text, fontSize: "13px", cursor: "pointer", fontFamily: "system-ui, -apple-system, sans-serif", outline: "none" }}
               />
             </div>
+            {(searchTerm || startDate || endDate) && (
+              <button
+                onClick={() => { setSearchTerm(""); setStartDate(""); setEndDate(""); }}
+                style={{ padding: "8px 14px", background: "transparent", border: `1px solid ${C.border}`, borderRadius: "10px", color: C.muted, fontSize: "13px", cursor: "pointer", fontWeight: 500, flexShrink: 0 }}
+              >
+                Clear
+              </button>
+            )}
+          </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                setSearchTerm("");
-                setStartDate("");
-                setEndDate("");
-              }}
-              style={{
-                padding: "12px 16px",
-                background: "rgba(255,255,255,0.8)",
-                border: "1px solid rgba(216,149,155,0.2)",
-                borderRadius: "12px",
-                color: "#1f2937",
-                fontSize: "14px",
-                fontWeight: "500",
-                cursor: "pointer",
-                fontFamily: "'Inter', sans-serif"
-              }}
+          {/* Write Form Modal */}
+          {showForm && (
+            <div
+              onClick={() => { setShowForm(false); setEditingEntry(null); setFormData({ title: "", content: "", date: new Date().toISOString().split("T")[0] }); }}
+              style={{ position: "fixed", inset: 0, background: "rgba(28,25,23,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: "24px" }}
             >
-              Clear
-            </button>
-          </div>
-        </div>
-
-        {/* Form */}
-        {showForm && (
-          <div style={{
-            background: "rgba(255,255,255,0.95)",
-            borderRadius: "20px",
-            padding: "32px",
-            marginBottom: "32px",
-            border: "1px solid rgba(216,149,155,0.2)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
-            backdropFilter: "blur(10px)",
-          }}>
-            <h2 style={{
-              fontSize: "24px",
-              fontWeight: "700",
-              color: "#1f2937",
-              margin: "0 0 24px 0"
-            }}>
-              {editingEntry ? 'Edit Entry' : 'New Journal Entry'}
-            </h2>
-            
-            <form onSubmit={handleSubmit}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                <input
-                  type="text"
-                  placeholder="Entry title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  required
-                  style={{
-                    padding: "16px",
-                    border: "1px solid rgba(216,149,155,0.3)",
-                    borderRadius: "12px",
-                    fontSize: "16px",
-                    fontFamily: "'Inter', sans-serif",
-                    background: "rgba(255,255,255,0.8)",
-                    color: "#1f2937",
-                    fontWeight: "500"
-                  }}
-                />
-                <input
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  required
-                  style={{
-                    padding: "16px",
-                    border: "1px solid rgba(216,149,155,0.3)",
-                    borderRadius: "12px",
-                    fontSize: "16px",
-                    fontFamily: "'Inter', sans-serif",
-                    background: "rgba(255,255,255,0.8)",
-                    color: "#1f2937",
-                    fontWeight: "500"
-                  }}
-                />
-                <textarea
-                  placeholder="Write your thoughts..."
-                  value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  required
-                  rows={8}
-                  style={{
-                    padding: "16px",
-                    border: "1px solid rgba(216,149,155,0.3)",
-                    borderRadius: "12px",
-                    fontSize: "16px",
-                    resize: "vertical",
-                    fontFamily: "'Inter', sans-serif",
-                    background: "rgba(255,255,255,0.8)",
-                    color: "#1f2937",
-                    lineHeight: "1.6"
-                  }}
-                />
-                <div style={{ display: "flex", gap: "16px" }}>
+              <div
+                onClick={e => e.stopPropagation()}
+                style={{ width: "min(700px, 100%)", background: C.card, borderRadius: "24px", overflow: "hidden", boxShadow: "0 32px 80px rgba(30,58,47,0.3)" }}
+              >
+                <div style={{ background: `linear-gradient(135deg, ${C.forest}, ${C.forestMid})`, padding: "28px 32px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <h2 style={{ margin: 0, fontFamily: "Georgia, serif", fontSize: "22px", fontWeight: 700, color: "#FFFFFF" }}>
+                      {editingEntry ? "Edit Entry" : "New Journal Entry"}
+                    </h2>
+                    <p style={{ margin: "4px 0 0 0", color: "rgba(255,255,255,0.55)", fontSize: "13px" }}>
+                      {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+                    </p>
+                  </div>
                   <button
-                    type="submit"
-                    style={{
-                      background: "linear-gradient(135deg, #344C3D, #829672)",
-                      border: "none",
-                      borderRadius: "12px",
-                      padding: "16px 24px",
-                      color: "white",
-                      fontWeight: "600",
-                      cursor: "pointer",
-                      fontSize: "16px",
-                      fontFamily: "'Inter', sans-serif",
-                      transition: "all 0.3s ease",
-                      boxShadow: "0 4px 16px rgba(52,76,61,0.3)"
-                    }}
+                    onClick={() => { setShowForm(false); setEditingEntry(null); setFormData({ title: "", content: "", date: new Date().toISOString().split("T")[0] }); }}
+                    style={{ background: "rgba(255,255,255,0.12)", border: "none", borderRadius: "10px", color: "white", width: "36px", height: "36px", cursor: "pointer", fontSize: "17px", display: "flex", alignItems: "center", justifyContent: "center" }}
                   >
-                    {editingEntry ? 'Update' : 'Save'} Entry
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowForm(false);
-                      setEditingEntry(null);
-                      setFormData({ title: "", content: "", date: new Date().toISOString().split('T')[0] });
-                    }}
-                    style={{
-                      background: "rgba(255,255,255,0.8)",
-                      border: "1px solid rgba(216,149,155,0.3)",
-                      borderRadius: "12px",
-                      padding: "16px 24px",
-                      color: "#6b7280",
-                      fontWeight: "600",
-                      cursor: "pointer",
-                      fontSize: "16px",
-                      fontFamily: "'Inter', sans-serif",
-                      transition: "all 0.3s ease"
-                    }}
-                  >
-                    Cancel
+                    ✕
                   </button>
                 </div>
+                <form onSubmit={handleSubmit} style={{ padding: "28px 32px", display: "flex", flexDirection: "column", gap: "14px" }}>
+                  <input
+                    type="text"
+                    placeholder="Give this entry a title…"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    required
+                    style={{ padding: "13px 16px", border: `1px solid ${C.border}`, borderRadius: "12px", fontSize: "16px", fontFamily: "system-ui, -apple-system, sans-serif", background: "#F5F3EF", color: C.text, fontWeight: 500, outline: "none" }}
+                  />
+                  <input
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    required
+                    style={{ padding: "12px 16px", border: `1px solid ${C.border}`, borderRadius: "12px", fontSize: "14px", fontFamily: "system-ui, -apple-system, sans-serif", background: "#F5F3EF", color: C.text, outline: "none" }}
+                  />
+                  <textarea
+                    placeholder="Write your thoughts here… let it all out."
+                    value={formData.content}
+                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                    required
+                    rows={10}
+                    style={{ padding: "14px 16px", border: `1px solid ${C.border}`, borderRadius: "12px", fontSize: "15px", resize: "vertical", fontFamily: "Georgia, 'Times New Roman', serif", background: "#F5F3EF", color: C.text, lineHeight: "1.8", outline: "none" }}
+                  />
+                  <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", paddingTop: "4px" }}>
+                    <button
+                      type="button"
+                      onClick={() => { setShowForm(false); setEditingEntry(null); setFormData({ title: "", content: "", date: new Date().toISOString().split("T")[0] }); }}
+                      style={{ padding: "12px 20px", background: "transparent", border: `1px solid ${C.border}`, borderRadius: "12px", color: C.muted, fontSize: "14px", fontWeight: 600, cursor: "pointer" }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      style={{ padding: "12px 28px", background: `linear-gradient(135deg, ${C.forest}, ${C.sage})`, border: "none", borderRadius: "12px", color: "white", fontSize: "14px", fontWeight: 600, cursor: "pointer", boxShadow: "0 4px 16px rgba(30,58,47,0.25)" }}
+                    >
+                      {editingEntry ? "Update Entry" : "Save Entry"}
+                    </button>
+                  </div>
+                </form>
               </div>
-            </form>
-          </div>
-        )}
+            </div>
+          )}
 
-        {/* Entries List */}
-        <div style={{ display: "grid", gap: "24px" }}>
+          {/* Entry Cards */}
           {loading ? (
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
-              gap: "24px"
-            }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))", gap: "20px" }}>
               {[1,2,3].map(i => (
-                <div key={i} style={{
-                  background: "rgba(255,255,255,0.7)",
-                  borderRadius: "16px",
-                  padding: "24px",
-                  border: "1px solid rgba(216,149,155,0.2)",
-                  height: "200px",
-                  animation: "pulse 2s infinite"
-                }}>
-                  <div style={{
-                    background: "rgba(216,149,155,0.2)",
-                    borderRadius: "8px",
-                    height: "24px",
-                    width: "60%",
-                    marginBottom: "16px"
-                  }} />
-                  <div style={{
-                    background: "rgba(216,149,155,0.1)",
-                    borderRadius: "6px",
-                    height: "16px",
-                    width: "40%",
-                    marginBottom: "16px"
-                  }} />
-                  <div style={{
-                    background: "rgba(216,149,155,0.1)",
-                    borderRadius: "6px",
-                    height: "80px",
-                    width: "100%"
-                  }} />
-                </div>
+                <div key={i} style={{ background: C.card, borderRadius: "20px", height: "200px", border: `1px solid ${C.border}`, opacity: 0.5 }} />
               ))}
             </div>
           ) : filteredEntries.length > 0 ? (
-            <div style={{
-              display: "grid", 
-              gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))",
-              gap: "24px"
-            }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))", gap: "20px" }}>
               {filteredEntries.map((entry) => (
                 <div
                   key={entry._id}
                   style={{
-                    background: "rgba(255,255,255,0.95)",
-                    borderRadius: "16px",
+                    background: C.card,
+                    borderRadius: "20px",
                     padding: "24px",
-                    border: "1px solid rgba(216,149,155,0.2)",
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-                    transition: "all 0.3s ease",
+                    border: `1px solid ${C.border}`,
+                    borderLeft: `4px solid ${C.blush}`,
+                    boxShadow: "0 2px 10px rgba(30,58,47,0.06)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "12px",
+                    transition: "transform 0.2s, box-shadow 0.2s",
                     cursor: "pointer",
-                    position: "relative",
-                    overflow: "hidden"
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-4px)";
-                    e.currentTarget.style.boxShadow = "0 8px 35px rgba(0,0,0,0.15)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.08)";
-                  }}
+                  onClick={() => openViewEntry(entry)}
+                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 10px 32px rgba(216,149,155,0.18)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 10px rgba(30,58,47,0.06)"; }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px" }}>
-                    <div style={{ flex: 1 }}>
-                      <h3 style={{
-                        fontSize: "20px",
-                        fontWeight: "700",
-                        color: "#1f2937",
-                        margin: "0 0 8px 0",
-                        lineHeight: "1.3"
-                      }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div style={{ flex: 1, paddingRight: "12px" }}>
+                      <h3 style={{ margin: "0 0 8px 0", fontSize: "19px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif", lineHeight: 1.3 }}>
                         {entry.title}
                       </h3>
-                      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#6b7280", fontSize: "14px", fontWeight: "500" }}>
-                          <Clock size={14} strokeWidth={2} />
-                          {formatDate(entry.createdAt)}
-                        </div>
-                        <div style={{ color: "#9ca3af", fontSize: "12px", fontWeight: "500" }}>
-                          {entry.date ? `Entry date: ${new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} • ` : ""}
-                          Created: {formatDate(entry.createdAt)}
-                          {entry.updatedAt && entry.updatedAt !== entry.createdAt ? ` • Updated: ${formatDate(entry.updatedAt)}` : ""}
-                        </div>
-                      </div>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", background: `${C.blush}15`, color: C.blush, fontSize: "11px", fontWeight: 600, padding: "3px 9px", borderRadius: "999px" }}>
+                        <Clock size={10} />
+                        {formatDate(entry.createdAt)}
+                      </span>
                     </div>
-                    
-                    <button style={{
-                      background: "transparent",
-                      border: "none",
-                      padding: "8px",
-                      borderRadius: "8px",
-                      cursor: "pointer",
-                      color: "#6b7280",
-                      transition: "all 0.3s ease"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "rgba(216,149,155,0.1)";
-                      e.currentTarget.style.color = "#D8959B";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "transparent";
-                      e.currentTarget.style.color = "#6b7280";
-                    }}
-                    >
-                      <MoreHorizontal size={18} strokeWidth={2} />
-                    </button>
+                    <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleEdit(entry); }}
+                        style={{ width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", background: `${C.sage}15`, border: "none", borderRadius: "8px", color: C.sage, cursor: "pointer" }}
+                      >
+                        <Edit3 size={14} />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDeleteEntry(entry._id); }}
+                        style={{ width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(239,68,68,0.08)", border: "none", borderRadius: "8px", color: "#ef4444", cursor: "pointer" }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
-
-                  <p style={{
-                    color: "#4b5563",
-                    fontSize: "15px",
-                    lineHeight: "1.6",
-                    margin: "0 0 20px 0",
-                    fontWeight: "400",
-                    whiteSpace: "pre-wrap"
-                  }}>
-                    {entry.content.length > 150 ? entry.content.substring(0, 150) + "..." : entry.content}
+                  <p style={{ margin: 0, color: C.muted, fontSize: "14px", lineHeight: "1.75", fontFamily: "Georgia, serif" }}>
+                    {entry.content.length > 160 ? entry.content.substring(0, 160) + "…" : entry.content}
                   </p>
-
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ display: "flex", gap: "8px", marginLeft: "auto" }}>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(entry);
-                        }}
-                        style={{
-                          padding: "8px",
-                          background: "rgba(59,130,246,0.1)",
-                          border: "none",
-                          borderRadius: "8px",
-                          color: "#3b82f6",
-                          cursor: "pointer",
-                          transition: "all 0.3s ease"
-                        }}
-                      >
-                        <Edit3 size={14} strokeWidth={2} />
-                      </button>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteEntry(entry._id);
-                        }}
-                        style={{
-                          padding: "8px",
-                          background: "rgba(239,68,68,0.1)",
-                          border: "none",
-                          borderRadius: "8px",
-                          color: "#ef4444",
-                          cursor: "pointer",
-                          transition: "all 0.3s ease"
-                        }}
-                      >
-                        <Trash2 size={14} strokeWidth={2} />
-                      </button>
+                  {entry.date && (
+                    <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: "10px", fontSize: "12px", color: "#A8A29E", fontWeight: 500 }}>
+                      {new Date(entry.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                     </div>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>
           ) : (
-            <div style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "80px 32px",
-              background: "rgba(255,255,255,0.9)",
-              borderRadius: "20px",
-              border: "1px solid rgba(216,149,155,0.2)",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
-              textAlign: "center"
-            }}>
-              <BookOpen size={64} color="#D8959B" strokeWidth={1.5} style={{ marginBottom: "24px", opacity: 0.7 }} />
-              <h3 style={{
-                fontSize: "24px",
-                fontWeight: "700",
-                color: "#1f2937",
-                margin: "0 0 12px 0"
-              }}>
-                No journal entries found
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 32px", background: C.card, borderRadius: "24px", border: `1px solid ${C.border}`, textAlign: "center" }}>
+              <div style={{ width: "72px", height: "72px", borderRadius: "20px", background: `${C.blush}15`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px" }}>
+                <BookOpen size={34} color={C.blush} strokeWidth={1.5} />
+              </div>
+              <h3 style={{ margin: "0 0 10px 0", fontSize: "22px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>
+                {searchTerm || startDate || endDate ? "No entries found" : "Start your journal"}
               </h3>
-              <p style={{
-                color: "#6b7280",
-                fontSize: "16px",
-                marginBottom: "32px",
-                maxWidth: "400px"
-              }}>
+              <p style={{ margin: "0 0 28px 0", color: C.muted, fontSize: "15px", maxWidth: "340px", lineHeight: 1.65 }}>
                 {searchTerm || startDate || endDate
-                  ? "Try adjusting your search or date filter to find entries."
-                  : "Start your wellness journey by writing your first journal entry."}
+                  ? "Try adjusting your search or date filters."
+                  : "Capture your thoughts, feelings, and reflections. Every entry is a step toward self-awareness."}
               </p>
               <button
                 onClick={() => setShowForm(true)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  padding: "16px 32px",
-                  background: "linear-gradient(135deg, #344C3D, #829672)",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "16px",
-                  fontSize: "16px",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                  boxShadow: "0 8px 24px rgba(52,76,61,0.3)"
-                }}
+                style={{ display: "flex", alignItems: "center", gap: "10px", padding: "14px 28px", background: `linear-gradient(135deg, ${C.forest}, ${C.forestMid})`, color: "white", border: "none", borderRadius: "14px", fontSize: "15px", fontWeight: 600, cursor: "pointer", boxShadow: "0 4px 20px rgba(30,58,47,0.25)" }}
               >
-                <PlusCircle size={20} strokeWidth={2} />
-                Create Your First Entry
+                <PlusCircle size={18} />
+                Write Your First Entry
               </button>
             </div>
           )}
-        </div>
-      </main>
 
-      {/* Delete Confirmation Modal */}
+        </main>
+      </div>
+
+      {/* Delete Modal */}
       {showDeleteModal && (
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "rgba(0,0,0,0.5)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 1000,
-          backdropFilter: "blur(8px)"
-        }}>
-          <div style={{
-            background: "white",
-            borderRadius: "20px",
-            padding: "32px",
-            maxWidth: "400px",
-            width: "90%",
-            boxShadow: "0 20px 50px rgba(0,0,0,0.3)"
-          }}>
-            <h3 style={{
-              fontSize: "20px",
-              fontWeight: "700",
-              color: "#1f2937",
-              margin: "0 0 16px 0"
-            }}>
-              Delete Entry
-            </h3>
-            <p style={{
-              color: "#6b7280",
-              fontSize: "16px",
-              marginBottom: "24px"
-            }}>
-              Are you sure you want to delete this journal entry? This action cannot be undone.
+        <div style={{ position: "fixed", inset: 0, background: "rgba(28,25,23,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 400, padding: "24px" }}>
+          <div style={{ background: C.card, borderRadius: "20px", padding: "32px", maxWidth: "380px", width: "100%", boxShadow: "0 20px 60px rgba(30,58,47,0.2)" }}>
+            <div style={{ width: "48px", height: "48px", borderRadius: "14px", background: "rgba(239,68,68,0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
+              <Trash2 size={22} color="#ef4444" />
+            </div>
+            <h3 style={{ margin: "0 0 8px 0", fontSize: "18px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>Delete entry?</h3>
+            <p style={{ margin: "0 0 24px 0", color: C.muted, fontSize: "14px", lineHeight: 1.6 }}>
+              This journal entry will be permanently deleted and cannot be recovered.
             </p>
-            <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+            <div style={{ display: "flex", gap: "10px" }}>
               <button
                 onClick={() => setShowDeleteModal(false)}
-                style={{
-                  padding: "12px 24px",
-                  background: "transparent",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "12px",
-                  color: "#6b7280",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  cursor: "pointer"
-                }}
+                style={{ flex: 1, padding: "12px", background: "#F5F3EF", border: "none", borderRadius: "12px", color: C.muted, fontSize: "14px", fontWeight: 600, cursor: "pointer" }}
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
-                style={{
-                  padding: "12px 24px",
-                  background: "#ef4444",
-                  border: "none",
-                  borderRadius: "12px",
-                  color: "white",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  cursor: "pointer"
-                }}
+                style={{ flex: 1, padding: "12px", background: "#ef4444", border: "none", borderRadius: "12px", color: "white", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}
               >
                 Delete
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Modal */}
+      {showViewModal && viewingEntry && (
+        <div
+          style={{ position: "fixed", inset: 0, background: "rgba(28,25,23,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 420, padding: "24px" }}
+          onClick={() => setShowViewModal(false)}
+        >
+          <div
+            style={{ background: C.card, borderRadius: "20px", padding: "32px", maxWidth: "720px", width: "100%", boxShadow: "0 20px 60px rgba(30,58,47,0.2)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
+              <div style={{ minWidth: 0 }}>
+                <h3 style={{ margin: 0, fontSize: "20px", fontWeight: 800, color: C.text, fontFamily: "Georgia, serif", lineHeight: 1.25 }}>
+                  {viewingEntry.title}
+                </h3>
+                <div style={{ marginTop: 8, display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: `${C.blush}15`, color: C.blush, fontSize: "12px", fontWeight: 700, padding: "5px 10px", borderRadius: "999px" }}>
+                    <Clock size={12} />
+                    {formatDate(viewingEntry.createdAt)}
+                  </span>
+                  {viewingEntry.date && (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(130,150,114,0.12)", color: C.sage, fontSize: "12px", fontWeight: 700, padding: "5px 10px", borderRadius: "999px" }}>
+                      <Calendar size={12} />
+                      {new Date(viewingEntry.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowViewModal(false)}
+                style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${C.border}`, background: "#F5F3EF", color: C.muted, cursor: "pointer", fontWeight: 800, lineHeight: 1 }}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
+              <div
+                style={{ whiteSpace: "pre-wrap", color: C.text, fontSize: 15, lineHeight: 1.85, fontFamily: "Georgia, 'Times New Roman', serif" }}
+              >
+                {viewingEntry.content}
+              </div>
             </div>
           </div>
         </div>

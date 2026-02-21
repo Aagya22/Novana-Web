@@ -10,7 +10,10 @@ import {
   SmilePlus,
   Dumbbell,
   Bell,
+  LogOut,
 } from "lucide-react";
+import { handleLogout } from "@/lib/actions/auth-action";
+import { showToast } from "@/lib/toast";
 
 const navItems = [
   { id: "home", label: "Dashboard", icon: Home, href: "/home" },
@@ -25,13 +28,46 @@ const navItems = [
 export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const isExpanded = isPinned || isHovered;
+
+  useEffect(() => {
+    const handler = () => setIsPinned((p) => !p);
+    window.addEventListener("toggle_sidebar", handler as EventListener);
+    return () => window.removeEventListener("toggle_sidebar", handler as EventListener);
+  }, []);
+
+  const onLogout = async () => {
+    const confirmed = window.confirm("Are you sure you want to logout?");
+    if (!confirmed) return;
+    try {
+      setIsLoggingOut(true);
+      await handleLogout();
+      showToast("Logging out...", "success");
+    } catch (error) {
+      if (
+        error &&
+        typeof error === "object" &&
+        "digest" in error &&
+        typeof (error as any).digest === "string" &&
+        (error as any).digest.includes("NEXT_REDIRECT")
+      ) {
+        showToast("Logging out...", "success");
+        return;
+      }
+      showToast("Logout failed. Please try again.", "error");
+      setIsLoggingOut(false);
+    }
+  };
 
 
   const getCurrentItem = () => {
     if (pathname === "/home" || pathname === "/") return "home";
     const pathSegments = pathname.split("/").filter(Boolean);
-    return pathSegments[pathSegments.length - 1];
+    return pathSegments[0] || "home";
   };
 
   const [activeItem, setActiveItem] = useState(getCurrentItem());
@@ -57,8 +93,8 @@ export default function Sidebar() {
           height: "100vh",
           zIndex: 200,
         }}
-        onMouseEnter={() => setIsExpanded(true)}
-        onMouseLeave={() => setIsExpanded(false)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       />
 
       {/* Sidebar Panel */}
@@ -83,8 +119,8 @@ export default function Sidebar() {
           flexDirection: "column",
           paddingTop: "80px",
         }}
-        onMouseEnter={() => setIsExpanded(true)}
-        onMouseLeave={() => setIsExpanded(false)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         {/* Nav Links */}
         <nav
@@ -188,6 +224,57 @@ export default function Sidebar() {
             );
           })}
         </nav>
+
+        {/* Logout Button */}
+        <div style={{ padding: "20px", borderTop: "1px solid rgba(30,58,47,0.08)" }}>
+          <button
+            onClick={onLogout}
+            disabled={isLoggingOut}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "16px",
+              padding: "14px 16px",
+              background: "transparent",
+              border: "none",
+              borderRadius: "14px",
+              cursor: isLoggingOut ? "not-allowed" : "pointer",
+              color: isLoggingOut ? "#9ca3af" : "#ef4444",
+              fontSize: "15px",
+              fontFamily: "system-ui, -apple-system, sans-serif",
+              fontWeight: 600,
+              width: "100%",
+              transition: "all 0.2s ease",
+              opacity: isLoggingOut ? 0.6 : 1,
+              whiteSpace: "nowrap",
+            }}
+            onMouseEnter={(e) => {
+              if (!isLoggingOut) {
+                e.currentTarget.style.background = "rgba(239,68,68,0.08)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isLoggingOut) {
+                e.currentTarget.style.background = "transparent";
+              }
+            }}
+          >
+            <span style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+              <LogOut size={20} strokeWidth={2.5} />
+            </span>
+            <span
+              style={{
+                opacity: isExpanded ? 1 : 0,
+                transform: isExpanded ? "translateX(0)" : "translateX(-12px)",
+                transition: isExpanded
+                  ? "opacity 0.3s ease 0.15s, transform 0.3s ease 0.15s"
+                  : "opacity 0.15s ease, transform 0.15s ease",
+              }}
+            >
+              {isLoggingOut ? "Logging out..." : "Logout"}
+            </span>
+          </button>
+        </div>
       </aside>
     </>
   );

@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Header from "../components/header";
 import Sidebar from "../components/sidebar";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Dumbbell } from "lucide-react";
 import { API } from "../../../lib/api/endpoints";
 import { toast } from "react-toastify";
 
@@ -157,17 +157,7 @@ export default function ExercisesPage() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: darkMode
-          ? "radial-gradient(1200px 600px at 20% 10%, rgba(139, 92, 246, 0.20), transparent 55%), radial-gradient(900px 500px at 85% 25%, rgba(45, 212, 191, 0.18), transparent 55%), linear-gradient(135deg, #0b0f14 0%, #0a0a0a 60%, #0f172a 100%)"
-          : "linear-gradient(135deg, #f4f3f1 0%, #e8f0e6 50%, #f2d1d4 100%)",
-        color: darkMode ? "#f3f4f6" : "#1e3a2b",
-        fontFamily: "'Inter', sans-serif",
-        transition: "background 0.3s ease, color 0.3s ease",
-      }}
-    >
+    <div style={{ minHeight: "100vh", background: "#F5F3EF", fontFamily: "system-ui, -apple-system, sans-serif" }}>
       <Header />
       <Sidebar />
 
@@ -239,53 +229,43 @@ export default function ExercisesPage() {
         </>
       )}
 
-      <main
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "24px",
-          padding: "28px 32px",
-          maxWidth: "1200px",
-          margin: "0 auto",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "16px", flexWrap: "wrap" }}>
-          <div>
-            <div
-              style={{
-                fontSize: "12px",
-                letterSpacing: "0.22em",
-                textTransform: "uppercase",
-                color: darkMode ? "rgba(243,244,246,0.65)" : "rgba(30,58,43,0.65)",
-                fontWeight: 700,
-              }}
-            >
-              Exercises
-            </div>
-            <div
-              style={{
-                fontSize: "44px",
-                fontWeight: 800,
-                lineHeight: 1.05,
-                marginTop: "8px",
-                fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif",
-              }}
-            >
-              Mind &amp; Body
-            </div>
-          </div>
+      <main style={{ padding: "32px", maxWidth: "1200px", margin: "0 auto" }}>
 
-          <div
-            style={{
-              display: "flex",
-              gap: "10px",
-              background: darkMode ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.65)",
-              border: darkMode ? "1px solid rgba(255,255,255,0.10)" : "1px solid rgba(216,149,155,0.25)",
-              padding: "6px",
-              borderRadius: "999px",
-              backdropFilter: "blur(16px)",
-            }}
-          >
+        {/* Forest Green Hero Banner */}
+        <div style={{
+          background: "linear-gradient(135deg, #1E3A2F 0%, #3D6B4F 100%)",
+          borderRadius: "24px",
+          padding: "40px 44px",
+          marginBottom: "24px",
+          position: "relative",
+          overflow: "hidden",
+          boxShadow: "0 8px 40px rgba(30,58,47,0.2)",
+        }}>
+          <div style={{ position: "absolute", top: -40, right: -40, width: 220, height: 220, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", bottom: -60, right: 100, width: 150, height: 150, borderRadius: "50%", background: "rgba(255,255,255,0.03)", pointerEvents: "none" }} />
+          <div style={{ zIndex: 1, position: "relative" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "14px" }}>
+              <div style={{ width: "52px", height: "52px", borderRadius: "15px", background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Dumbbell size={26} color="white" strokeWidth={1.8} />
+              </div>
+              <div>
+                <h1 style={{ margin: 0, fontFamily: "Georgia, serif", fontSize: "34px", fontWeight: 700, color: "#FFFFFF", lineHeight: 1.15 }}>
+                  Mind &amp; Body
+                </h1>
+                <p style={{ margin: 0, color: "rgba(255,255,255,0.5)", fontSize: "13px", fontWeight: 500 }}>
+                  Guided sessions for your wellness
+                </p>
+              </div>
+            </div>
+            <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "15px", lineHeight: 1.65, maxWidth: "400px", margin: 0 }}>
+              Explore breathing exercises, grounding techniques, and body stretches to build daily resilience.
+            </p>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "18px" }}>
+          <div style={{ display: "flex", gap: "8px", background: "rgba(255,255,255,0.8)", border: "1px solid rgba(216,149,155,0.2)", padding: "5px", borderRadius: "999px" }}>
             {([
               { key: "exercises", label: "Explore" },
               { key: "history", label: "History" },
@@ -298,23 +278,12 @@ export default function ExercisesPage() {
                   style={{
                     border: "none",
                     cursor: "pointer",
-                    padding: "10px 16px",
+                    padding: "10px 18px",
                     borderRadius: "999px",
                     fontWeight: 700,
                     fontSize: "13px",
-                    letterSpacing: "0.02em",
-                    background: active
-                      ? darkMode
-                        ? "rgba(255,255,255,0.14)"
-                        : "rgba(52,76,61,0.12)"
-                      : "transparent",
-                    color: active
-                      ? darkMode
-                        ? "#f9fafb"
-                        : "#344C3D"
-                      : darkMode
-                        ? "rgba(243,244,246,0.72)"
-                        : "rgba(30,58,43,0.72)",
+                    background: active ? "linear-gradient(135deg, #1E3A2F, #3D6B4F)" : "transparent",
+                    color: active ? "#FFFFFF" : "rgba(30,58,43,0.65)",
                     transition: "all 0.2s ease",
                   }}
                 >
@@ -327,7 +296,7 @@ export default function ExercisesPage() {
 
         {tab === "exercises" ? (
           <>
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "18px" }}>
               {categories.map((c) => {
                 const active = selectedCategory === c;
                 return (
@@ -335,29 +304,14 @@ export default function ExercisesPage() {
                     key={c}
                     onClick={() => setSelectedCategory(c)}
                     style={{
-                      border: darkMode
-                        ? "1px solid rgba(255,255,255,0.10)"
-                        : "1px solid rgba(216,149,155,0.30)",
+                      border: active ? "1px solid rgba(30,58,47,0.25)" : "1px solid rgba(30,58,47,0.12)",
                       cursor: "pointer",
                       padding: "10px 14px",
                       borderRadius: "999px",
                       fontSize: "13px",
                       fontWeight: 700,
-                      background: active
-                        ? darkMode
-                          ? "rgba(255,255,255,0.14)"
-                          : "rgba(255,255,255,0.9)"
-                        : darkMode
-                          ? "rgba(255,255,255,0.04)"
-                          : "rgba(255,255,255,0.55)",
-                      color: active
-                        ? darkMode
-                          ? "#f9fafb"
-                          : "#1f2937"
-                        : darkMode
-                          ? "rgba(243,244,246,0.62)"
-                          : "rgba(30,58,43,0.70)",
-                      backdropFilter: "blur(16px)",
+                      background: active ? "#1E3A2F" : "#FFFFFF",
+                      color: active ? "#FFFFFF" : "rgba(30,58,43,0.70)",
                       transition: "transform 0.15s ease, background 0.2s ease, color 0.2s ease",
                     }}
                     onMouseEnter={(e) => {
@@ -378,7 +332,6 @@ export default function ExercisesPage() {
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
                 gap: "18px",
-                marginTop: "6px",
               }}
             >
               {filteredExercises.map((ex) => {
@@ -389,16 +342,9 @@ export default function ExercisesPage() {
                     style={{
                       borderRadius: "18px",
                       padding: "18px",
-                      background: darkMode
-                        ? "linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%)"
-                        : "rgba(255,255,255,0.88)",
-                      border: darkMode
-                        ? "1px solid rgba(255,255,255,0.10)"
-                        : "1px solid rgba(216,149,155,0.18)",
-                      boxShadow: darkMode
-                        ? "0 16px 40px rgba(0,0,0,0.45)"
-                        : "0 16px 40px rgba(216,149,155,0.14)",
-                      backdropFilter: "blur(18px)",
+                      background: "#FFFFFF",
+                      border: "1px solid rgba(30,58,47,0.08)",
+                      boxShadow: "0 2px 12px rgba(30,58,47,0.06)",
                       position: "relative",
                       overflow: "hidden",
                       transition: "transform 0.2s ease, box-shadow 0.2s ease",
@@ -426,16 +372,14 @@ export default function ExercisesPage() {
                           width: "46px",
                           height: "46px",
                           borderRadius: "14px",
-                          background: darkMode
-                            ? "rgba(255,255,255,0.06)"
-                            : "rgba(242,209,212,0.35)",
+                          background: "rgba(130,150,114,0.12)",
                           border: `1px solid ${ex.accent}44`,
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                         }}
                       >
-                        <Sparkles size={18} />
+                        <Sparkles size={18} color="#344C3D" />
                       </div>
 
                       <div style={{ flex: 1, minWidth: 0 }}>
@@ -444,7 +388,7 @@ export default function ExercisesPage() {
                             style={{
                               fontSize: "18px",
                               fontWeight: 800,
-                              color: darkMode ? "#f9fafb" : "#111827",
+                              color: "#111827",
                               whiteSpace: "nowrap",
                               overflow: "hidden",
                               textOverflow: "ellipsis",
@@ -459,9 +403,9 @@ export default function ExercisesPage() {
                               fontWeight: 800,
                               padding: "8px 10px",
                               borderRadius: "999px",
-                              background: darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
-                              border: darkMode ? "1px solid rgba(255,255,255,0.10)" : "1px solid rgba(0,0,0,0.06)",
-                              color: darkMode ? "rgba(243,244,246,0.70)" : "rgba(31,41,55,0.70)",
+                              background: "rgba(30,58,47,0.06)",
+                              border: "1px solid rgba(30,58,47,0.10)",
+                              color: "rgba(31,41,55,0.70)",
                               flexShrink: 0,
                             }}
                           >
@@ -469,15 +413,15 @@ export default function ExercisesPage() {
                           </div>
                         </div>
 
-                        <div style={{ marginTop: "4px", fontSize: "12px", fontWeight: 800, color: darkMode ? "rgba(243,244,246,0.55)" : "rgba(31,41,55,0.55)" }}>
+                        <div style={{ marginTop: "4px", fontSize: "12px", fontWeight: 800, color: "rgba(31,41,55,0.55)" }}>
                           {ex.category}
                         </div>
 
-                        <div style={{ marginTop: "10px", fontSize: "13px", lineHeight: 1.45, color: darkMode ? "rgba(243,244,246,0.68)" : "rgba(31,41,55,0.65)" }}>
+                        <div style={{ marginTop: "10px", fontSize: "13px", lineHeight: 1.45, color: "rgba(31,41,55,0.65)" }}>
                           {ex.description}
                         </div>
 
-                        <div style={{ marginTop: "14px", fontSize: "12px", fontWeight: 900, color: darkMode ? "rgba(243,244,246,0.62)" : "rgba(31,41,55,0.62)" }}>
+                        <div style={{ marginTop: "14px", fontSize: "12px", fontWeight: 900, color: "rgba(31,41,55,0.62)" }}>
                           Tap to begin • Includes begin screen, step-by-step flow, and completion.
                         </div>
                       </div>
@@ -490,23 +434,23 @@ export default function ExercisesPage() {
         ) : (
           <div
             style={{
-              background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.85)",
-              border: darkMode ? "1px solid rgba(255,255,255,0.10)" : "1px solid rgba(216,149,155,0.18)",
+              background: "#FFFFFF",
+              border: "1px solid rgba(30,58,47,0.08)",
               borderRadius: "18px",
               padding: "18px",
-              backdropFilter: "blur(18px)",
+              boxShadow: "0 2px 12px rgba(30,58,47,0.06)",
             }}
           >
             {historyLoading ? (
-              <div style={{ padding: "24px", textAlign: "center", color: darkMode ? "rgba(243,244,246,0.75)" : "rgba(31,41,55,0.65)" }}>
+              <div style={{ padding: "24px", textAlign: "center", color: "rgba(31,41,55,0.65)" }}>
                 Loading history…
               </div>
             ) : history.length === 0 ? (
               <div style={{ padding: "28px", textAlign: "center" }}>
-                <div style={{ fontSize: "14px", fontWeight: 800, color: darkMode ? "rgba(243,244,246,0.80)" : "rgba(31,41,55,0.75)" }}>
+                <div style={{ fontSize: "14px", fontWeight: 800, color: "rgba(31,41,55,0.75)" }}>
                   No guided exercise sessions yet
                 </div>
-                <div style={{ marginTop: "8px", fontSize: "13px", color: darkMode ? "rgba(243,244,246,0.60)" : "rgba(31,41,55,0.60)" }}>
+                <div style={{ marginTop: "8px", fontSize: "13px", color: "rgba(31,41,55,0.60)" }}>
                   Start a session in Explore to see it here.
                 </div>
               </div>
@@ -518,15 +462,15 @@ export default function ExercisesPage() {
                     style={{
                       borderRadius: "16px",
                       padding: "16px",
-                      background: darkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
-                      border: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.06)",
+                      background: "rgba(30,58,47,0.02)",
+                      border: "1px solid rgba(30,58,47,0.07)",
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
-                      <div style={{ fontWeight: 900, fontSize: "14px", color: darkMode ? "#f9fafb" : "#111827" }}>
+                      <div style={{ fontWeight: 900, fontSize: "14px", color: "#111827" }}>
                         {new Date(day.date + "T00:00:00Z").toLocaleDateString()}
                       </div>
-                      <div style={{ fontWeight: 800, fontSize: "12px", color: darkMode ? "rgba(243,244,246,0.65)" : "rgba(31,41,55,0.65)" }}>
+                      <div style={{ fontWeight: 800, fontSize: "12px", color: "rgba(31,41,55,0.65)" }}>
                         Total: {day.totalMinutes} min
                       </div>
                     </div>
@@ -542,24 +486,24 @@ export default function ExercisesPage() {
                             gap: "12px",
                             padding: "12px 12px",
                             borderRadius: "14px",
-                            background: darkMode ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.7)",
-                            border: darkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.06)",
+                            background: "#FFFFFF",
+                            border: "1px solid rgba(30,58,47,0.06)",
                           }}
                         >
                           <div style={{ minWidth: 0 }}>
-                            <div style={{ fontWeight: 900, fontSize: "13px", color: darkMode ? "#f9fafb" : "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            <div style={{ fontWeight: 900, fontSize: "13px", color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                               {s.title}
                             </div>
-                            <div style={{ marginTop: "4px", fontSize: "12px", fontWeight: 700, color: darkMode ? "rgba(243,244,246,0.60)" : "rgba(31,41,55,0.60)" }}>
+                            <div style={{ marginTop: "4px", fontSize: "12px", fontWeight: 700, color: "rgba(31,41,55,0.60)" }}>
                               {s.category || "Guided"}
                             </div>
                           </div>
 
                           <div style={{ textAlign: "right", flexShrink: 0 }}>
-                            <div style={{ fontWeight: 900, fontSize: "13px", color: darkMode ? "rgba(243,244,246,0.85)" : "rgba(31,41,55,0.80)" }}>
+                            <div style={{ fontWeight: 900, fontSize: "13px", color: "rgba(31,41,55,0.80)" }}>
                               {s.duration} min
                             </div>
-                            <div style={{ marginTop: "4px", fontSize: "12px", fontWeight: 700, color: darkMode ? "rgba(243,244,246,0.55)" : "rgba(31,41,55,0.55)" }}>
+                            <div style={{ marginTop: "4px", fontSize: "12px", fontWeight: 700, color: "rgba(31,41,55,0.55)" }}>
                               {new Date(s.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                             </div>
                           </div>

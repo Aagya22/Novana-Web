@@ -22,12 +22,26 @@ interface Reminder {
   done?: boolean;
 }
 
+type ReminderNotification = {
+  _id: string;
+  title: string;
+  type: ReminderType;
+  scheduledFor: string;
+  deliveredAt: string;
+  readAt?: string;
+};
+
 export default function RemindersPage() {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Reminder | null>(null);
   const [darkMode, setDarkMode] = useState(false);
+
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [notifications, setNotifications] = useState<ReminderNotification[]>([]);
+
   const [formData, setFormData] = useState<{
     title: string;
     time: string;
@@ -56,6 +70,77 @@ export default function RemindersPage() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchNotificationHistory = async () => {
+    try {
+      setHistoryLoading(true);
+      const token = localStorage.getItem("token");
+      const res = await fetch(API.REMINDERS.NOTIFICATIONS(100), {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data?.success && Array.isArray(data?.data)) {
+        setNotifications(data.data);
+      } else {
+        setNotifications([]);
+      }
+    } catch (err) {
+      console.error(err);
+      setNotifications([]);
+      showToast("Failed to load notification history", "error", "top");
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const deleteNotification = async (id: string) => {
+    const confirmed = window.confirm("Delete this notification?");
+    if (!confirmed) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(API.REMINDERS.DELETE_NOTIFICATION(id), {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!data?.success) {
+        showToast(data?.message || "Failed to delete notification", "error", "top");
+        return;
+      }
+      setNotifications((prev) => prev.filter((n) => n._id !== id));
+      showToast("Notification deleted", "success", "top");
+      window.dispatchEvent(new CustomEvent("reminder_notifications_updated"));
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to delete notification", "error", "top");
+    }
+  };
+
+  const clearNotificationHistory = async () => {
+    const confirmed = window.confirm("Delete all notification history?");
+    if (!confirmed) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(API.REMINDERS.CLEAR_NOTIFICATIONS, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!data?.success) {
+        showToast(data?.message || "Failed to clear notification history", "error", "top");
+        return;
+      }
+
+      setNotifications([]);
+      showToast("Notification history cleared", "success", "top");
+      window.dispatchEvent(new CustomEvent("reminder_notifications_updated"));
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to clear notification history", "error", "top");
     }
   };
 
@@ -212,6 +297,12 @@ export default function RemindersPage() {
     return <BookOpen size={18} strokeWidth={2} />;
   };
 
+  const labelForType = (t?: ReminderType) => {
+    if (t === "mood") return "Mood";
+    if (t === "exercise") return "Exercise";
+    return "Journal";
+  };
+
 
 
   return (
@@ -224,53 +315,88 @@ export default function RemindersPage() {
         <div
           style={{
             background: "linear-gradient(135deg, #1E3A2F 0%, #3D6B4F 100%)",
-            borderRadius: 20,
+            borderRadius: "24px",
             padding: "40px 44px",
             marginBottom: 28,
             position: "relative",
             overflow: "hidden",
+            boxShadow: "0 8px 40px rgba(30,58,47,0.2)",
           }}
         >
           <div style={{ position: "absolute", top: -30, right: -30, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.05)" }} />
           <div style={{ position: "absolute", bottom: -50, right: 80, width: 130, height: 130, borderRadius: "50%", background: "rgba(255,255,255,0.04)" }} />
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", position: "relative", zIndex: 1, flexWrap: "wrap", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", zIndex: 1, flexWrap: "wrap", gap: 16 }}>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-                <div style={{ width: 44, height: 44, borderRadius: 999, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Bell size={22} color="white" />
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
+                <div style={{ width: 52, height: 52, borderRadius: 15, background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Bell size={26} color="white" strokeWidth={1.8} />
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: "rgba(255,255,255,0.65)", textTransform: "uppercase" as const }}>Reminders</span>
+                <div>
+                  <h1 style={{ margin: 0, fontFamily: "Georgia, serif", fontSize: 34, fontWeight: 700, color: "#FFFFFF", lineHeight: 1.15 }}>
+                    Stay on Track
+                  </h1>
+                  <p style={{ margin: 0, color: "rgba(255,255,255,0.5)", fontSize: 13, fontWeight: 500 }}>
+                    Your scheduled reminders
+                  </p>
+                </div>
               </div>
-              <h1 style={{ fontSize: 36, fontWeight: 700, color: "white", margin: 0, fontFamily: "Georgia, serif", lineHeight: 1.2 }}>
-                Stay on Track
-              </h1>
-              <p style={{ color: "rgba(255,255,255,0.7)", margin: "8px 0 0 0", fontSize: 15, maxWidth: 380 }}>
-                Gentle nudges for journaling, mood check-ins, and exercises
+              <p style={{ color: "rgba(255,255,255,0.65)", margin: 0, fontSize: 15, lineHeight: 1.65, maxWidth: 380 }}>
+                Gentle nudges for journaling, mood check-ins, and exercises.
               </p>
             </div>
             <button
               onClick={openCreate}
               style={{
+                flexShrink: 0,
+                zIndex: 1,
                 display: "flex",
                 alignItems: "center",
-                gap: 8,
-                padding: "12px 22px",
-                borderRadius: 12,
-                border: "none",
+                gap: 10,
+                padding: "14px 24px",
                 background: "rgba(255,255,255,0.92)",
                 color: "#1E3A2F",
+                border: "none",
+                borderRadius: "14px",
+                fontSize: "15px",
+                fontWeight: 600,
+                cursor: "pointer",
+                boxShadow: "0 4px 20px rgba(216,149,155,0.45)",
+                transition: "transform 0.2s, box-shadow 0.2s",
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 28px rgba(216,149,155,0.55)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 20px rgba(216,149,155,0.45)"; }}
+            >
+              <Plus size={18} strokeWidth={2} />
+              Add Reminder
+            </button>
+          </div>
+
+            <button
+              onClick={() => {
+                setShowHistory(true);
+                fetchNotificationHistory();
+              }}
+              style={{
+                flexShrink: 0,
+                zIndex: 1,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "14px 20px",
+                borderRadius: 14,
+                border: "1px solid rgba(255,255,255,0.35)",
+                background: "rgba(255,255,255,0.12)",
+                color: "white",
                 fontWeight: 700,
                 fontSize: 14,
                 cursor: "pointer",
-                boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
-                transition: "transform 0.15s",
+                backdropFilter: "blur(6px)",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-1px)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
+              title="View notification history"
             >
-              <Plus size={16} /> Add Reminder
+              <Bell size={16} />
+              History
             </button>
-          </div>
         </div>
 
         {/* Create / Edit Modal */}
@@ -583,6 +709,173 @@ export default function RemindersPage() {
           </div>
         )}
       </main>
+
+      {/* Notification History Modal */}
+      {showHistory && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(28,25,23,0.55)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 500,
+            padding: 24,
+            backdropFilter: "blur(6px)",
+          }}
+          onClick={() => setShowHistory(false)}
+        >
+          <div
+            style={{
+              background: "white",
+              borderRadius: 20,
+              padding: "22px 22px",
+              maxWidth: 760,
+              width: "100%",
+              boxShadow: "0 20px 60px rgba(30,58,47,0.25)",
+              border: "1px solid rgba(30,58,47,0.10)",
+              maxHeight: "80vh",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 900, color: "#1C1917", fontFamily: "Georgia, serif" }}>
+                  Notification History
+                </div>
+                <div style={{ marginTop: 4, fontSize: 13, color: "#78716C", fontWeight: 600 }}>
+                  {notifications.length} notification{notifications.length !== 1 ? "s" : ""}
+                </div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <button
+                  type="button"
+                  onClick={fetchNotificationHistory}
+                  disabled={historyLoading}
+                  style={{
+                    padding: "10px 14px",
+                    borderRadius: 12,
+                    border: "1px solid rgba(30,58,47,0.14)",
+                    background: "rgba(30,58,47,0.08)",
+                    color: "#1E3A2F",
+                    fontWeight: 800,
+                    cursor: historyLoading ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {historyLoading ? "Loading…" : "Refresh"}
+                </button>
+                <button
+                  type="button"
+                  onClick={clearNotificationHistory}
+                  disabled={historyLoading || notifications.length === 0}
+                  style={{
+                    padding: "10px 14px",
+                    borderRadius: 12,
+                    border: "1px solid rgba(239,68,68,0.25)",
+                    background: "rgba(239,68,68,0.08)",
+                    color: "#ef4444",
+                    fontWeight: 900,
+                    cursor: historyLoading || notifications.length === 0 ? "not-allowed" : "pointer",
+                  }}
+                >
+                  Delete All
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowHistory(false)}
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 12,
+                    border: "1px solid rgba(0,0,0,0.10)",
+                    background: "#F5F3EF",
+                    color: "#78716C",
+                    cursor: "pointer",
+                    fontWeight: 900,
+                    lineHeight: 1,
+                  }}
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div style={{ overflowY: "auto", paddingRight: 4 }}>
+              {historyLoading ? (
+                <div style={{ padding: 16, color: "#78716C", fontWeight: 700 }}>Loading…</div>
+              ) : notifications.length === 0 ? (
+                <div style={{ padding: 18, color: "#78716C", fontWeight: 700 }}>No notification history.</div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {notifications.map((n) => {
+                    const when = n.scheduledFor
+                      ? new Date(n.scheduledFor).toLocaleString()
+                      : (n.deliveredAt ? new Date(n.deliveredAt).toLocaleString() : "");
+                    return (
+                      <div
+                        key={n._id}
+                        style={{
+                          padding: "14px 14px",
+                          borderRadius: 16,
+                          background: n.readAt ? "#FFFFFF" : "rgba(130,150,114,0.10)",
+                          border: "1px solid rgba(30,58,47,0.10)",
+                          display: "flex",
+                          alignItems: "flex-start",
+                          justifyContent: "space-between",
+                          gap: 12,
+                        }}
+                      >
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <div style={{ width: 34, height: 34, borderRadius: 12, background: "rgba(30,58,47,0.08)", display: "flex", alignItems: "center", justifyContent: "center", color: "#1E3A2F", flexShrink: 0 }}>
+                              {iconForType(n.type)}
+                            </div>
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ fontWeight: 900, color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                {n.title}
+                              </div>
+                              <div style={{ marginTop: 2, fontSize: 12, fontWeight: 800, color: "#6b7280" }}>
+                                {labelForType(n.type)}{when ? ` • ${when}` : ""}{n.readAt ? " • Read" : " • Unread"}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => deleteNotification(n._id)}
+                          style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: 12,
+                            border: "1px solid rgba(239,68,68,0.22)",
+                            background: "rgba(239,68,68,0.08)",
+                            color: "#ef4444",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                          title="Delete"
+                          aria-label="Delete notification"
+                        >
+                          <Trash2 size={16} strokeWidth={2} />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
