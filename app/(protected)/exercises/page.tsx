@@ -109,6 +109,36 @@ export default function ExercisesPage() {
     }
   };
 
+  const clearExerciseHistory = async () => {
+    const ok = window.confirm(
+      "Are you sure you want to delete all exercise history? This action cannot be undone.",
+    );
+    if (!ok) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(API.EXERCISES.CLEAR_HISTORY, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const text = await res.text();
+      const payload = safeParseJson(text);
+      if (!res.ok || !payload?.success) {
+        toast.error(payload?.message || "Failed to clear history");
+        return;
+      }
+
+      setHistory([]);
+      toast.success("Exercise history cleared");
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to clear history");
+    }
+  };
+
   useEffect(() => {
     if (tab !== "history") return;
     if (historyLoadedOnceRef.current) return;
@@ -441,6 +471,25 @@ export default function ExercisesPage() {
               boxShadow: "0 2px 12px rgba(30,58,47,0.06)",
             }}
           >
+            {!historyLoading && history.length > 0 && (
+              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "12px" }}>
+                <button
+                  onClick={clearExerciseHistory}
+                  style={{
+                    border: "1px solid rgba(30,58,47,0.16)",
+                    cursor: "pointer",
+                    padding: "10px 14px",
+                    borderRadius: "999px",
+                    fontSize: "12px",
+                    fontWeight: 900,
+                    background: "#FFFFFF",
+                    color: "rgba(30,58,43,0.75)",
+                  }}
+                >
+                  Delete all history
+                </button>
+              </div>
+            )}
             {historyLoading ? (
               <div style={{ padding: "24px", textAlign: "center", color: "rgba(31,41,55,0.65)" }}>
                 Loading history…

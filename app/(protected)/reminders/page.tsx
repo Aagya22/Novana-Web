@@ -95,27 +95,47 @@ export default function RemindersPage() {
     }
   };
 
-  const deleteNotification = async (id: string) => {
-    const confirmed = window.confirm("Delete this notification?");
-    if (!confirmed) return;
-
+  const markNotificationRead = async (id: string) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(API.REMINDERS.DELETE_NOTIFICATION(id), {
-        method: "DELETE",
+      const res = await fetch(API.REMINDERS.MARK_NOTIFICATION_READ(id), {
+        method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (!data?.success) {
-        showToast(data?.message || "Failed to delete notification", "error", "top");
+        showToast(data?.message || "Failed to mark notification read", "error", "top");
         return;
       }
-      setNotifications((prev) => prev.filter((n) => n._id !== id));
-      showToast("Notification deleted", "success", "top");
+
+      const readAt = data?.data?.readAt || new Date().toISOString();
+      setNotifications((prev) => prev.map((n) => (n._id === id ? { ...n, readAt } : n)));
       window.dispatchEvent(new CustomEvent("reminder_notifications_updated"));
     } catch (err) {
       console.error(err);
-      showToast("Failed to delete notification", "error", "top");
+      showToast("Failed to mark notification read", "error", "top");
+    }
+  };
+
+  const markAllNotificationsRead = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(API.REMINDERS.MARK_ALL_NOTIFICATIONS_READ, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!data?.success) {
+        showToast(data?.message || "Failed to mark all notifications read", "error", "top");
+        return;
+      }
+
+      const nowIso = new Date().toISOString();
+      setNotifications((prev) => prev.map((n) => (n.readAt ? n : { ...n, readAt: nowIso })));
+      window.dispatchEvent(new CustomEvent("reminder_notifications_updated"));
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to mark all notifications read", "error", "top");
     }
   };
 
@@ -770,6 +790,22 @@ export default function RemindersPage() {
                 </button>
                 <button
                   type="button"
+                  onClick={markAllNotificationsRead}
+                  disabled={historyLoading || notifications.length === 0 || notifications.every((n) => !!n.readAt)}
+                  style={{
+                    padding: "10px 14px",
+                    borderRadius: 12,
+                    border: "1px solid rgba(30,58,47,0.14)",
+                    background: "rgba(30,58,47,0.08)",
+                    color: "#1E3A2F",
+                    fontWeight: 900,
+                    cursor: historyLoading || notifications.length === 0 || notifications.every((n) => !!n.readAt) ? "not-allowed" : "pointer",
+                  }}
+                >
+                  Mark All Read
+                </button>
+                <button
+                  type="button"
                   onClick={clearNotificationHistory}
                   disabled={historyLoading || notifications.length === 0}
                   style={{
@@ -846,27 +882,30 @@ export default function RemindersPage() {
                           </div>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => deleteNotification(n._id)}
-                          style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: 12,
-                            border: "1px solid rgba(239,68,68,0.22)",
-                            background: "rgba(239,68,68,0.08)",
-                            color: "#ef4444",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            flexShrink: 0,
-                          }}
-                          title="Delete"
-                          aria-label="Delete notification"
-                        >
-                          <Trash2 size={16} strokeWidth={2} />
-                        </button>
+                          {!n.readAt && (
+                            <button
+                              type="button"
+                              onClick={() => markNotificationRead(n._id)}
+                              style={{
+                                height: 36,
+                                borderRadius: 12,
+                                border: "1px solid rgba(0,0,0,0.10)",
+                                background: "transparent",
+                                color: "#344C3D",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexShrink: 0,
+                                padding: "0 12px",
+                                fontWeight: 900,
+                              }}
+                              title="Mark as read"
+                              aria-label="Mark notification as read"
+                            >
+                              Read
+                            </button>
+                          )}
                       </div>
                     );
                   })}
