@@ -264,18 +264,49 @@ export default function Header() {
               borderBottom: "1px solid rgba(216,149,155,0.12)",
             }}>
               <div style={{ fontWeight: 800, color: "#111827" }}>Reminders</div>
-              <button
-                onClick={() => router.push("/reminders")}
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  color: "#344C3D",
-                  cursor: "pointer",
-                  fontWeight: 700,
-                }}
-              >
-                View
-              </button>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <button
+                  onClick={async () => {
+                    try {
+                      const token = window.localStorage.getItem("token");
+                      if (!token) return;
+                      await fetch(API.REMINDERS.MARK_ALL_NOTIFICATIONS_READ, {
+                        method: "PATCH",
+                        headers: { Authorization: `Bearer ${token}` },
+                      });
+                      fetchReminderNotifications();
+                      window.dispatchEvent(new CustomEvent("reminder_notifications_updated"));
+                    } catch {
+                      showToast("Failed to update notifications", "error", "top");
+                    }
+                  }}
+                  disabled={reminderLoading || reminderNotifications.length === 0 || reminderNotifications.every((n) => !!n?.readAt)}
+                  style={{
+                    background: "transparent",
+                    border: "1px solid rgba(0,0,0,0.10)",
+                    borderRadius: 10,
+                    padding: "8px 10px",
+                    cursor: reminderLoading || reminderNotifications.length === 0 || reminderNotifications.every((n) => !!n?.readAt) ? "not-allowed" : "pointer",
+                    fontWeight: 800,
+                    color: "#344C3D",
+                    height: 34,
+                  }}
+                >
+                  Read all
+                </button>
+                <button
+                  onClick={() => router.push("/reminders")}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: "#344C3D",
+                    cursor: "pointer",
+                    fontWeight: 700,
+                  }}
+                >
+                  View
+                </button>
+              </div>
             </div>
 
             <div style={{ maxHeight: 340, overflowY: "auto" }}>
