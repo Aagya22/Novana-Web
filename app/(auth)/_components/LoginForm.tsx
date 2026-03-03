@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -10,10 +10,12 @@ import { useState } from "react";
 import { handleLogin } from "@/lib/actions/auth-action";
 import { setAuthToken, setUserData } from "@/lib/cookie";
 import { toast } from "react-toastify";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginForm() {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -39,9 +41,8 @@ export default function LoginForm() {
 
     await setAuthToken(token);
 
-    // Map backend response to UserData format (include imageUrl if present)
     const mappedUser = {
-      _id: user.id, // Map 'id' to '_id'
+      _id: user.id,
       email: user.email,
       fullName: user.fullName,
       username: user.username,
@@ -54,13 +55,13 @@ export default function LoginForm() {
 
     await setUserData(mappedUser);
 
-    // Broadcast to client UI: write to localStorage and dispatch event so header updates immediately
     try {
-      if (typeof window !== "undefined") {        window.localStorage.setItem("token", token);        window.localStorage.setItem("user_data", JSON.stringify(mappedUser));
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("token", token);
+        window.localStorage.setItem("user_data", JSON.stringify(mappedUser));
         window.dispatchEvent(new CustomEvent("user_data_updated", { detail: mappedUser }));
       }
     } catch (e) {
-      // non-fatal
       console.warn("Could not broadcast user_data after login", e);
     }
 
@@ -74,92 +75,106 @@ export default function LoginForm() {
   }
 };
 
-
   return (
-    <div className="relative w-full max-w-md rounded-[28px] bg-white px-8 py-10 shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
-      <button
-        onClick={() => router.push("/")}
-        className="absolute left-6 top-6 rounded-full bg-[#1a4d3f] px-4 py-2 text-xs font-medium text-white hover:bg-[#134237] transition"
-      >
-        ← Back
-      </button>
+    <div className="min-h-screen w-full flex">
 
-      <div className="mb-8 text-center mt-6">
-        <div className="mb-5 flex justify-center">
-          <Image
-            src="/novacane.png"
-            alt="Novana logo"
-            width={120}
-            height={80}
-            priority
-          />
+      {/* Left branding panel */}
+      <div className="hidden lg:flex lg:w-1/2 bg-[#1a4d3f] flex-col justify-between p-12">
+        <Image src="/novacane.png" alt="Novana" width={110} height={80} className="object-contain brightness-0 invert" priority />
+        <div className="space-y-6">
+          <h2 className="text-4xl font-extrabold text-white leading-snug">
+            Welcome back.<br />Your wellness journey continues here.
+          </h2>
+          <p className="text-teal-200 text-base leading-relaxed max-w-sm">
+            Log in to track your moods, review your journal, and keep building healthy habits.
+          </p>
         </div>
-
-        <h1 className="text-[26px] font-semibold text-gray-900 mb-2">
-          Welcome Back
-        </h1>
-        <p className="text-[14px] text-gray-500">
-          Continue your wellness journey with Novana
-        </p>
+        <p className="text-teal-400 text-xs">&copy; {new Date().getFullYear()} Novana. All rights reserved.</p>
       </div>
 
-      {error && (
-        <p className="text-sm text-red-500 text-center mb-4">{error}</p>
-      )}
+      {/* Right form panel */}
+      <div className="flex-1 flex items-center justify-center bg-gray-50 px-6 py-12">
+        <div className="w-full max-w-md">
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div>
-          <label className="block text-[13px] font-medium text-gray-800 mb-1">
-            Email
-          </label>
-          <input
-            {...register("email")}
-            type="email"
-            className="w-full rounded-full border border-emerald-100 bg-emerald-50/60 px-5 py-3 text-sm"
-          />
-          {errors.email && (
-            <p className="mt-1 text-[11px] text-red-500">
-              {errors.email.message}
-            </p>
+          {/* Mobile logo */}
+          <div className="lg:hidden mb-8 flex justify-center">
+            <Image src="/novacane.png" alt="Novana" width={110} height={80} className="object-contain" priority />
+          </div>
+
+          <button
+            onClick={() => router.push("/")}
+            className="mb-8 inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#1a4d3f] transition"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to home
+          </button>
+
+          <h1 className="text-3xl font-extrabold text-gray-900 mb-1">Log in</h1>
+          <p className="text-gray-500 text-sm mb-8">Enter your credentials to continue.</p>
+
+          {error && (
+            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">
+              {error}
+            </div>
           )}
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <div>
+              <label className="block text-[13px] font-medium text-gray-700 mb-1.5">Email</label>
+              <input
+                {...register("email")}
+                type="email"
+                placeholder="you@example.com"
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm placeholder-gray-400 focus:outline-none focus:border-[#1a4d3f] focus:ring-2 focus:ring-[#1a4d3f]/20 transition"
+              />
+              {errors.email && <p className="mt-1 text-[11px] text-red-500">{errors.email.message}</p>}
+            </div>
+
+            <div>
+              <label className="block text-[13px] font-medium text-gray-700 mb-1.5">Password</label>
+              <div className="relative">
+                <input
+                  {...register("password")}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Your password"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm placeholder-gray-400 focus:outline-none focus:border-[#1a4d3f] focus:ring-2 focus:ring-[#1a4d3f]/20 transition"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#1a4d3f]"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              {errors.password && <p className="mt-1 text-[11px] text-red-500">{errors.password.message}</p>}
+            </div>
+
+            <div className="flex justify-end">
+              <Link href="/request-password-reset" className="text-xs text-[#1a4d3f] font-medium hover:underline">
+                Forgot password?
+              </Link>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full rounded-xl bg-[#1a4d3f] py-3.5 text-sm font-semibold text-white hover:bg-[#134237] transition disabled:opacity-60"
+            >
+              {isSubmitting ? "Logging in..." : "Log in"}
+            </button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-gray-500">
+            Don&apos;t have an account?{" "}
+            <Link href="/register" className="font-semibold text-[#1a4d3f] hover:underline">
+              Sign up
+            </Link>
+          </p>
         </div>
-
-        <div>
-          <label className="block text-[13px] font-medium text-gray-800 mb-1">
-            Password
-          </label>
-          <input
-            {...register("password")}
-            type="password"
-            className="w-full rounded-full border border-emerald-100 bg-emerald-50/60 px-5 py-3 text-sm"
-          />
-          {errors.password && (
-            <p className="mt-1 text-[11px] text-red-500">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
-
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="mt-6 w-full rounded-full bg-[#1a4d3f] py-3.5 text-sm font-semibold text-white disabled:opacity-60"
-        >
-          {isSubmitting ? "Logging in..." : "Log in"}
-        </button>
-      </form>
-       <p className="text-right text-sm text-gray-600 mt-2">
-        <Link href="/request-password-reset" className="text-900 font-semibold hover:underline">
-          Forgot password?
-        </Link>
-      </p>
-
-      <p className="mt-8 text-center text-sm text-gray-700">
-        Don’t have an account?{" "}
-        <Link href="/register" className="font-medium text-[#1a4d3f]">
-          Sign up
-        </Link>
-      </p>
+      </div>
     </div>
   );
 }

@@ -37,50 +37,59 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[] flex items-center justify-center px-4 font-sans">
+    <div className="min-h-screen w-full flex">
 
-      {/* 🔹 SMALLER, CLEANER CARD */}
-      <div className="w-full max-w-lg md:max-w-5xl bg-white rounded-[28px] shadow-[0_10px_40px_rgba(0,0,0,0.18)] overflow-hidden md:flex">
-
-        {/* IMAGE */}
-        <div className="relative hidden md:block md:w-1/2">
-          <Image
-            src="/medd.jpeg"
-            alt="Meditation"
-            fill
-            className="object-cover"
-            priority
-          />
+      {/* Left branding panel */}
+      <div className="hidden lg:flex lg:w-1/2 bg-[#1a4d3f] flex-col justify-between p-12">
+        <Image src="/novacane.png" alt="Novana" width={110} height={80} className="object-contain brightness-0 invert" priority />
+        <div className="space-y-6">
+          <h2 className="text-4xl font-extrabold text-white leading-snug">
+            Start your wellness<br />journey today.
+          </h2>
+          <p className="text-teal-200 text-base leading-relaxed max-w-sm">
+            Create an account to track your moods, journal your thoughts, and build mindful habits every day.
+          </p>
         </div>
+        <p className="text-teal-400 text-xs">© {new Date().getFullYear()} Novana. All rights reserved.</p>
+      </div>
 
-        {/* FORM */}
-        <div className="w-full md:w-1/2 px-6 py-8 sm:px-8">
+      {/* Right form panel */}
+      <div className="flex-1 flex items-center justify-center bg-gray-50 px-6 py-12">
+        <div className="w-full max-w-md">
+
+          {/* Mobile logo */}
+          <div className="lg:hidden mb-8 flex justify-center">
+            <Image src="/novacane.png" alt="Novana" width={110} height={80} className="object-contain" priority />
+          </div>
 
           <button
             onClick={() => router.push("/")}
-            className="mb-5 inline-flex items-center rounded-full bg-[#1a4d3f] px-4 py-1.5 text-xs font-medium text-white hover:bg-[#134237]"
+            className="mb-8 inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#1a4d3f] transition"
           >
-            ← Back
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to home
           </button>
 
-       
-          <h1 className="text-2xl font-semibold tracking-tight text-[#1a4d3f]">
-            Welcome!
-          </h1>
-          <p className="mb-5 text-sm text-gray-500">
-            Sign up to continue
-          </p>
+          <h1 className="text-3xl font-extrabold text-gray-900 mb-1">Create account</h1>
+          <p className="text-gray-500 text-sm mb-8">Fill in your details to get started.</p>
 
           {error && (
-            <p className="mb-3 text-xs text-red-500">{error}</p>
+            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">
+              {error}
+            </div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 
-            <Input label="Full Name" placeholder="Type your name" register={register("fullName")} error={errors.fullName?.message} />
-            <Input label="Username" placeholder="Choose a username" register={register("username")} error={errors.username?.message} />
-            <Input label="E-mail" type="email" placeholder="Type your e-mail" register={register("email")} error={errors.email?.message} />
-            <Input label="Phone Number" placeholder="Enter phone number" register={register("phoneNumber")} error={errors.phoneNumber?.message} />
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="Full Name" placeholder="Your full name" register={register("fullName")} error={errors.fullName?.message} />
+              <Input label="Username" placeholder="Choose a username" register={register("username")} error={errors.username?.message} />
+            </div>
+
+            <Input label="Email" type="email" placeholder="you@example.com" register={register("email")} error={errors.email?.message} />
+            <Input label="Phone Number" placeholder="e.g. +1 234 567 8900" register={register("phoneNumber")} error={errors.phoneNumber?.message} />
 
             <PasswordInput
               label="Password"
@@ -92,7 +101,7 @@ export default function RegisterForm() {
             />
 
             <PasswordInput
-              label="Repeat Password"
+              label="Confirm Password"
               placeholder="Repeat your password"
               register={register("confirmPassword")}
               show={showConfirmPassword}
@@ -100,21 +109,19 @@ export default function RegisterForm() {
               error={errors.confirmPassword?.message}
             />
 
-          
             <button
               type="submit"
               disabled={isSubmitting}
-              className="mt-4 w-full rounded-full bg-[#1a4d3f] py-2.5 text-sm font-semibold text-white
-                         transition hover:bg-[#134237] active:scale-[0.98]"
+              className="w-full rounded-xl bg-[#1a4d3f] py-3.5 text-sm font-semibold text-white hover:bg-[#134237] transition disabled:opacity-60 active:scale-[0.98]"
             >
-              {isSubmitting ? "Creating account..." : "Sign Up"}
+              {isSubmitting ? "Creating account..." : "Sign up"}
             </button>
           </form>
 
-          <p className="mt-5 text-center text-xs text-gray-600">
+          <p className="mt-6 text-center text-sm text-gray-500">
             Already have an account?{" "}
-            <Link href="/login" className="font-medium text-[#1a4d3f] hover:underline">
-              Login
+            <Link href="/login" className="font-semibold text-[#1a4d3f] hover:underline">
+              Log in
             </Link>
           </p>
         </div>
