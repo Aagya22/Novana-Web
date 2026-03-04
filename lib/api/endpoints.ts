@@ -8,6 +8,10 @@ export const API = {
     UPDATE_PROFILE: "http://localhost:5050/api/auth/update-profile",
     REQUEST_PASSWORD_RESET: 'http://localhost:5050/api/auth/request-password-reset',
     RESET_PASSWORD: (token: string) => `http://localhost:5050/api/auth/reset-password/${token}`,
+    JOURNAL_PASSCODE_STATUS: "http://localhost:5050/api/auth/journal-passcode",
+    JOURNAL_PASSCODE_SET: "http://localhost:5050/api/auth/journal-passcode",
+    JOURNAL_PASSCODE_CLEAR: "http://localhost:5050/api/auth/journal-passcode",
+    JOURNAL_PASSCODE_VERIFY: "http://localhost:5050/api/auth/journal-passcode/verify",
   },
   JOURNALS: {
     LIST: "http://localhost:5050/api/journals",

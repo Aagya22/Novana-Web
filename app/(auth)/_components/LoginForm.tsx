@@ -59,6 +59,12 @@ export default function LoginForm() {
       if (typeof window !== "undefined") {
         window.localStorage.setItem("token", token);
         window.localStorage.setItem("user_data", JSON.stringify(mappedUser));
+        try {
+          window.sessionStorage.removeItem("journal_access_token");
+          window.sessionStorage.removeItem("journal_access_token_expires_at");
+        } catch {
+          // ignore
+        }
         window.dispatchEvent(new CustomEvent("user_data_updated", { detail: mappedUser }));
       }
     } catch (e) {

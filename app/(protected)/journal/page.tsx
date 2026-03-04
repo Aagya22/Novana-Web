@@ -34,9 +34,14 @@ export default function JournalPage() {
   const router = useRouter();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [statusLoading, setStatusLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [journalPasscodeEnabled, setJournalPasscodeEnabled] = useState<boolean | null>(null);
+  const [journalUnlocked, setJournalUnlocked] = useState(false);
+  const [passcode, setPasscode] = useState("");
+  const [unlocking, setUnlocking] = useState(false);
   const [viewingEntry, setViewingEntry] = useState<JournalEntry | null>(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -50,12 +55,92 @@ export default function JournalPage() {
   });
 
   useEffect(() => {
+    // Determine whether the user has enabled journal passcode.
+    // If enabled, require a short-lived unlock token before loading entries.
+    (async () => {
+      try {
+        const meRes = await AxiosInstance.get(API.AUTH.WHOAMI);
+        const enabled = Boolean(meRes?.data?.data?.journalPasscodeEnabled);
+        setJournalPasscodeEnabled(enabled);
+
+        if (enabled) {
+          try {
+            const existing = window.sessionStorage.getItem("journal_access_token");
+            const expiresAtRaw = window.sessionStorage.getItem("journal_access_token_expires_at");
+            const expiresAt = expiresAtRaw ? Number(expiresAtRaw) : NaN;
+            if (existing && Number.isFinite(expiresAt) && Date.now() < expiresAt) {
+              setJournalUnlocked(true);
+            }
+          } catch {
+            // ignore storage errors
+          }
+        }
+      } catch (e) {
+        // If we can't fetch status, default to not blocking (journal endpoints will still enforce it).
+        setJournalPasscodeEnabled(false);
+      } finally {
+        setStatusLoading(false);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (statusLoading) return;
+    if (journalPasscodeEnabled && !journalUnlocked) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const handle = setTimeout(() => {
       fetchEntries();
     }, 250);
     return () => clearTimeout(handle);
-  }, [searchTerm, startDate, endDate]);
+  }, [searchTerm, startDate, endDate, statusLoading, journalPasscodeEnabled, journalUnlocked]);
+
+  const unlockJournal = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!passcode.trim()) {
+      toast.error("Please enter your passcode");
+      return;
+    }
+
+    setUnlocking(true);
+    try {
+      const res = await AxiosInstance.post(API.AUTH.JOURNAL_PASSCODE_VERIFY, {
+        passcode: passcode.trim(),
+      });
+
+      const data = res.data;
+      if (!data?.success) {
+        toast.error(data?.message || "Unable to unlock journal");
+        return;
+      }
+
+      const token = data?.data?.token as string | undefined;
+      const expiresInSeconds = Number(data?.data?.expiresInSeconds);
+      if (!token || !Number.isFinite(expiresInSeconds)) {
+        toast.error("Unexpected unlock response");
+        return;
+      }
+
+      const expiresAt = Date.now() + expiresInSeconds * 1000;
+      try {
+        window.sessionStorage.setItem("journal_access_token", token);
+        window.sessionStorage.setItem("journal_access_token_expires_at", String(expiresAt));
+      } catch {
+        // ignore storage errors
+      }
+
+      setJournalUnlocked(true);
+      setPasscode("");
+      toast.success("Journal unlocked");
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || error?.message || "Invalid passcode";
+      toast.error(msg);
+    } finally {
+      setUnlocking(false);
+    }
+  };
 
   const fetchEntries = async () => {
     try {
@@ -71,6 +156,19 @@ export default function JournalPage() {
       }
     } catch (error) {
       console.error('Error fetching entries:', error);
+      const status = (error as any)?.response?.status;
+      const code = (error as any)?.response?.data?.code;
+      if (status === 403 && (code === "JOURNAL_PASSCODE_REQUIRED" || code === "JOURNAL_PASSCODE_INVALID")) {
+        try {
+          window.sessionStorage.removeItem("journal_access_token");
+          window.sessionStorage.removeItem("journal_access_token_expires_at");
+        } catch {
+          // ignore
+        }
+        setJournalPasscodeEnabled(true);
+        setJournalUnlocked(false);
+        toast.info("Enter your journal passcode to continue");
+      }
       setEntries([]);
     } finally {
       setLoading(false);
@@ -188,6 +286,101 @@ export default function JournalPage() {
       <div style={{ display: "flex" }}>
         <Sidebar />
         <main style={{ flex: 1, padding: "32px", maxWidth: "1400px", margin: "0 auto" }}>
+
+          {journalPasscodeEnabled && !journalUnlocked && !statusLoading && (
+            <div
+              style={{
+                position: "fixed",
+                inset: 0,
+                background: "rgba(0,0,0,0.45)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "24px",
+                zIndex: 9999,
+              }}
+            >
+              <div
+                style={{
+                  width: "100%",
+                  maxWidth: "420px",
+                  background: "#FFFFFF",
+                  borderRadius: "18px",
+                  border: `1px solid ${C.border}`,
+                  boxShadow: "0 18px 60px rgba(0,0,0,0.20)",
+                  padding: "22px",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+                  <div style={{ width: "44px", height: "44px", borderRadius: "14px", background: "rgba(30,58,47,0.06)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <BookOpen size={20} color={C.sage} strokeWidth={2} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "16px", fontWeight: 800, color: C.text }}>Unlock Journal</div>
+                    <div style={{ fontSize: "13px", color: C.muted, marginTop: "2px" }}>Enter your passcode to view entries.</div>
+                  </div>
+                </div>
+
+                <form onSubmit={unlockJournal}>
+                  <input
+                    value={passcode}
+                    onChange={(e) => setPasscode(e.target.value)}
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    type="password"
+                    placeholder="4–8 digit passcode"
+                    style={{
+                      width: "100%",
+                      padding: "12px 14px",
+                      borderRadius: "12px",
+                      border: `1px solid ${C.border}`,
+                      outline: "none",
+                      fontSize: "15px",
+                      marginTop: "10px",
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={unlocking}
+                    style={{
+                      width: "100%",
+                      marginTop: "12px",
+                      padding: "12px 14px",
+                      borderRadius: "12px",
+                      border: "none",
+                      cursor: unlocking ? "not-allowed" : "pointer",
+                      background: C.forest,
+                      color: "white",
+                      fontWeight: 700,
+                      fontSize: "15px",
+                      opacity: unlocking ? 0.85 : 1,
+                    }}
+                  >
+                    {unlocking ? "Unlocking..." : "Unlock"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => router.push("/home")}
+                    style={{
+                      width: "100%",
+                      marginTop: "10px",
+                      padding: "11px 14px",
+                      borderRadius: "12px",
+                      border: `1px solid ${C.border}`,
+                      cursor: "pointer",
+                      background: "transparent",
+                      color: C.text,
+                      fontWeight: 700,
+                      fontSize: "14px",
+                    }}
+                  >
+                    Back to Dashboard
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
 
           {/* Hero Banner */}
           <div style={{

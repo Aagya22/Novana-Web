@@ -2,6 +2,7 @@ import Header from "../../components/header";
 import Sidebar from "../../components/sidebar";
 import Link from "next/link";
 import { ChevronLeft, Shield } from "lucide-react";
+import JournalPasscodeSettings from "./_components/JournalPasscodeSettings";
 
 export const metadata = {
   title: "Privacy & Security",
@@ -63,33 +64,7 @@ export default function PrivacyPage() {
           </div>
         </div>
 
-        <div style={{
-          background: "#FFFFFF",
-          borderRadius: "20px",
-          padding: "48px 32px",
-          border: "1px solid rgba(30,58,47,0.08)",
-          boxShadow: "0 2px 12px rgba(30,58,47,0.06)",
-          textAlign: "center",
-        }}>
-          <div style={{
-            width: "56px",
-            height: "56px",
-            borderRadius: "16px",
-            background: "rgba(30,58,47,0.06)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 16px",
-          }}>
-            <Shield size={26} color="#829672" strokeWidth={1.8} />
-          </div>
-          <div style={{ fontSize: "16px", fontWeight: 700, color: "#111827", marginBottom: "8px" }}>
-            Coming Soon
-          </div>
-          <div style={{ fontSize: "14px", color: "rgba(31,41,55,0.55)", maxWidth: "300px", margin: "0 auto", lineHeight: 1.6 }}>
-            Privacy and security settings are being built. Check back soon.
-          </div>
-        </div>
+        <JournalPasscodeSettings />
       </main>
     </div>
   );
