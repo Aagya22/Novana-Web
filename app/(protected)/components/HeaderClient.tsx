@@ -23,6 +23,21 @@ export default function HeaderClient({ user }: Props) {
 
     try {
       setIsLoggingOut(true);
+
+      // Clear client-side tokens so protected APIs can't be called after logout.
+      try {
+        window.localStorage.removeItem("token");
+        window.localStorage.removeItem("user_data");
+      } catch {
+        // ignore
+      }
+      try {
+        window.sessionStorage.removeItem("journal_access_token");
+        window.sessionStorage.removeItem("journal_access_token_expires_at");
+      } catch {
+        // ignore
+      }
+
       await handleLogout();
 
       showToast('Logging out...', 'success');

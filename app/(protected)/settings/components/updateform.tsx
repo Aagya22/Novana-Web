@@ -76,14 +76,13 @@ export default function UpdateUserForm({ user }: { user: User }) {
       if (data.phoneNumber !== user.phoneNumber)
         formData.append("phoneNumber", data.phoneNumber);
 
-      // no password updates from settings page
-
+    
       if (imageFile) {
-        formData.append("image", imageFile); // BACKEND expects "image"
+        formData.append("image", imageFile);
       }
 
       if (removeImage) {
-        formData.append("imageUrl", ""); // signal backend to remove image
+        formData.append("imageUrl", ""); 
       }
 
       if ([...formData.keys()].length === 0) {
@@ -114,10 +113,10 @@ export default function UpdateUserForm({ user }: { user: User }) {
         if (typeof document !== "undefined" && newUser) {
           document.cookie = `user_data=${encodeURIComponent(JSON.stringify(newUser))}; path=/`;
           try {
-            // also write to localStorage to trigger storage events in other tabs
+          
             localStorage.setItem("user_data", JSON.stringify(newUser));
           } catch (e) {
-            /* ignore localStorage errors */
+          
           }
           // notify other components
           try {
@@ -138,7 +137,7 @@ export default function UpdateUserForm({ user }: { user: User }) {
       // done
     } catch (err: any) {
       console.error("update form submit error:", err);
-      // show server message if available
+    
       const serverMessage = (err && (err as any).message) || "Profile update failed";
       toast.error(serverMessage);
     }

@@ -21,6 +21,29 @@ AxiosInstance.interceptors.request.use((config) => {
         (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
       }
     }
+
+    try {
+      const journalToken = window.sessionStorage.getItem("journal_access_token");
+      const expiresAtRaw = window.sessionStorage.getItem("journal_access_token_expires_at");
+      const expiresAt = expiresAtRaw ? Number(expiresAtRaw) : NaN;
+
+      if (journalToken && Number.isFinite(expiresAt) && Date.now() < expiresAt) {
+        if (!config.headers) {
+          config.headers = new AxiosHeaders();
+        }
+        if (config.headers instanceof AxiosHeaders) {
+          config.headers.set("x-journal-access-token", journalToken);
+        } else {
+          (config.headers as Record<string, string>)["x-journal-access-token"] = journalToken;
+        }
+      } else if (journalToken) {
+       
+        window.sessionStorage.removeItem("journal_access_token");
+        window.sessionStorage.removeItem("journal_access_token_expires_at");
+      }
+    } catch {
+      // ignore sessionStorage errors
+    }
   }
 
   return config;
