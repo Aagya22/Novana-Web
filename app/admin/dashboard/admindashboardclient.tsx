@@ -60,41 +60,11 @@ export default function AdminDashboardClient({
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <header className="mb-8 bg-white rounded-2xl shadow-sm p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <img
-                src="/novacane.png"
-                alt="Novana"
-                className="h-12 w-auto"
-              />
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Dashboard</h1>
-                <p className="text-sm text-gray-600">Welcome back, {adminUser.fullName}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
-                {adminUser?.imageUrl ? (
-                  <img
-                    src={`${backendBase}${adminUser.imageUrl}`}
-                    alt={adminUser.fullName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                    {adminUser?.fullName?.charAt(0).toUpperCase()}
-                  </div>
-                )}
-              </div>
-              <div className="text-sm">
-                <div className="font-semibold text-gray-900">{adminUser?.fullName}</div>
-                <div className="text-xs text-gray-500">{adminUser?.role}</div>
-              </div>
-            </div>
-          </div>
-        </header>
+        {/* Page title */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-sm text-gray-500 mt-1">Welcome back, {adminUser.fullName}</p>
+        </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

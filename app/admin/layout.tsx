@@ -2,6 +2,7 @@ import React from "react";
 import { getAuthToken, getUserData } from "@/lib/cookie";
 import { redirect } from "next/navigation";
 import AdminSidebar from "./components/AdminSidebar";
+import AdminHeader from "./components/AdminHeader";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -42,7 +43,10 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <AdminSidebar adminUser={user} />
-      <main className="ml-0">{children}</main>
+      <div className="flex flex-col">
+        <AdminHeader adminUser={user} />
+        <main className="ml-0">{children}</main>
+      </div>
     </div>
   );
 }

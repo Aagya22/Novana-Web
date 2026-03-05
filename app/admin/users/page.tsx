@@ -509,7 +509,7 @@ export default function AdminUsersPage() {
 
         {/* Create User Modal */}
         {isCreateModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 z-[300] bg-black/50 flex items-start justify-center overflow-y-auto p-4 md:items-center">
             <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 flex items-center justify-between rounded-t-2xl">
                 <h2 className="text-2xl font-bold">Create New User</h2>

@@ -62,5 +62,11 @@ export const API = {
     CLEAR_NOTIFICATIONS: "http://localhost:5050/api/reminders/notifications",
     DUE: (windowMinutes = 2) => `http://localhost:5050/api/reminders/due?windowMinutes=${windowMinutes}`,
   },
+  ADMIN_NOTIFICATIONS: {
+    LIST: (limit = 50) => `http://localhost:5050/api/admin/notifications?limit=${limit}`,
+    MARK_READ: (id: string) => `http://localhost:5050/api/admin/notifications/${id}/read`,
+    MARK_ALL_READ: "http://localhost:5050/api/admin/notifications/read-all",
+    CLEAR: "http://localhost:5050/api/admin/notifications",
+  },
   
 };
