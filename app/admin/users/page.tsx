@@ -282,40 +282,41 @@ export default function AdminUsersPage() {
   const showingTo = users.length > 0 ? (pagination.page - 1) * pagination.limit + users.length : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-indigo-50/40 to-violet-50/40 p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">User Management</h1>
-              <p className="text-gray-600">Manage and monitor all users in the system</p>
-            </div>
-            <div className="text-sm text-gray-500">
-              Total: <span className="font-bold text-gray-900">{pagination.total}</span> users
-            </div>
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-700 to-violet-700 bg-clip-text text-transparent">
+              User Management
+            </h1>
+            <p className="mt-1 text-sm text-slate-600">Manage and monitor all users in the system</p>
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-xl border border-indigo-100 bg-white/90 px-4 py-2 text-sm text-slate-600 shadow-sm">
+            <span>Total users</span>
+            <span className="font-bold text-indigo-700">{pagination.total}</span>
           </div>
         </div>
 
         {/* Search and Actions */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-            <form onSubmit={handleSearch} className="flex-1 max-w-md">
+        <div className="bg-white/95 rounded-2xl border border-indigo-100 shadow-sm p-4 sm:p-6 mb-6">
+          <div className="flex flex-col md:flex-row gap-4 justify-between md:items-center">
+            <form onSubmit={handleSearch} className="flex-1 w-full max-w-2xl">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by name, email, username, or phone..."
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full pl-10 pr-4 py-3 border border-indigo-100 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300 transition-colors"
                 />
               </div>
             </form>
-            
+
             <button
               onClick={openCreateModal}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-violet-700 transition-all shadow-sm"
             >
               <UserPlus className="w-5 h-5" />
               Create User
@@ -324,45 +325,45 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Users Table */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+        <div className="bg-white/95 rounded-2xl shadow-sm overflow-hidden border border-indigo-100">
           {loading ? (
             <div className="p-12 text-center">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-              <p className="mt-4 text-gray-600">Loading users...</p>
+              <p className="mt-4 text-slate-600">Loading users...</p>
             </div>
           ) : users.length === 0 ? (
             <div className="p-12 text-center">
-              <p className="text-gray-500 text-lg">No users found</p>
+              <p className="text-slate-500 text-lg">No users found</p>
             </div>
           ) : (
             <>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className="bg-indigo-50/60 border-b border-indigo-100">
                     <tr>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                         User
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                         Email
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                         Username
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                         Phone
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                         Role
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-indigo-100">
                     {users.map((user) => (
-                      <tr key={user._id} className="hover:bg-gray-50 transition-colors">
+                      <tr key={user._id} className="hover:bg-indigo-50/40 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
@@ -387,28 +388,28 @@ export default function AdminUsersPage() {
                               )}
                             </div>
                             <div>
-                              <div className="font-medium text-gray-900">{user.fullName}</div>
-                              <div className="text-xs text-gray-500">
+                              <div className="font-medium text-slate-900">{user.fullName}</div>
+                              <div className="text-xs text-slate-500">
                                 {new Date(user.createdAt).toLocaleDateString()}
                               </div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="text-sm text-gray-900">{user.email}</span>
+                          <span className="text-sm text-slate-900">{user.email}</span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="text-sm text-gray-900">{user.username}</span>
+                          <span className="text-sm text-slate-900">{user.username}</span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="text-sm text-gray-900">{user.phoneNumber}</span>
+                          <span className="text-sm text-slate-900">{user.phoneNumber}</span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
                             className={`px-3 py-1 rounded-full text-xs font-semibold ${
                               user.role === "admin"
                                 ? "bg-purple-100 text-purple-800"
-                                : "bg-blue-100 text-blue-800"
+                                : "bg-indigo-100 text-indigo-800"
                             }`}
                           >
                             {user.role}
@@ -418,17 +419,17 @@ export default function AdminUsersPage() {
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => router.push(`/admin/users/${user._id}`)}
-                              className="p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                              className="p-2 hover:bg-indigo-50 rounded-lg transition-colors"
                               title="View Details"
                             >
-                              <Eye className="w-5 h-5 text-blue-600" />
+                              <Eye className="w-5 h-5 text-indigo-600" />
                             </button>
                             <button
                               onClick={() => router.push(`/admin/users/${user._id}/edit`)}
-                              className="p-2 hover:bg-indigo-50 rounded-lg transition-colors"
+                              className="p-2 hover:bg-violet-50 rounded-lg transition-colors"
                               title="Edit User"
                             >
-                              <Edit className="w-5 h-5 text-indigo-600" />
+                              <Edit className="w-5 h-5 text-violet-600" />
                             </button>
                             <button
                               onClick={() => handleDelete(user._id, user.fullName)}
@@ -446,9 +447,9 @@ export default function AdminUsersPage() {
               </div>
 
               {/* Pagination */}
-              <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-600">
+              <div className="px-6 py-4 bg-indigo-50/60 border-t border-indigo-100">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="text-sm text-slate-600">
                     Showing {showingFrom} to {showingTo} of {pagination.total} users
                   </div>
                   
@@ -456,7 +457,7 @@ export default function AdminUsersPage() {
                     <button
                       onClick={() => handlePageChange(pagination.page - 1)}
                       disabled={pagination.page === 1}
-                      className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="p-2 rounded-lg border border-indigo-200 text-slate-700 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       <ChevronLeft className="w-5 h-5" />
                     </button>
@@ -476,8 +477,8 @@ export default function AdminUsersPage() {
                               onClick={() => handlePageChange(pageNumber)}
                               className={`px-4 py-2 rounded-lg transition-colors ${
                                 pagination.page === pageNumber
-                                  ? "bg-indigo-600 text-white"
-                                  : "border border-gray-300 hover:bg-gray-100"
+                                  ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white"
+                                  : "border border-indigo-200 text-slate-700 hover:bg-white"
                               }`}
                             >
                               {pageNumber}
@@ -496,7 +497,7 @@ export default function AdminUsersPage() {
                     <button
                       onClick={() => handlePageChange(pagination.page + 1)}
                       disabled={pagination.page >= pagination.totalPages}
-                      className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="p-2 rounded-lg border border-indigo-200 text-slate-700 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       <ChevronRight className="w-5 h-5" />
                     </button>
@@ -510,12 +511,12 @@ export default function AdminUsersPage() {
         {/* Create User Modal */}
         {isCreateModalOpen && (
           <div className="fixed inset-0 z-[300] bg-black/50 flex items-start justify-center overflow-y-auto p-4 md:items-center">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 flex items-center justify-between rounded-t-2xl">
+            <div className="bg-white/95 border border-indigo-100 rounded-2xl shadow-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-violet-600 text-white p-6 flex items-center justify-between rounded-t-2xl">
                 <h2 className="text-2xl font-bold">Create New User</h2>
                 <button
                   onClick={closeCreateModal}
-                  className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
+                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -525,7 +526,7 @@ export default function AdminUsersPage() {
                 <div className="space-y-6">
                   {/* Profile Picture */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
                       Profile Picture (Optional)
                     </label>
                     <div className="flex flex-col sm:flex-row items-center gap-6">
@@ -547,14 +548,14 @@ export default function AdminUsersPage() {
                         name="image"
                         accept="image/*"
                         onChange={handleCreateImageChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                        className="w-full px-4 py-3 border border-indigo-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                       />
                     </div>
                   </div>
 
                   {/* Full Name */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
                       <User className="w-4 h-4" />
                       Full Name *
                     </label>
@@ -563,7 +564,7 @@ export default function AdminUsersPage() {
                       name="fullName"
                       required
                       onChange={(e) => setCreateFullName(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-4 py-3 border border-indigo-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
                       placeholder="John Doe"
                     />
                   </div>
@@ -571,7 +572,7 @@ export default function AdminUsersPage() {
                   {/* Email and Username */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                      <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
                         <Mail className="w-4 h-4" />
                         Email *
                       </label>
@@ -579,13 +580,13 @@ export default function AdminUsersPage() {
                         type="email"
                         name="email"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-3 border border-indigo-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
                         placeholder="john@example.com"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                      <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
                         <User className="w-4 h-4" />
                         Username *
                       </label>
@@ -593,7 +594,7 @@ export default function AdminUsersPage() {
                         type="text"
                         name="username"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-3 border border-indigo-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
                         placeholder="johndoe"
                       />
                     </div>
@@ -601,7 +602,7 @@ export default function AdminUsersPage() {
 
                   {/* Phone */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
                       <Phone className="w-4 h-4" />
                       Phone Number *
                     </label>
@@ -609,14 +610,14 @@ export default function AdminUsersPage() {
                       type="tel"
                       name="phoneNumber"
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-4 py-3 border border-indigo-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
                       placeholder="+1234567890"
                     />
                   </div>
 
                   {/* Password */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
                       Password *
                     </label>
                     <div className="relative">
@@ -625,13 +626,13 @@ export default function AdminUsersPage() {
                         name="password"
                         required
                         minLength={8}
-                        className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-3 pr-12 border border-indigo-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
                         placeholder="Minimum 8 characters"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-indigo-50 rounded-lg transition-colors"
                       >
                         {showPassword ? <EyeOff className="w-5 h-5 text-gray-500" /> : <EyeIcon className="w-5 h-5 text-gray-500" />}
                       </button>
@@ -640,7 +641,7 @@ export default function AdminUsersPage() {
 
                   {/* Confirm Password */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
                       Confirm Password *
                     </label>
                     <div className="relative">
@@ -649,7 +650,7 @@ export default function AdminUsersPage() {
                         name="confirmPassword"
                         required
                         minLength={8}
-                        className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-3 pr-12 border border-indigo-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300"
                         placeholder="Confirm password"
                       />
                     </div>
@@ -657,18 +658,18 @@ export default function AdminUsersPage() {
                 </div>
 
                 {/* Modal Footer */}
-                <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
+                <div className="flex gap-3 mt-6 pt-6 border-t border-indigo-100">
                   <button
                     type="button"
                     onClick={closeCreateModal}
-                    className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="flex-1 px-6 py-3 border-2 border-indigo-200 rounded-xl font-semibold text-slate-700 hover:bg-indigo-50/60 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={creating}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-violet-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                   >
                     {creating ? "Creating..." : "Create User"}
                   </button>

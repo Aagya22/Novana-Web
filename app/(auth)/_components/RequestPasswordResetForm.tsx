@@ -3,8 +3,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { RequestPasswordResetFormData, requestPasswordResetSchema } from "../schema";
 import { handleRequestPasswordReset } from "@/lib/actions/auth-action";
 import { toast } from "react-toastify";
@@ -21,12 +21,7 @@ export default function RequestPasswordResetForm() {
     resolver: zodResolver(requestPasswordResetSchema)
   });
 
-  const [message, setMessage] = useState<string>("");
-  const [error, setError] = useState<string>("");
-
   async function onSubmit(data: RequestPasswordResetFormData) {
-    setError("");
-    setMessage("");
     try {
       const result = await handleRequestPasswordReset(data.email);
       if (result.success) {
@@ -46,92 +41,73 @@ export default function RequestPasswordResetForm() {
   };
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl p-8 w-full max-w-md" style={{
-      backdropFilter: "blur(10px)",
-      border: "1px solid rgba(216,149,155,0.2)"
-    }}>
-      {/* Logo and Header */}
-      <div className="text-center mb-8">
-        <div className="flex justify-center mb-4">
-          <img 
-            src="/novacane.png" 
-            alt="Novana logo"
-            className="w-16 h-16 object-contain"
-          />
+    <div className="min-h-screen w-full flex">
+
+      {/* Left branding panel */}
+      <div className="hidden lg:flex lg:w-1/2 bg-[#1a4d3f] flex-col justify-between p-12">
+        <Image src="/novacane.png" alt="Novana" width={110} height={80} className="object-contain brightness-0 invert" priority />
+        <div className="space-y-6">
+          <h2 className="text-4xl font-extrabold text-white leading-snug">
+            Recover your account.<br />We&apos;ll get you back in.
+          </h2>
+          <p className="text-teal-200 text-base leading-relaxed max-w-sm">
+            Enter your email address and we&apos;ll send you a link to reset your password.
+          </p>
         </div>
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">
-          Reset Password
-        </h2>
-        <p className="text-gray-600">
-          Enter your email and we'll send you a reset link
-        </p>
+        <p className="text-teal-400 text-xs">&copy; {new Date().getFullYear()} Novana. All rights reserved.</p>
       </div>
 
-      {error && (
-        <div className="mb-6 rounded-xl bg-red-50 border border-red-200 text-red-700 p-4 text-sm flex items-start gap-3">
-          <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          {error}
-        </div>
-      )}
+      {/* Right form panel */}
+      <div className="flex-1 flex items-center justify-center bg-gray-50 px-6 py-12">
+        <div className="w-full max-w-md">
 
-      {message && (
-        <div className="mb-6 rounded-xl bg-green-50 border border-green-200 text-green-700 p-4 text-sm flex items-start gap-3">
-          <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-          {message}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="space-y-6">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              Email Address
-            </label>
-            <input
-              {...register("email")}
-              type="email"
-              placeholder="Enter your email address"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {errors.email.message}
-              </p>
-            )}
+          {/* Mobile logo */}
+          <div className="lg:hidden mb-8 flex justify-center">
+            <Image src="/novacane.png" alt="Novana" width={110} height={80} className="object-contain" priority />
           </div>
 
           <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-3 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
-            style={{
-              background: "linear-gradient(135deg, #344C3D, #829672)"
-            }}
+            onClick={() => router.push("/login")}
+            className="mb-8 inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#1a4d3f] transition"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            {isSubmitting ? "Sending..." : "Send Reset Link"}
+            Back to login
           </button>
-        </div>
-      </form>
 
-      <p className="text-center text-sm text-gray-600 mt-6">
-        Remember your password?{" "}
-        <Link href="/login" className="text-green-600 font-semibold hover:underline">
-          Log in
-        </Link>
-      </p>
+          <h1 className="text-3xl font-extrabold text-gray-900 mb-1">Forgot password?</h1>
+          <p className="text-gray-500 text-sm mb-8">Enter your email and we&apos;ll send you a reset link.</p>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <div>
+              <label className="block text-[13px] font-medium text-gray-700 mb-1.5">Email</label>
+              <input
+                {...register("email")}
+                type="email"
+                placeholder="you@example.com"
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm placeholder-gray-400 focus:outline-none focus:border-[#1a4d3f] focus:ring-2 focus:ring-[#1a4d3f]/20 transition"
+              />
+              {errors.email && <p className="mt-1 text-[11px] text-red-500">{errors.email.message}</p>}
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full rounded-xl bg-[#1a4d3f] py-3.5 text-sm font-semibold text-white hover:bg-[#134237] transition disabled:opacity-60"
+            >
+              {isSubmitting ? "Sending..." : "Send Reset Link"}
+            </button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-gray-500">
+            Remember your password?{" "}
+            <Link href="/login" className="font-semibold text-[#1a4d3f] hover:underline">
+              Log in
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

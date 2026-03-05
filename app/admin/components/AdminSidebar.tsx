@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { usePathname } from "next/navigation";
 import { Settings, LogOut, BarChart, Users } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -9,6 +10,7 @@ interface AdminSidebarProps {
 
 export default function AdminSidebar({ adminUser }: AdminSidebarProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const pathname = usePathname();
 
   const menuItems = [
     {
@@ -105,7 +107,7 @@ export default function AdminSidebar({ adminUser }: AdminSidebarProps) {
         >
           {menuItems.map((item, index) => {
             const Icon = item.icon;
-            const isActive = window.location.pathname === item.href;
+            const isActive = pathname === item.href;
 
             return (
               <a
