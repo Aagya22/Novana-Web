@@ -6,6 +6,7 @@ export const API = {
     LOGIN: "http://localhost:5050/api/auth/login",
     WHOAMI: "http://localhost:5050/api/auth/whoami",
     UPDATE_PROFILE: "http://localhost:5050/api/auth/update-profile",
+    CHANGE_PASSWORD: "http://localhost:5050/api/auth/change-password",
     REQUEST_PASSWORD_RESET: 'http://localhost:5050/api/auth/request-password-reset',
     RESET_PASSWORD: (token: string) => `http://localhost:5050/api/auth/reset-password/${token}`,
     JOURNAL_PASSCODE_STATUS: "http://localhost:5050/api/auth/journal-passcode",
