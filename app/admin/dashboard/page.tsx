@@ -33,7 +33,10 @@ export default async function AdminDashboardPage() {
     const data = await fetchUsers(token || "");
     users = data.data || [];
   } catch (err) {
-    console.error(err);
+    // During Playwright runs, backend API may be intentionally absent.
+    if (!process.env.E2E) {
+      console.error(err);
+    }
   }
 
   return (
