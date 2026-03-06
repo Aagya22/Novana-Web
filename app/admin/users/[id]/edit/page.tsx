@@ -143,8 +143,10 @@ export default function EditUserPage() {
       const data = await res.json();
       
       if (data.success) {
-        toast.success("User updated successfully!");
-        router.push(`/admin/users/${userId}`);
+        toast.success("User updated successfully!", { autoClose: 2500 });
+        setTimeout(() => {
+          router.push(`/admin/users/${userId}?refresh=${Date.now()}`);
+        }, 900);
       } else {
         toast.error(data.message || "Failed to update user");
       }
@@ -158,10 +160,10 @@ export default function EditUserPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 via-indigo-50/40 to-violet-50/40 flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-          <p className="mt-4 text-gray-600">Loading user details...</p>
+          <p className="mt-4 text-slate-600">Loading user details...</p>
         </div>
       </div>
     );
@@ -169,36 +171,36 @@ export default function EditUserPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 via-indigo-50/40 to-violet-50/40 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-xl text-gray-600">User not found</p>
+          <p className="text-xl text-slate-600">User not found</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-indigo-50/40 to-violet-50/40 py-6 px-4 sm:py-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <button
             onClick={() => router.push(`/admin/users/${userId}`)}
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-indigo-600 mb-6 transition-all group"
+            className="inline-flex items-center gap-2 text-slate-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg px-2 py-1 mb-6 transition-all group"
           >
             <div className="p-2 rounded-lg group-hover:bg-indigo-100 transition-colors">
               <ArrowLeft className="w-5 h-5" />
             </div>
             <span className="font-medium">Back to User Details</span>
           </button>
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+          <div className="bg-white/95 rounded-2xl shadow-sm border border-indigo-100 p-6 sm:p-8">
             <div className="flex items-center gap-4 mb-2">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
                 <UserIcon className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Edit User</h1>
-                <p className="text-gray-500 mt-1">Update user information and settings</p>
+                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-700 to-violet-700 bg-clip-text text-transparent">Edit User</h1>
+                <p className="text-slate-500 mt-1">Update user information and settings</p>
               </div>
             </div>
           </div>
@@ -207,8 +209,8 @@ export default function EditUserPage() {
         {/* Edit Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Profile Picture Section */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
-            <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+          <div className="bg-white/95 rounded-2xl shadow-sm border border-indigo-100 p-6 sm:p-8">
+            <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
               <Camera className="w-5 h-5 text-indigo-600" />
               Profile Picture
             </h2>
@@ -234,13 +236,13 @@ export default function EditUserPage() {
               </div>
               <div className="flex-1 w-full">
                 <label className="block w-full cursor-pointer">
-                  <div className="flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-indigo-500 hover:bg-indigo-50 transition-all">
+                  <div className="flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-indigo-200 rounded-xl hover:border-indigo-400 hover:bg-indigo-50/60 transition-all">
                     <div className="text-center">
-                      <Camera className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm font-medium text-gray-700">
+                      <Camera className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-slate-700">
                         {imageFile ? imageFile.name : "Click to upload or drag and drop"}
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-slate-500 mt-1">
                         PNG, JPG or GIF (max. 5MB)
                       </p>
                     </div>
@@ -257,19 +259,19 @@ export default function EditUserPage() {
           </div>
 
           {/* User Information Section */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
-            <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+          <div className="bg-white/95 rounded-2xl shadow-sm border border-indigo-100 p-6 sm:p-8">
+            <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
               <UserIcon className="w-5 h-5 text-indigo-600" />
               User Information
             </h2>
             <div className="space-y-6">
               {/* Full Name */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Full Name *
                 </label>
                 <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                     <UserIcon className="w-5 h-5" />
                   </div>
                   <input
@@ -277,7 +279,7 @@ export default function EditUserPage() {
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                     required
-                    className="w-full pl-12 pr-4 py-3.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:border-gray-400"
+                    className="w-full pl-12 pr-4 py-3.5 border border-indigo-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300 transition-colors"
                     placeholder="John Doe"
                   />
                 </div>
@@ -286,11 +288,11 @@ export default function EditUserPage() {
               {/* Email and Username Row */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
                     Email Address *
                   </label>
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                       <Mail className="w-5 h-5" />
                     </div>
                     <input
@@ -298,18 +300,18 @@ export default function EditUserPage() {
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       required
-                      className="w-full pl-12 pr-4 py-3.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:border-gray-400 font-mono text-sm"
+                      className="w-full pl-12 pr-4 py-3.5 border border-indigo-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300 transition-colors font-mono text-sm"
                       placeholder="john@example.com"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
                     Username *
                   </label>
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                       <UserIcon className="w-5 h-5" />
                     </div>
                     <input
@@ -317,7 +319,7 @@ export default function EditUserPage() {
                       value={formData.username}
                       onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                       required
-                      className="w-full pl-12 pr-4 py-3.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:border-gray-400 font-mono text-sm"
+                      className="w-full pl-12 pr-4 py-3.5 border border-indigo-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300 transition-colors font-mono text-sm"
                       placeholder="johndoe"
                     />
                   </div>
@@ -327,11 +329,11 @@ export default function EditUserPage() {
               {/* Phone */}
               <div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
                     Phone Number *
                   </label>
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                       <Phone className="w-5 h-5" />
                     </div>
                     <input
@@ -339,7 +341,7 @@ export default function EditUserPage() {
                       value={formData.phoneNumber}
                       onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                       required
-                      className="w-full pl-12 pr-4 py-3.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:border-gray-400 font-mono text-sm"
+                      className="w-full pl-12 pr-4 py-3.5 border border-indigo-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-300 transition-colors font-mono text-sm"
                       placeholder="+1234567890"
                     />
                   </div>
@@ -349,18 +351,18 @@ export default function EditUserPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 sticky bottom-4 bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+          <div className="flex flex-col sm:flex-row gap-4 sticky bottom-4 bg-white/95 rounded-2xl shadow-sm border border-indigo-100 p-6">
             <button
               type="button"
               onClick={() => router.push(`/admin/users/${userId}`)}
-              className="flex-1 px-6 py-3.5 border-2 border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all"
+              className="flex-1 px-6 py-3.5 border-2 border-indigo-200 rounded-xl font-semibold text-slate-700 hover:bg-indigo-50/60 hover:border-indigo-300 transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 px-6 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/30"
+              className="flex-1 px-6 py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-violet-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
             >
               {saving ? (
                 <>

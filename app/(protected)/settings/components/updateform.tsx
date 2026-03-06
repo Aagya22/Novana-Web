@@ -1,10 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { toast } from "react-toastify";
 import { updateProfileClient } from "@/lib/api/auth";
 import {
@@ -14,6 +13,16 @@ import {
 } from "@/app/(auth)/schema";
 
 export default function UpdateUserForm({ user }: { user: User }) {
+  const C = {
+    forest: "#1E3A2F",
+    forestMid: "#3D6B4F",
+    sage: "#829672",
+    card: "#FFFFFF",
+    text: "#111827",
+    muted: "rgba(31,41,55,0.55)",
+    border: "rgba(30,58,47,0.08)",
+  };
+
   const {
     register,
     handleSubmit,
@@ -56,7 +65,7 @@ export default function UpdateUserForm({ user }: { user: User }) {
     setValue("username", user.username);
     setValue("email", user.email);
     setValue("phoneNumber", user.phoneNumber);
-  }, [user.fullName, setValue]);
+  }, [user.email, user.fullName, user.phoneNumber, user.username, setValue]);
 
   const onSubmit = async (data: UpdateProfileData) => {
     if (!isEditing) return;
@@ -115,8 +124,8 @@ export default function UpdateUserForm({ user }: { user: User }) {
           try {
           
             localStorage.setItem("user_data", JSON.stringify(newUser));
-          } catch (e) {
-          
+          } catch {
+            // ignore
           }
           // notify other components
           try {
@@ -135,18 +144,23 @@ export default function UpdateUserForm({ user }: { user: User }) {
         console.warn("router.refresh failed", e);
       }
       // done
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("update form submit error:", err);
-    
-      const serverMessage = (err && (err as any).message) || "Profile update failed";
+
+      const serverMessage =
+        err instanceof Error
+          ? err.message
+          : typeof err === "string"
+            ? err
+            : "Profile update failed";
       toast.error(serverMessage);
     }
   };
 
-  const onInvalid = (errors: any) => {
+  const onInvalid = (errors: FieldErrors<UpdateProfileData>) => {
     console.log("Validation errors:", errors);
     const messages = Object.values(errors)
-      .map((e: any) => e?.message || (typeof e === 'object' && e && Object.values(e)[0] as any)?.message)
+      .map((e) => (e?.message ? String(e.message) : ""))
       .filter(Boolean)
       .join(" • ");
     toast.error(messages || "Validation failed");
@@ -154,14 +168,21 @@ export default function UpdateUserForm({ user }: { user: User }) {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div
+        className="bg-white rounded-2xl overflow-hidden"
+        style={{
+          background: C.card,
+          border: `1px solid ${C.border}`,
+          boxShadow: "0 2px 12px rgba(30,58,47,0.06)",
+        }}
+      >
         {/* Header */}
         <div style={{
-          background: "linear-gradient(135deg, #344C3D, #829672)",
+          background: `linear-gradient(135deg, ${C.forest} 0%, ${C.forestMid} 100%)`,
           padding: "32px"
         }}>
           <h1 className="text-3xl font-bold text-white">Profile Settings</h1>
-          <p className="text-green-100 mt-2">Manage your profile and account information</p>
+          <p className="mt-2" style={{ color: "rgba(255,255,255,0.65)" }}>Manage your profile and account information</p>
         </div>
 
         {/* Content */}
@@ -171,7 +192,7 @@ export default function UpdateUserForm({ user }: { user: User }) {
             <div className="text-center">
               <div className="relative inline-block">
                 <div className="w-32 h-32 rounded-full overflow-hidden mx-auto mb-4 border-4 border-white shadow-lg" style={{
-                  background: "linear-gradient(135deg, #344C3D, #829672)"
+                  background: `linear-gradient(135deg, ${C.forest} 0%, ${C.forestMid} 100%)`
                 }}>
                   {previewImage ? (
                     <img src={previewImage} className="w-full h-full object-cover" alt="Profile preview" />
@@ -189,7 +210,7 @@ export default function UpdateUserForm({ user }: { user: User }) {
                   )}
                 </div>
                 {isEditing && (
-                  <label className="absolute bottom-0 right-0 bg-green-600 hover:bg-green-700 text-white rounded-full p-2 cursor-pointer shadow-lg transition-colors">
+                  <label className="absolute bottom-0 right-0 text-white rounded-full p-2 cursor-pointer shadow-lg transition-colors bg-[#829672] hover:bg-[#3D6B4F]">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -229,7 +250,7 @@ export default function UpdateUserForm({ user }: { user: User }) {
                   disabled={!isEditing}
                   {...register("fullName")}
                   placeholder="Enter your full name"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500" 
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#829672] focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500" 
                 />
               </div>
 
@@ -244,7 +265,7 @@ export default function UpdateUserForm({ user }: { user: User }) {
                   disabled={!isEditing}
                   {...register("username")}
                   placeholder="Enter your username"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500" 
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#829672] focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500" 
                 />
               </div>
 
@@ -259,7 +280,7 @@ export default function UpdateUserForm({ user }: { user: User }) {
                   disabled={!isEditing}
                   {...register("email")}
                   placeholder="Enter your email address"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500" 
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#829672] focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500" 
                 />
               </div>
 
@@ -274,7 +295,7 @@ export default function UpdateUserForm({ user }: { user: User }) {
                   disabled={!isEditing}
                   {...register("phoneNumber")}
                   placeholder="Enter your phone number (optional)"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500" 
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#829672] focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500" 
                 />
               </div>
             </div>
@@ -286,7 +307,7 @@ export default function UpdateUserForm({ user }: { user: User }) {
                   type="button"
                   onClick={() => setIsEditing(true)}
                   style={{
-                    background: "linear-gradient(135deg, #344C3D, #829672)"
+                    background: `linear-gradient(135deg, ${C.forest} 0%, ${C.forestMid} 100%)`
                   }}
                   className="text-white font-semibold px-8 py-3 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
                 >
@@ -311,7 +332,12 @@ export default function UpdateUserForm({ user }: { user: User }) {
                       setImageFile(null);
                       setRemoveImage(false);
                     }}
-                    className="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition-colors duration-200"
+                    className="font-semibold px-8 py-3 rounded-xl shadow-lg transition-colors duration-200"
+                    style={{
+                      background: C.card,
+                      border: `1px solid ${C.border}`,
+                      color: C.text,
+                    }}
                   >
                     Cancel
                   </button>
@@ -320,7 +346,7 @@ export default function UpdateUserForm({ user }: { user: User }) {
                     onClick={() => void handleSubmit(onSubmit, onInvalid)()}
                     disabled={isSubmitting}
                     style={{
-                      background: "linear-gradient(135deg, #344C3D, #829672)"
+                      background: `linear-gradient(135deg, ${C.forest} 0%, ${C.forestMid} 100%)`
                     }}
                     className="text-white font-semibold px-8 py-3 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2"
                   >

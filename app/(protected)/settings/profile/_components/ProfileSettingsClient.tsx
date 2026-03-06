@@ -1,24 +1,22 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import UpdateUserForm from "../../components/updateform";
 import AxiosInstance from "@/lib/api/axios";
 import { API } from "@/lib/api/endpoints";
+import type { User } from "@/app/(auth)/schema";
 
-type User = {
-  _id: string;
-  email: string;
-  fullName: string;
-  username: string;
-  phoneNumber: string;
-  role: "user" | "admin";
-  imageUrl?: string | null;
-};
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object";
+}
 
-function normalizeUser(raw: any): User | null {
-  if (!raw || typeof raw !== "object") return null;
-  const _id = raw._id || raw.id;
+function normalizeUser(raw: unknown): User | null {
+  if (!isRecord(raw)) return null;
+  const _id = raw._id ?? raw.id;
   if (!_id) return null;
+
+  const imageUrlRaw = raw.imageUrl;
+  const imageUrl = typeof imageUrlRaw === "string" ? imageUrlRaw : imageUrlRaw === null ? null : null;
 
   return {
     _id: String(_id),
@@ -26,8 +24,8 @@ function normalizeUser(raw: any): User | null {
     fullName: String(raw.fullName ?? ""),
     username: String(raw.username ?? ""),
     phoneNumber: String(raw.phoneNumber ?? ""),
-    role: (raw.role === "admin" ? "admin" : "user") as "user" | "admin",
-    imageUrl: raw.imageUrl ?? null,
+    role: raw.role === "admin" ? "admin" : "user",
+    imageUrl,
   };
 }
 
@@ -93,5 +91,5 @@ export default function ProfileSettingsClient() {
     );
   }
 
-  return <UpdateUserForm user={user as any} />;
+  return <UpdateUserForm user={user} />;
 }

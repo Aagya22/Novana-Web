@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Settings, LogOut, BarChart, Users, Shield, Database } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Settings, LogOut, BarChart, Users } from "lucide-react";
 
 interface AdminSidebarProps {
   adminUser: any;
@@ -9,6 +10,7 @@ interface AdminSidebarProps {
 
 export default function AdminSidebar({ adminUser }: AdminSidebarProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const pathname = usePathname();
 
   const menuItems = [
     {
@@ -67,13 +69,11 @@ export default function AdminSidebar({ adminUser }: AdminSidebarProps) {
           left: 0,
           height: "100vh",
           width: isExpanded ? "280px" : "0px",
-          background: 
+          background:
             "linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.98) 100%)",
           backdropFilter: "blur(20px)",
           borderRight: "1px solid rgba(216,149,155,0.2)",
-          boxShadow: isExpanded 
-            ? "8px 0 32px rgba(216,149,155,0.15)"
-            : "none",
+          boxShadow: isExpanded ? "8px 0 32px rgba(216,149,155,0.15)" : "none",
           zIndex: 199,
           overflow: "hidden",
           transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -84,47 +84,15 @@ export default function AdminSidebar({ adminUser }: AdminSidebarProps) {
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
       >
-        {/* Logo Section */}
         <div
+          aria-hidden="true"
           style={{
             padding: "0 20px 24px 20px",
             borderBottom: "1px solid rgba(216,149,155,0.15)",
             marginBottom: "16px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <img
-              src="/novacane.png"
-              alt="Novana"
-              style={{
-                height: "36px",
-                width: "auto",
-              }}
-            />
-            <div>
-              <div
-                style={{
-                  fontSize: "16px",
-                  fontWeight: "700",
-                  background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                Novana
-              </div>
-              <div
-                style={{
-                  fontSize: "10px",
-                  color: "#9ca3af",
-                  fontWeight: "500",
-                }}
-              >
-                Admin Panel
-              </div>
-            </div>
-          </div>
+          <div style={{ height: "36px" }} />
         </div>
 
         {/* Menu Items */}
@@ -134,12 +102,12 @@ export default function AdminSidebar({ adminUser }: AdminSidebarProps) {
             padding: "0 20px",
             display: "flex",
             flexDirection: "column",
-            gap: "8px"
+            gap: "8px",
           }}
         >
           {menuItems.map((item, index) => {
             const Icon = item.icon;
-            const isActive = window.location.pathname === item.href;
+            const isActive = pathname === item.href;
 
             return (
               <a
@@ -155,9 +123,7 @@ export default function AdminSidebar({ adminUser }: AdminSidebarProps) {
                     : "transparent",
                   border: "none",
                   borderRadius: "14px",
-                  color: isActive 
-                    ? "#344C3D"
-                    : "#6b7280",
+                  color: isActive ? "#344C3D" : "#6b7280",
                   textDecoration: "none",
                   fontSize: "15px",
                   fontFamily: "'Inter', sans-serif",
@@ -167,7 +133,7 @@ export default function AdminSidebar({ adminUser }: AdminSidebarProps) {
                   overflow: "hidden",
                   opacity: isExpanded ? 1 : 0,
                   transform: isExpanded ? "translateX(0)" : "translateX(-20px)",
-                  transitionDelay: `${0.1 + index * 0.05}s`
+                  transitionDelay: `${0.1 + index * 0.05}s`,
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive) {
@@ -195,38 +161,27 @@ export default function AdminSidebar({ adminUser }: AdminSidebarProps) {
                       width: "3px",
                       height: "24px",
                       background: "linear-gradient(180deg, #829672, #344C3D)",
-                      borderRadius: "2px"
+                      borderRadius: "2px",
                     }}
                   />
                 )}
 
-                <div 
-                  style={{ 
-                    display: "flex", 
+                <div
+                  style={{
+                    display: "flex",
                     alignItems: "center",
                     marginLeft: isActive ? "8px" : "0",
-                    transition: "margin-left 0.3s ease"
+                    transition: "margin-left 0.3s ease",
                   }}
                 >
                   <Icon size={20} strokeWidth={2.5} />
                 </div>
 
-                <div style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "2px"
-                }}>
-                  <span style={{
-                    fontSize: "15px",
-                    fontWeight: isActive ? 600 : 500
-                  }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                  <span style={{ fontSize: "15px", fontWeight: isActive ? 600 : 500 }}>
                     {item.label}
                   </span>
-                  <span style={{
-                    fontSize: "12px",
-                    color: "#9ca3af",
-                    fontWeight: "400"
-                  }}>
+                  <span style={{ fontSize: "12px", color: "#9ca3af", fontWeight: "400" }}>
                     {item.description}
                   </span>
                 </div>
@@ -260,7 +215,7 @@ export default function AdminSidebar({ adminUser }: AdminSidebarProps) {
               transition: "all 0.3s ease",
               opacity: isExpanded ? 1 : 0,
               transform: isExpanded ? "translateY(0)" : "translateY(10px)",
-              transitionDelay: "0.3s"
+              transitionDelay: "0.3s",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = "rgba(239,68,68,0.05)";

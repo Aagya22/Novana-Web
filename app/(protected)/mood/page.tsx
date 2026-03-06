@@ -329,15 +329,15 @@ export default function MoodPage() {
                   <SmilePlus size={26} color="white" strokeWidth={1.8} />
                 </div>
                 <div>
-                  <h1 style={{ margin: 0, fontFamily: "Georgia, serif", fontSize: "34px", fontWeight: 700, color: "#FFFFFF", lineHeight: 1.15 }}>
+                  <h1 style={{ marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0, fontFamily: "Georgia, serif", fontSize: "34px", fontWeight: 700, color: "#FFFFFF", lineHeight: 1.15 }}>
                     Mood Tracker
                   </h1>
-                  <p style={{ margin: 0, color: "rgba(255,255,255,0.5)", fontSize: "13px", fontWeight: 500 }}>
+                  <p style={{ marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0, color: "rgba(255,255,255,0.5)", fontSize: "13px", fontWeight: 500 }}>
                     {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
                   </p>
                 </div>
               </div>
-              <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "15px", lineHeight: 1.65, maxWidth: "400px", margin: 0 }}>
+              <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "15px", lineHeight: 1.65, maxWidth: "400px", marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0 }}>
                 A moment of awareness goes a long way. Log how you feel and watch your patterns emerge.
               </p>
             </div>
@@ -345,7 +345,7 @@ export default function MoodPage() {
 
           {/* Mood selector card */}
           <div style={{ background: C.card, borderRadius: "20px", padding: "28px", marginBottom: "20px", border: `1px solid ${C.border}`, boxShadow: "0 2px 10px rgba(30,58,47,0.06)" }}>
-            <p style={{ margin: "0 0 16px 0", fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", color: C.muted, textTransform: "uppercase" }}>
+            <p style={{ marginTop: 0, marginRight: 0, marginBottom: "16px", marginLeft: 0, fontSize: "11px", fontWeight: 700, letterSpacing: "0.12em", color: C.muted, textTransform: "uppercase" }}>
               How are you feeling right now?
             </p>
             <div style={{ display: "flex", gap: "10px", overflowX: "auto", paddingBottom: "4px", marginBottom: "20px" }}>
@@ -449,7 +449,7 @@ export default function MoodPage() {
               {/* Weekly mood grid */}
               <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1px solid ${C.border}`, boxShadow: "0 2px 10px rgba(30,58,47,0.06)", marginBottom: "20px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px" }}>
-                  <h2 style={{ margin: 0, fontSize: "18px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>This Week</h2>
+                  <h2 style={{ marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0, fontSize: "18px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>This Week</h2>
                   <span style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: C.muted, fontWeight: 500 }}>
                     <Calendar size={14} />
                     Week of {weekStartDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
@@ -501,7 +501,7 @@ export default function MoodPage() {
                 )}
                 {selectedDay && (
                   <div style={{ marginTop: "16px", paddingTop: "16px", borderTop: `1px solid ${C.border}` }}>
-                    <p style={{ margin: "0 0 10px 0", fontSize: "12px", fontWeight: 600, color: C.muted, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                    <p style={{ marginTop: 0, marginRight: 0, marginBottom: "10px", marginLeft: 0, fontSize: "12px", fontWeight: 600, color: C.muted, textTransform: "uppercase", letterSpacing: "0.08em" }}>
                       {new Date(selectedDay + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
                     </p>
                     {selectedEntry ? (
@@ -510,15 +510,15 @@ export default function MoodPage() {
                           <Icon icon={getMoodIconByKey(selectedEntry.moodType, selectedEntry.mood)} width={30} height={30} />
                         </div>
                         <div>
-                          <p style={{ margin: 0, fontSize: "17px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>
+                          <p style={{ marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0, fontSize: "17px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>
                             {getMoodLabelByEntry(selectedEntry)}
                           </p>
-                          <p style={{ margin: "2px 0 0 0", fontSize: "13px", color: C.muted }}>{selectedEntry.mood}/10</p>
-                          {selectedEntry.note && <p style={{ margin: "8px 0 0 0", fontSize: "14px", color: C.text, lineHeight: 1.65 }}>{selectedEntry.note}</p>}
+                          <p style={{ marginTop: "2px", marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "13px", color: C.muted }}>{selectedEntry.mood}/10</p>
+                          {selectedEntry.note && <p style={{ marginTop: "8px", marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "14px", color: C.text, lineHeight: 1.65 }}>{selectedEntry.note}</p>}
                         </div>
                       </div>
                     ) : (
-                      <p style={{ margin: 0, color: C.muted, fontSize: "14px" }}>No mood logged for this day.</p>
+                      <p style={{ marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0, color: C.muted, fontSize: "14px" }}>No mood logged for this day.</p>
                     )}
                   </div>
                 )}
@@ -527,7 +527,7 @@ export default function MoodPage() {
               {/* Stats row */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
                 <div style={{ background: C.card, borderRadius: "20px", padding: "22px 24px", border: `1px solid ${C.border}`, boxShadow: "0 2px 10px rgba(30,58,47,0.06)" }}>
-                  <p style={{ margin: "0 0 14px 0", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", color: C.muted, textTransform: "uppercase" }}>Most Frequent</p>
+                  <p style={{ marginTop: 0, marginRight: 0, marginBottom: "14px", marginLeft: 0, fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", color: C.muted, textTransform: "uppercase" }}>Most Frequent</p>
                   <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
                     <div style={{ width: "52px", height: "52px", borderRadius: "14px", background: `${C.blush}15`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       {mostFrequentDisplay
@@ -536,10 +536,10 @@ export default function MoodPage() {
                       }
                     </div>
                     <div>
-                      <p style={{ margin: 0, fontSize: "20px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>
+                      <p style={{ marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0, fontSize: "20px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>
                         {mostFrequentDisplay?.label || "—"}
                       </p>
-                      <p style={{ margin: "3px 0 0 0", fontSize: "12px", color: C.muted }}>
+                      <p style={{ marginTop: "3px", marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "12px", color: C.muted }}>
                         {mostFrequentDisplay ? `${mostFrequentDisplay.count}× this week` : "No data yet"}
                       </p>
                     </div>
@@ -547,7 +547,7 @@ export default function MoodPage() {
                 </div>
 
                 <div style={{ background: C.card, borderRadius: "20px", padding: "22px 24px", border: `1px solid ${C.border}`, boxShadow: "0 2px 10px rgba(30,58,47,0.06)", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                  <p style={{ margin: "0 0 8px 0", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", color: C.muted, textTransform: "uppercase" }}>Logging Streak</p>
+                  <p style={{ marginTop: 0, marginRight: 0, marginBottom: "8px", marginLeft: 0, fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", color: C.muted, textTransform: "uppercase" }}>Logging Streak</p>
                   <div style={{ display: "flex", alignItems: "baseline", gap: "6px" }}>
                     <span style={{ fontSize: "44px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif", lineHeight: 1 }}>
                       {overview?.streak ?? 0}
@@ -560,11 +560,11 @@ export default function MoodPage() {
                 </div>
 
                 <div style={{ background: C.card, borderRadius: "20px", padding: "22px 24px", border: `1px solid ${C.border}`, boxShadow: "0 2px 10px rgba(30,58,47,0.06)" }}>
-                  <p style={{ margin: "0 0 14px 0", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", color: C.muted, textTransform: "uppercase" }}>Weekly Average</p>
-                  <p style={{ margin: 0, fontSize: "26px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>
+                  <p style={{ marginTop: 0, marginRight: 0, marginBottom: "14px", marginLeft: 0, fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", color: C.muted, textTransform: "uppercase" }}>Weekly Average</p>
+                  <p style={{ marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0, fontSize: "26px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>
                     {overview?.avgThisWeek?.label || "—"}
                   </p>
-                  <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: C.muted }}>
+                  <p style={{ marginTop: "4px", marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "13px", color: C.muted }}>
                     {overview?.avgThisWeek ? `${overview.avgThisWeek.score}/10` : "No logs this week"}
                   </p>
                 </div>
@@ -574,7 +574,7 @@ export default function MoodPage() {
             /* History tab */
             <div style={{ background: C.card, borderRadius: "20px", padding: "24px", border: `1px solid ${C.border}`, boxShadow: "0 2px 10px rgba(30,58,47,0.06)" }}>
               <div style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "20px", flexWrap: "wrap" }}>
-                <h2 style={{ margin: 0, fontSize: "18px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif", flex: 1 }}>Mood History</h2>
+                <h2 style={{ marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0, fontSize: "18px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif", flex: 1 }}>Mood History</h2>
                 <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                   <input
                     type="date"
@@ -600,9 +600,9 @@ export default function MoodPage() {
                     <Icon icon={getMoodIconByKey(dateResult.moodType, dateResult.mood)} width={30} height={30} />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ margin: 0, fontSize: "17px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>{getMoodLabelByEntry(dateResult)}</p>
-                    <p style={{ margin: "2px 0 0 0", fontSize: "13px", color: C.muted }}>{dateResult.mood}/10 · {dateQuery}</p>
-                    {dateResult.note && <p style={{ margin: "8px 0 0 0", fontSize: "14px", color: C.text, lineHeight: 1.65 }}>{dateResult.note}</p>}
+                    <p style={{ marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0, fontSize: "17px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>{getMoodLabelByEntry(dateResult)}</p>
+                    <p style={{ marginTop: "2px", marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "13px", color: C.muted }}>{dateResult.mood}/10 · {dateQuery}</p>
+                    {dateResult.note && <p style={{ marginTop: "8px", marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "14px", color: C.text, lineHeight: 1.65 }}>{dateResult.note}</p>}
                   </div>
                   <button
                     type="button"
@@ -620,7 +620,7 @@ export default function MoodPage() {
                 </div>
               ) : null}
 
-              <p style={{ margin: "0 0 14px 0", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", color: C.muted, textTransform: "uppercase" }}>All Entries</p>
+              <p style={{ marginTop: 0, marginRight: 0, marginBottom: "14px", marginLeft: 0, fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", color: C.muted, textTransform: "uppercase" }}>All Entries</p>
               {entriesLoading ? (
                 <p style={{ color: C.muted }}>Loading…</p>
               ) : entries.length === 0 ? (
@@ -638,8 +638,8 @@ export default function MoodPage() {
                             <Icon icon={getMoodIconByKey(entry.moodType, entry.mood)} width={26} height={26} />
                           </div>
                           <div style={{ minWidth: 0 }}>
-                            <p style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>{getMoodLabelByEntry(entry)}</p>
-                            <p style={{ margin: "2px 0 0 0", fontSize: "12px", color: C.muted }}>
+                            <p style={{ marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0, fontSize: "15px", fontWeight: 700, color: C.text, fontFamily: "Georgia, serif" }}>{getMoodLabelByEntry(entry)}</p>
+                            <p style={{ marginTop: "2px", marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "12px", color: C.muted }}>
                               {entry.date ? toLocalDateKey(new Date(entry.date)) : ""} · {entry.mood}/10
                             </p>
                           </div>
@@ -655,7 +655,7 @@ export default function MoodPage() {
                         </button>
                       </div>
                       {entry.note && (
-                        <p style={{ margin: "10px 0 0 0", fontSize: "13px", color: C.text, lineHeight: 1.65 }}>{entry.note}</p>
+                        <p style={{ marginTop: "10px", marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "13px", color: C.text, lineHeight: 1.65 }}>{entry.note}</p>
                       )}
                     </div>
                   ))}

@@ -6,6 +6,7 @@ export const API = {
     LOGIN: "http://localhost:5050/api/auth/login",
     WHOAMI: "http://localhost:5050/api/auth/whoami",
     UPDATE_PROFILE: "http://localhost:5050/api/auth/update-profile",
+    CHANGE_PASSWORD: "http://localhost:5050/api/auth/change-password",
     REQUEST_PASSWORD_RESET: 'http://localhost:5050/api/auth/request-password-reset',
     RESET_PASSWORD: (token: string) => `http://localhost:5050/api/auth/reset-password/${token}`,
     JOURNAL_PASSCODE_STATUS: "http://localhost:5050/api/auth/journal-passcode",
@@ -60,6 +61,12 @@ export const API = {
     MARK_ALL_NOTIFICATIONS_READ: "http://localhost:5050/api/reminders/notifications/read-all",
     CLEAR_NOTIFICATIONS: "http://localhost:5050/api/reminders/notifications",
     DUE: (windowMinutes = 2) => `http://localhost:5050/api/reminders/due?windowMinutes=${windowMinutes}`,
+  },
+  ADMIN_NOTIFICATIONS: {
+    LIST: (limit = 50) => `http://localhost:5050/api/admin/notifications?limit=${limit}`,
+    MARK_READ: (id: string) => `http://localhost:5050/api/admin/notifications/${id}/read`,
+    MARK_ALL_READ: "http://localhost:5050/api/admin/notifications/read-all",
+    CLEAR: "http://localhost:5050/api/admin/notifications",
   },
   
 };
